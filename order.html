@@ -4,48 +4,219 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Flies - On Point Flies</title>
+    <meta name="description" content="Order hand-tied fly fishing flies from On Point Flies. Standard patterns, custom orders, and wholesale pricing available.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">On Point <span>Flies</span></a>
+            <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="about.html">About</a></li>
-                <li><a href="catalog.html">Fly Catalog</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
                 <li><a href="inventory.html">Inventory</a></li>
-                <li><a href="order.html">Order Flies</a></li>
+                <li><a href="order.html" class="active">Order</a></li>
                 <li><a href="contact.html">Contact</a></li>
             </ul>
-        </nav>
-    </header>
-    <section>
-        <h1>Order Your Fly Fishing Flies</h1>
-        <p>At On Point Flies, we offer a selection of high-quality, hand-tied flies from our catalog, as well as custom orders tailored to your needs. Whether you're restocking classics or designing something unique, we're here to help. All orders are processed manually—contact us to get started!</p>
-        
-        <h2>How to Order</h2>
-        <ol>
-            <li><strong>Browse the Catalog</strong>: Check out our <a href="catalog.html">Fly Catalog</a> for available patterns.</li>
-            <li><strong>Contact Us</strong>: Use the <a href="contact.html">contact form</a> or email info@onpointflies.com with your selections, quantities, and any custom requests.</li>
-            <li><strong>Provide Details for Customs</strong>: For custom flies, share a description, photo URL, uploaded image, or reference to a past order. We can discuss designs via email or phone.</li>
-            <li><strong>Confirmation & Payment</strong>: We'll send a quote and invoice. Pay via PayPal, Venmo, or other methods. A non-refundable deposit may be required for customs.</li>
-            <li><strong>Production & Shipping</strong>: Once paid, we'll tie and ship your order.</li>
-        </ol>
-        
-        <h2>Pricing</h2>
-        <p>Standard catalog flies: $2-6 each, depending on complexity.</p>
-        <p>Custom flies: Start at $2.75 each, with minimum orders of 12-16 flies per pattern. Wholesale dozens available from $9-19.</p>
-        <p>Prices may vary based on materials and design. Contact for a quote.</p>
-        
-        <h2>Shipping</h2>
-        <p>We ship worldwide via USPS, DHL, or similar carriers. Shipping costs: $5-15 domestic, $20+ international (calculated at checkout or in quote).</p>
-        <p>Lead times: 2-10 weeks for customs, depending on workload. No refunds once production begins.</p>
-        
-        <h2>Custom Options</h2>
-        <p>We specialize in custom ties—provide samples, photos, or ideas, and we'll create flies for your target species or conditions. Minimums apply for efficiency.</p>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/29327694/pexels-photo-29327694.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
+        <div class="hero-content">
+            <span class="section-label">Place an Order</span>
+            <h1>Order Your Flies</h1>
+            <p>From catalog favorites to fully custom patterns, here's how to get started.</p>
+        </div>
     </section>
-    <footer>
-        <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+
+    <!-- How to Order Steps -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Getting Started</span>
+                <h2>How to Order</h2>
+                <p>Ordering from On Point Flies is simple. Follow these steps to get your fly box stocked.</p>
+            </div>
+            <div class="steps">
+                <div class="step animate-on-scroll">
+                    <h3>Browse the Catalog</h3>
+                    <p>Check out our <a href="catalog.html">Fly Catalog</a> and <a href="inventory.html">Inventory</a> to see available patterns and stock levels.</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <h3>Contact Us</h3>
+                    <p>Use the <a href="contact.html">contact form</a> or email info@onpointflies.com with your selections, quantities, and any custom requests.</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <h3>Custom Details</h3>
+                    <p>For custom flies, share a description, photo, reference image, or details from a past order. We'll discuss the design with you.</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <h3>Confirm & Pay</h3>
+                    <p>We'll send a quote and invoice. Pay via PayPal, Venmo, or other methods. A deposit may be required for custom orders.</p>
+                </div>
+                <div class="step animate-on-scroll">
+                    <h3>We Tie & Ship</h3>
+                    <p>Once payment is received, we tie your flies with care and ship them to your door.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Pricing</span>
+                <h2>Fair Pricing, Quality Flies</h2>
+                <p>All flies are priced based on complexity and materials. Wholesale discounts available for bulk orders.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card animate-on-scroll">
+                    <h3>Standard Catalog</h3>
+                    <div class="pricing-amount">$2 - $6 <span>/ each</span></div>
+                    <p class="pricing-desc">Proven patterns from our catalog, ready to fish.</p>
+                    <ul class="pricing-features">
+                        <li>All catalog patterns available</li>
+                        <li>Various sizes in stock</li>
+                        <li>Hand-tied with quality materials</li>
+                        <li>No minimum order required</li>
+                    </ul>
+                    <a href="catalog.html" class="btn btn-dark" style="width:100%;justify-content:center;">Browse Catalog</a>
+                </div>
+                <div class="pricing-card featured animate-on-scroll">
+                    <h3>Custom Orders</h3>
+                    <div class="pricing-amount">$2.75+ <span>/ each</span></div>
+                    <p class="pricing-desc">Custom patterns tied to your specifications.</p>
+                    <ul class="pricing-features">
+                        <li>Your pattern, your specs</li>
+                        <li>Minimum 12-16 flies per pattern</li>
+                        <li>Samples & photos accepted</li>
+                        <li>Target species consulting</li>
+                    </ul>
+                    <a href="contact.html" class="btn btn-primary" style="width:100%;justify-content:center;">Request Quote</a>
+                </div>
+                <div class="pricing-card animate-on-scroll">
+                    <h3>Wholesale Dozens</h3>
+                    <div class="pricing-amount">$9 - $19 <span>/ dozen</span></div>
+                    <p class="pricing-desc">Bulk pricing for shops, guides, and outfitters.</p>
+                    <ul class="pricing-features">
+                        <li>Volume discount pricing</li>
+                        <li>Consistent quality batches</li>
+                        <li>Fast turnaround times</li>
+                        <li>Recurring order options</li>
+                    </ul>
+                    <a href="contact.html" class="btn btn-dark" style="width:100%;justify-content:center;">Contact for Pricing</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shipping Info -->
+    <section class="section">
+        <div class="container">
+            <div class="split">
+                <div class="split-text animate-on-scroll">
+                    <span class="section-label">Delivery</span>
+                    <h2>Shipping Information</h2>
+                    <p>We ship worldwide via USPS, DHL, or similar carriers to get your flies to you safely and quickly.</p>
+                    <div style="margin:1.5rem 0;">
+                        <div style="display:flex;gap:1rem;margin-bottom:1rem;">
+                            <div style="flex:1;padding:1.25rem;background:var(--color-bg-alt);border-radius:var(--radius-sm);">
+                                <h4 style="font-family:var(--font-body);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-text-light);margin-bottom:0.25rem;">Domestic (US)</h4>
+                                <p style="font-size:1.1rem;font-weight:700;color:var(--color-primary-dark);">$5 - $15</p>
+                            </div>
+                            <div style="flex:1;padding:1.25rem;background:var(--color-bg-alt);border-radius:var(--radius-sm);">
+                                <h4 style="font-family:var(--font-body);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--color-text-light);margin-bottom:0.25rem;">International</h4>
+                                <p style="font-size:1.1rem;font-weight:700;color:var(--color-primary-dark);">$20+</p>
+                            </div>
+                        </div>
+                    </div>
+                    <p><strong>Custom order lead times:</strong> 2-10 weeks depending on complexity and workload. Standard catalog items typically ship within a few days.</p>
+                    <p style="font-size:0.9rem;color:var(--color-text-light);margin-top:0.75rem;">Note: No refunds once production begins on custom orders. Exact shipping costs calculated at quote or checkout.</p>
+                </div>
+                <div class="split-image animate-on-scroll">
+                    <img src="https://images.pexels.com/photos/13615160/pexels-photo-13615160.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fish caught on a hand-tied fly, showcasing the quality of our work">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-banner">
+        <div class="hero-bg" style="background-image: url('greysen-johnson-cZVzzFadTMc-unsplash.jpg');"></div>
+        <div class="cta-content">
+            <h2>Let's Get You on the Water</h2>
+            <p>Ready to order? Reach out and we'll get your flies tied and shipped.</p>
+            <div class="cta-buttons">
+                <a href="contact.html" class="btn btn-primary">Contact Us</a>
+                <a href="catalog.html" class="btn btn-outline">Browse Catalog</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>On Point <span>Flies</span></h3>
+                <p>Premium hand-tied flies for the passionate fly fisher. From classic patterns to custom creations, we tie flies that catch fish.</p>
+            </div>
+            <div>
+                <h4>Navigate</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="catalog.html">Catalog</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Orders</h4>
+                <ul class="footer-links">
+                    <li><a href="order.html">How to Order</a></li>
+                    <li><a href="order.html">Pricing</a></li>
+                    <li><a href="order.html">Shipping</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Get in Touch</h4>
+                <ul class="footer-links">
+                    <li>info@onpointflies.com</li>
+                    <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+        </div>
     </footer>
+
+    <script>
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+        navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    </script>
+
 </body>
 </html>

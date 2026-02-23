@@ -4,45 +4,218 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly Catalog - On Point Flies</title>
+    <meta name="description" content="Browse our complete catalog of hand-tied fly fishing flies. Streamers, nymphs, dry flies and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">On Point <span>Flies</span></a>
+            <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="about.html">About</a></li>
-                <li><a href="catalog.html">Fly Catalog</a></li>
+                <li><a href="catalog.html" class="active">Catalog</a></li>
                 <li><a href="inventory.html">Inventory</a></li>
-                <li><a href="order.html">Order Flies</a></li>
+                <li><a href="order.html">Order</a></li>
                 <li><a href="contact.html">Contact</a></li>
             </ul>
-        </nav>
-    </header>
-    <section>
-        <h1>Our Fly Catalog</h1>
-        <div id="catalog-grid" class="catalog-grid"></div>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/1089234/pexels-photo-1089234.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
+        <div class="hero-content">
+            <span class="section-label">Browse Patterns</span>
+            <h1>Fly Catalog</h1>
+            <p>Explore our collection of hand-tied flies designed to catch fish in any water.</p>
+        </div>
     </section>
-    <footer>
-        <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+
+    <!-- Catalog Section -->
+    <section class="section">
+        <div class="container">
+            <!-- Search -->
+            <div class="search-wrap">
+                <input type="text" id="searchInput" placeholder="Search flies by name, type, or species...">
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-bar">
+                <button class="filter-btn active" data-filter="all">All Flies</button>
+                <button class="filter-btn" data-filter="Streamer">Streamers</button>
+                <button class="filter-btn" data-filter="Nymph">Nymphs</button>
+                <button class="filter-btn" data-filter="Dry Fly">Dry Flies</button>
+                <button class="filter-btn" data-filter="Material">Materials</button>
+            </div>
+
+            <!-- Catalog Grid -->
+            <div class="catalog-grid" id="catalog-grid"></div>
+
+            <!-- Empty State -->
+            <div id="empty-state" style="display:none;text-align:center;padding:3rem;color:var(--color-text-light);">
+                <p style="font-size:1.1rem;">No flies match your search. Try a different term.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-banner">
+        <div class="hero-bg" style="background-image: url('greysen-johnson-cZVzzFadTMc-unsplash.jpg');"></div>
+        <div class="cta-content">
+            <h2>Don't See What You Need?</h2>
+            <p>We specialize in custom orders. Tell us what you're after and we'll tie it for you.</p>
+            <div class="cta-buttons">
+                <a href="order.html" class="btn btn-primary">Custom Orders</a>
+                <a href="contact.html" class="btn btn-outline">Get in Touch</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>On Point <span>Flies</span></h3>
+                <p>Premium hand-tied flies for the passionate fly fisher. From classic patterns to custom creations, we tie flies that catch fish.</p>
+            </div>
+            <div>
+                <h4>Navigate</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="catalog.html">Catalog</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Orders</h4>
+                <ul class="footer-links">
+                    <li><a href="order.html">How to Order</a></li>
+                    <li><a href="order.html">Pricing</a></li>
+                    <li><a href="order.html">Shipping</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Get in Touch</h4>
+                <ul class="footer-links">
+                    <li>info@onpointflies.com</li>
+                    <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+        </div>
     </footer>
+
     <script>
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+        navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+
+        // Load catalog
+        let allFlies = [];
+        let activeFilter = 'all';
+
         fetch('flies.json')
-            .then(response => response.json())
+            .then(r => r.json())
             .then(flies => {
-                const grid = document.getElementById('catalog-grid');
-                flies.forEach(fly => {
-                    const item = document.createElement('div');
-                    item.className = 'fly-item';
-                    item.innerHTML = `
-                        <img src="${fly.image}" alt="${fly.name}">
-                        <h2>${fly.name}</h2>
-                        <p>Type: ${fly.type}<br>Best for: ${fly.bestFor}<br>Description: ${fly.description}<br>Recipe: ${fly.recipe}</p>
-                    `;
-                    grid.appendChild(item);
-                });
+                allFlies = flies;
+                renderFlies(flies);
             })
-            .catch(error => console.error('Error loading catalog:', error));
+            .catch(err => console.error('Error loading catalog:', err));
+
+        function renderFlies(flies) {
+            const grid = document.getElementById('catalog-grid');
+            const empty = document.getElementById('empty-state');
+            grid.innerHTML = '';
+
+            if (flies.length === 0) {
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+
+            flies.forEach((fly, i) => {
+                const card = document.createElement('div');
+                card.className = 'card animate-on-scroll';
+                card.style.transitionDelay = `${Math.min(i * 0.05, 0.4)}s`;
+                card.setAttribute('data-type', fly.type);
+
+                const hasRecipe = fly.recipe && fly.recipe.trim().length > 0;
+                const recipePreview = hasRecipe
+                    ? `<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;">${fly.recipe}</pre></details>`
+                    : '';
+
+                card.innerHTML = `
+                    <div class="card-image">
+                        <img src="${fly.image}" alt="${fly.name}" loading="lazy" onerror="this.src='https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=600'">
+                    </div>
+                    <div class="card-body">
+                        <span class="card-tag">${fly.type}</span>
+                        <h3>${fly.name}</h3>
+                        <p style="font-size:0.85rem;margin-bottom:0.35rem;"><strong>Best for:</strong> ${fly.bestFor}</p>
+                        <p>${fly.description}</p>
+                        ${recipePreview}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Re-observe for animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) entry.target.classList.add('visible');
+                });
+            }, { threshold: 0.1 });
+            grid.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+        }
+
+        function filterAndSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allFlies;
+
+            if (activeFilter !== 'all') {
+                filtered = filtered.filter(f => f.type === activeFilter);
+            }
+
+            if (query) {
+                filtered = filtered.filter(f =>
+                    f.name.toLowerCase().includes(query) ||
+                    f.type.toLowerCase().includes(query) ||
+                    f.bestFor.toLowerCase().includes(query) ||
+                    f.description.toLowerCase().includes(query)
+                );
+            }
+
+            renderFlies(filtered);
+        }
+
+        // Search
+        document.getElementById('searchInput').addEventListener('input', filterAndSearch);
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeFilter = btn.getAttribute('data-filter');
+                filterAndSearch();
+            });
+        });
     </script>
+
 </body>
 </html>
