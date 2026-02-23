@@ -1,570 +1,162 @@
 [
   {
     "name": "Tube Worm",
-    "type": "Nymph",
-    "bestFor": "Trout in rivers",
-    "description": "Imitates aquatic worms; great for bottom drifting.",
-    "image": "https://example.com/images/tube-worm.jpg",
-    "recipe": "Hook: #10-14, Body: Chenille, Head: Bead"
-  },
-  {
-    "name": "Tube Grub",
-    "type": "Nymph",
-    "bestFor": "Subsurface feeding",
-    "description": "Simple grub imitation for stillwaters.",
-    "image": "https://example.com/images/tube-grub.jpg",
-    "recipe": "Hook: #12, Body: Floss, Tail: Marabou"
-  },
-  {
-    "name": "Bead Tube Cased Caddis",
-    "type": "Nymph",
-    "bestFor": "Caddis larvae imitation",
-    "description": "Weighted for deep runs.",
-    "image": "https://example.com/images/bead-tube-caddis.jpg",
-    "recipe": "Hook: #14, Body: Dubbing, Case: Beads"
-  },
-  {
-    "name": "Deep Bead Tube Pupa",
-    "type": "Pupa",
-    "bestFor": "Emerging insects",
-    "description": "For deeper water columns.",
-    "image": "https://example.com/images/deep-bead-pupa.jpg",
-    "recipe": "Hook: #16, Body: Thread, Wing: CDC"
-  },
-  {
-    "name": "Shallow Bead Tube Pupa",
-    "type": "Pupa",
-    "bestFor": "Surface emergers",
-    "description": "Floats higher in water.",
-    "image": "https://example.com/images/shallow-bead-pupa.jpg",
-    "recipe": "Hook: #16, Body: Thread, Wing: Foam"
-  },
-  {
-    "name": "FMJNM",
     "type": "Streamer",
-    "bestFor": "Aggressive fish",
-    "description": "Flashy minnow imitation.",
-    "image": "https://example.com/images/fmjnm.jpg",
-    "recipe": "Hook: #8, Body: Flash, Tail: Feathers"
-  },
-  {
-    "name": "Edward's Little Ant",
-    "type": "Terrestrial",
-    "bestFor": "Summer dry fly fishing",
-    "description": "Tiny ant pattern for selective trout.",
-    "image": "https://example.com/images/edwards-ant.jpg",
-    "recipe": "Hook: #18, Body: Dubbing, Legs: Hackle"
+    "bestFor": "trout in high and dirty water",
+    "description": "These worm patterns tied with bead tubing are very tough and made to last – and very easy to tie",
+    "image": "https://globalflyfisher.com/sites/default/files/cover_images/tube1_2.jpg",
+    "recipe": "Hook: Dohiku HDR #8\nThread: 10/0 pink\nUnderbody: Adhesive lead foil\nBody: Pink bead tube\n\n1. Cut a thin strip from a sheet of adhesive lead foil and wrap it along the shank in touching turns. Add another one or two strips along the top to add weight to turn the worm hook point up in the water.\n2. Burnish the foil smooth with the side of a dubbing needle, run on the thread at the hook eye and cover the foil in thread until the underbody is smooth.\n3. Cut the end of a length of bead tube at an angle and tie in at the bend with the cut surface against the hook.\n4. Wind the tube forward in butting turns and tie in behind the eye.\n5. Cut off the waste end, wind a small head, whip finish and varnish the head."
   },
   {
     "name": "Floss Grub",
     "type": "Nymph",
-    "bestFor": "Stillwater nymphing",
-    "description": "Soft-bodied grub.",
-    "image": "https://example.com/images/floss-grub.jpg",
-    "recipe": "Hook: #14, Body: Floss, Head: Bead"
+    "bestFor": "trout",
+    "description": "Dental floss tape is a cheap and effective material for winding up some simple fly bodies. It’s very good for your teeth too!",
+    "image": "https://i.ytimg.com/vi/7C8ggA6orcc/maxresdefault.jpg",
+    "recipe": "Hook: Get Slotted GS Pupa #14\nBead: Get Slotted 2.3mm tungsten counter hole or 2.8mm tungsten jig-off\nBody: Dental floss tape\nCollar: Get Slotted olive H&S dubbing\n\n1. Run on the tying thread behind the bead and take down to the bend and back in touching turns.\n2. Catch in a length of floss behind the bead, tie down back to the bend and wind the thread forward keeping the body smooth.\n3. Wind the floss forward under tension in overlapping turns and continue to wrap up and down the hook forming a tapered body leaving a space behind the bead.\n4. Tie in the floss behind the bead and remove the waste end.\n5. Dub the collar, smear the thread with varnish and whip finish.\n6. Brush out the dubbing fibres."
   },
   {
-    "name": "Zelda - Variant with red",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon runs",
-    "description": "Bright attractor for Atlantic salmon.",
-    "image": "https://example.com/images/zelda-red.jpg",
-    "recipe": "Hook: #6, Body: Tinsel, Wing: Hair"
+    "name": "Zelda",
+    "type": "Nymph",
+    "bestFor": "trout",
+    "description": "The Zelda combines a distinctive Icelandic salmon fly tradition with elements from modern trout nymphing",
+    "image": "https://blog.fullingmill.com/wp-content/uploads/2019/07/Zelda-Salmon-Flies-1.jpg",
+    "recipe": "Basic version:\nHook: Esmond Drury treble #14\nBead: Gold, 5mm, hole drilled large enough to pass over hook eye\nThread: Black\nTails: Stripped rooster hackle barbs\nButt: Green floss\nBody: Black floss\n\nModern variant:\nHook: Esmond Drury treble #6, gold\nBead: Gold, 5mm, hole drilled large enough to pass over hook eye\nThread: Black\nTails: Stripped rooster hackle barbs, tied in a fan\nButt: Green tinsel\nRib: Oval gold tinsel\nBody: Black chenille\nWing: Polar bear hair\n\nRed and green:\nHook: Esmond Drury treble #14\nThread: Black\nTails: Stripped rooster hackle barbs\nBead: Gold, 5mm, hole drilled large enough to pass over hook eye\nButt: Green floss\nBody: Red floss\n\nVariant with red:\nHook: Esmond Drury treble #6, gold\nBead: Gold, 5mm, hole drilled large enough to pass over hook eye\nThread: Black\nTails: Stripped rooster hackle barbs\nButt: Green floss\nRib: Oval gold tinsel\nBody: Red chenille\nUnderwing: Black-dyed calf tail\nOverwing: Polar bear hair"
   },
   {
-    "name": "Zelda - Red and green",
-    "type": "Modern salmon fly",
-    "bestFor": "Sea run species",
-    "description": "Colorful variant.",
-    "image": "https://example.com/images/zelda-red-green.jpg",
-    "recipe": "Hook: #6, Body: Thread, Hackle: Red/Green"
-  },
-  {
-    "name": "Zelda - Basic version",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Simple effective pattern.",
-    "image": "https://example.com/images/zelda-basic.jpg",
-    "recipe": "Hook: #8, Body: Wool, Tail: Fibers"
-  },
-  {
-    "name": "Zelda - A modern variant",
-    "type": "Modern salmon fly",
-    "bestFor": "Atlantic salmon",
-    "description": "Updated classic.",
-    "image": "https://example.com/images/zelda-modern.jpg",
-    "recipe": "Hook: #6, Body: Flash, Wing: Synthetic"
-  },
-  {
-    "name": "Russian White",
+    "name": "Old School Zonkers",
     "type": "Streamer",
-    "bestFor": "Carp",
-    "description": "White baitfish imitation.",
-    "image": "https://example.com/images/russian-white.jpg",
-    "recipe": "Hook: #4, Body: Fur, Eyes: Beads"
+    "bestFor": "baitfish imitation for trout",
+    "description": "Zonkers imitate baitfish as well as any other fly ever created, use common materials and are easy to tie",
+    "image": "https://news.orvis.com/images/01-fly-fishing/2015/10-oct/zonker.jpg",
+    "recipe": "Hook: A wet fly hook like a Mustad 3906B\nThread: 6/0 to suit fly color\nTail: A few strands of flashabou or crystal flash, color to suit\nWing/tail: Rabbit zonker strip, or similar (squirrel is great for smaller sizes)\nBody: Pearl flat braid or tinsel chenille\nRib: Oval silver tinsel or wire, wrapping through the wing Matuka style\nHackle: Either a beard or red hen, or a mixed full wound hackle of red and natural or dyed grizzly\nHead: Painted w/ eyes, or glued on doll eyes"
   },
   {
-    "name": "Masked Mayfly",
-    "type": "Nymph",
-    "bestFor": "Mayfly hatches",
-    "description": "Realistic nymph.",
-    "image": "https://example.com/images/masked-mayfly.jpg",
-    "recipe": "Hook: #16, Body: Dubbing, Tails: Fibers"
-  },
-  {
-    "name": "Zonker",
+    "name": "Tufty Flies",
     "type": "Streamer",
-    "bestFor": "Large fish",
-    "description": "Rabbit strip streamer.",
-    "image": "https://example.com/images/zonker.jpg",
-    "recipe": "Hook: #6, Body: Mylar, Strip: Rabbit"
-  },
-  {
-    "name": "Tufty Baitfish",
-    "type": "Baitfish fly",
-    "bestFor": "Predatory fish",
-    "description": "Tufted minnow.",
-    "image": "https://example.com/images/tufty-baitfish.jpg",
-    "recipe": "Hook: #8, Body: Hair, Tail: Feathers"
-  },
-  {
-    "name": "Grayling Tufty",
-    "type": "Nymph",
-    "bestFor": "Grayling",
-    "description": "Specialized nymph.",
-    "image": "https://example.com/images/grayling-tufty.jpg",
-    "recipe": "Hook: #14, Body: Dubbing, Hackle: Soft"
-  },
-  {
-    "name": "Trout Tufty",
-    "type": "Nymph",
-    "bestFor": "Trout",
-    "description": "Versatile nymph.",
-    "image": "https://example.com/images/trout-tufty.jpg",
-    "recipe": "Hook: #12, Body: Thread, Tail: Tuft"
-  },
-  {
-    "name": "Silk Sakasa",
-    "type": "Wet fly",
-    "bestFor": "Subsurface swinging",
-    "description": "Japanese-style wet fly.",
-    "image": "https://example.com/images/silk-sakasa.jpg",
-    "recipe": "Hook: #14, Body: Silk, Hackle: Reverse"
+    "bestFor": "trout in high and coloured rivers",
+    "description": "The Tufty flies saw the light of day because of a need for some heavy metal for the author’s local high and coloured rivers",
+    "image": "https://content.osgnetworks.tv/flyfisherman/content/photos/ModernMidges1-1200x800.jpg",
+    "recipe": ""
   },
   {
     "name": "Surgical Stonefly",
-    "type": "Dry fly",
-    "bestFor": "Stonefly hatches",
-    "description": "Foam stonefly.",
-    "image": "https://example.com/images/surgical-stonefly.jpg",
-    "recipe": "Hook: #10, Body: Foam, Legs: Rubber"
+    "type": "Dry Fly",
+    "bestFor": "insect imitations",
+    "description": "Waterproof surgical tape is an excellent material for wings on insect imitations",
+    "image": "https://globalflyfisher.com/image.php?size=w756&file=/var/www/html/sites/default/files/article_pictures/surgical4.jpg",
+    "recipe": "Hook: Sprite S2200 #12\nThread: 12/0 black\nCerci: 2mm silicone foam\nAbdomen: 2mm silicone foam and darning yarn\nWing: Transpore, crystal flash & food wrapping film\nThorax: Stripped 6mm black organza ribbon\nWing case & head: 2mm silicone foam\n\nTying steps:\n1. Run on the thread and take down to the bend in touching turns.\n2. Catch in a length of darning yarn and tie down up the shank.\n3. Cut a V shaped notch in the end of a length of foam and tie on top of the hook in with the notch hanging over the bend.\n4. Wind the yarn over the foam in open turns keeping the foam on top of the hook.\n5. Tie in the preprepared wing.\n6. Tie in two lengths of foam hanging back over the abdomen.\n7. Trim off the edge from a piece of organza ribbon, strip out the long fibres and tie in.\n8. Wind the stripped ribbon forwards in touching turns, tie in and remove the waste.\n9. Stroke the organza fibres down the sides of the thorax, fold the foam forwards and tie in.\n10. Lift the foam and whip finish at the hook eye.\n11. Trim the ends of the foam to form the head.\n\nWing preparation: Lay out some strands of flash on a smooth surface and then press a length of tape down on top of them. Now tear off a section of food wrap and smooth it out flat, peel up the tape and flash and press down on the wrapping film making the wing sandwich with flash in the middle. Colour the Transpore to taste and cut out some wings."
   },
   {
-    "name": "S16",
-    "type": "Streamer",
-    "bestFor": "Big water",
-    "description": "Large streamer.",
-    "image": "https://example.com/images/s16.jpg",
-    "recipe": "Hook: #4, Body: Bucktail, Flash: Yes"
-  },
-  {
-    "name": "Tutu-2",
-    "type": "Dry fly",
-    "bestFor": "Surface feeding",
-    "description": "Variant 2 of tutu pattern.",
-    "image": "https://example.com/images/tutu-2.jpg",
-    "recipe": "Hook: #16, Body: Dubbing, Wing: CDC"
-  },
-  {
-    "name": "Tutu-1",
-    "type": "Emerger",
-    "bestFor": "Hatches",
-    "description": "Emerger pattern.",
-    "image": "https://example.com/images/tutu-1.jpg",
-    "recipe": "Hook: #16, Body: Thread, Shuck: Antron"
+    "name": "Tutus",
+    "type": "Nymph",
+    "bestFor": "trout",
+    "description": "These flies get their name from the Tutu, the short skirt worn by female ballet dancers",
+    "image": "https://montanatroutflies.com/cdn/shop/products/Black_Zirdle_Bug_With_Pink_Tutu_2000x.jpg?v=1559232703",
+    "recipe": "Hook: Fulling Mill FM50 60 #14/16\nThread: Semperfli 18/0 Nano Silk\nAbdomen: Brown DMC metallic thread\nLegs: Stripped 7mm brown natural silk ribbon\nThorax: Natural pine squirrel dubbing\nWing: Fulling Mill tan and light dun ultra-dry yarn\n\nSteps:\n1) Run on the thread, catch in a length of DMC thread and tie in down the hook.\n2) Twist the thread to cord it up and wind forward in touching turns, tie in and remove the waste end.\n3) Snip the fibres from a short section at the end of the stripped ribbon and tie in this section.\n4) Wind forward in touching turns, tie in and remove the waste.\n5) Tie in the wing fibres by their middle in front of the wrapped silk.\n6) Dub over the thread turns. Lift the front fibres and wrap the thread just behind the hook eye.\n7) Fold the rear fibres over the dubbing forming the wing case and tie in.\n8) Lift the wing and add some turns of dubbing to lift up the fibres.\n9) Whip finish, remove the thread and trim the wing to length."
   },
   {
     "name": "Silky Bugger",
+    "type": "Streamer",
+    "bestFor": "trout",
+    "description": "This fly lives up to its name. In fact, silk ribbon is the only material used to tie it, apart from hook, bead and thread",
+    "image": "https://globalflyfisher.com/image.php?size=w756&file=/var/www/html/sites/default/files/article_pictures/sb1.jpg",
+    "recipe": "Hook: Fasna F-900 #10/12\nBead: Get Slotted 3.3mm silver tungsten jig-off\nThread: 12/0 orange\nTail: Silk fibres stripped from ribbon\nBody: Stripped 6mm silk ribbon with marker pens\n\nSteps:\n1) Run on the tying thread and build up turns to lock the bead in place.\n2) Cut the woven edge from a length of ribbon and strip out the fibres that run along the ribbon.\n3) Tie in the fibres by the middle on top of the hook behind the bead.\n4) Fold the forward fibres under the hook and tie down all the fibres back to the bend. Trim to length to form the tail.\n5) Cut the short fibres from a hook length of the stripped ribbon leaving just the woven edge to form a tying tag, catch in at the bend and tie in up to the back of the bead.\n6) Wind the ribbon in touching turns to the bead, tie in and trim off the waste.\n7) Wind a collar of thread against the bead, whip finish and varnish.\nOptional: Shade with marker pens to imitate a minnow or fry."
+  },
+  {
+    "name": "Sedgeetle",
+    "type": "Dry Fly",
+    "bestFor": "trout as a when-in-doubt-fly",
+    "description": "A when-in-doubt-fly that can be a sedge/caddis, beetle, moth or anything you – or the fish – might fancy",
+    "image": "https://globalflyfisher.com/sites/default/files/cover_images/sedgeetle1.jpg",
+    "recipe": ""
+  },
+  {
+    "name": "The Hallucinator",
     "type": "Nymph",
-    "bestFor": "Leech imitation",
-    "description": "Silk-bodied bugger.",
-    "image": "https://example.com/images/silky-bugger.jpg",
-    "recipe": "Hook: #10, Body: Silk, Tail: Marabou"
-  },
-  {
-    "name": "Green Sedgeetle",
-    "type": "Terrestrial",
-    "bestFor": "Beetle falls",
-    "description": "Green beetle.",
-    "image": "https://example.com/images/green-sedgeetle.jpg",
-    "recipe": "Hook: #14, Body: Foam, Shell: Deer hair"
-  },
-  {
-    "name": "Brown Sedgeetle",
-    "type": "Terrestrial",
-    "bestFor": "Terrestrials",
-    "description": "Brown variant.",
-    "image": "https://example.com/images/brown-sedgeetle.jpg",
-    "recipe": "Hook: #14, Body: Dubbing, Legs: Hackle"
-  },
-  {
-    "name": "Hallucinator",
-    "type": "Nymph",
-    "bestFor": "Attractor",
-    "description": "Flashy nymph.",
-    "image": "https://example.com/images/hallucinator.jpg",
-    "recipe": "Hook: #12, Body: Wire, Bead: Tungsten"
+    "bestFor": "trout",
+    "description": "This odd, multi-legged thingy named after a species found as a Cambrian fossil has a strange appeal to trout",
+    "image": "https://globalflyfisher.com/sites/default/files/cover_images/lifejacket1.jpg",
+    "recipe": ""
   },
   {
     "name": "Lifejacket Nymph",
     "type": "Nymph",
-    "bestFor": "Floating nymphs",
-    "description": "Buoyant nymph.",
-    "image": "https://example.com/images/lifejacket-nymph.jpg",
-    "recipe": "Hook: #14, Body: Foam, Underbody: Dubbing"
-  },
-  {
-    "name": "Forked Hydropsyche",
-    "type": "Nymph",
-    "bestFor": "Caddis nymphs",
-    "description": "Hydropsyche imitation.",
-    "image": "https://example.com/images/forked-hydropsyche.jpg",
-    "recipe": "Hook: #16, Body: Dubbing, Legs: Soft hackle"
+    "bestFor": "trout",
+    "description": "The Lifejacket Nymph is tied with 2mm diameter silicone gasket foam",
+    "image": "https://blog.fullingmill.com/wp-content/uploads/2019/07/Zelda-Salmon-Flies-1.jpg",
+    "recipe": ""
   },
   {
     "name": "Fyn’ish Shrimp",
-    "type": "Cold saltwater fly",
-    "bestFor": "Bonefish, sea trout",
-    "description": "Shrimp pattern for salt.",
-    "image": "https://example.com/images/fynish-shrimp.jpg",
-    "recipe": "Hook: #8, Body: Dub, Eyes: Bead chain"
+    "type": "Streamer",
+    "bestFor": "trout",
+    "description": "In Danish this shrimp fly is known as Den Fynske Reje, and it’s been successful in its basic form as well as in several variations",
+    "image": "https://i.ytimg.com/vi/0SwAyKfWxDw/sddefault.jpg",
+    "recipe": ""
   },
   {
     "name": "Amnesia Pupa",
-    "type": "Pupa",
-    "bestFor": "Brown trout, grayling",
-    "description": "Pupa for selective fish.",
-    "image": "https://example.com/images/amnesia-pupa.jpg",
-    "recipe": "Hook: #16, Body: Antron, Wing: CDC"
+    "type": "Nymph",
+    "bestFor": "trout",
+    "description": "This isn’t a forgetful or amnesic pupa, but has earned its name because it’s tied using Amnesia mono",
+    "image": "https://i.ytimg.com/vi/O0OfGty98Is/maxresdefault.jpg",
+    "recipe": ""
   },
   {
     "name": "Bugeyed Pupa",
-    "type": "Pupa",
-    "bestFor": "Trout, grayling",
-    "description": "Bug-eyed emerger.",
-    "image": "https://example.com/images/bugeyed-pupa.jpg",
-    "recipe": "Hook: #16, Eyes: Foam, Body: Thread"
-  },
-  {
-    "name": "Woodchuck",
-    "type": "Modern salmon fly",
-    "bestFor": "Atlantic salmon, steelhead",
-    "description": "Hairwing salmon fly.",
-    "image": "https://example.com/images/woodchuck.jpg",
-    "recipe": "Hook: #6, Wing: Woodchuck hair, Body: Tinsel"
-  },
-  {
-    "name": "Undertaker",
-    "type": "Modern salmon fly",
-    "bestFor": "Sea run salmonids",
-    "description": "Classic salmon pattern.",
-    "image": "https://example.com/images/undertaker.jpg",
-    "recipe": "Hook: #6, Body: Black floss, Wing: Hair"
-  },
-  {
-    "name": "Thunder and Lightning",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Bright attractor.",
-    "image": "https://example.com/images/thunder-lightning.jpg",
-    "recipe": "Hook: #8, Body: Orange, Wing: Brown"
-  },
-  {
-    "name": "Silver Satan",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Silver-bodied fly.",
-    "image": "https://example.com/images/silver-satan.jpg",
-    "recipe": "Hook: #6, Body: Silver tinsel, Hackle: Black"
-  },
-  {
-    "name": "Silver Monkey",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Monkey hair wing.",
-    "image": "https://example.com/images/silver-monkey.jpg",
-    "recipe": "Hook: #6, Wing: Monkey, Body: Silver"
-  },
-  {
-    "name": "Silver Downeaster",
-    "type": "Modern salmon fly",
-    "bestFor": "Atlantic salmon",
-    "description": "East coast pattern.",
-    "image": "https://example.com/images/silver-downeaster.jpg",
-    "recipe": "Hook: #8, Body: Silver, Tail: Golden pheasant"
-  },
-  {
-    "name": "Rutledge",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Hairwing.",
-    "image": "https://example.com/images/rutledge.jpg",
-    "recipe": "Hook: #6, Wing: Squirrel, Body: Black"
-  },
-  {
-    "name": "Rusty Rat",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Rusty colors.",
-    "image": "https://example.com/images/rusty-rat.jpg",
-    "recipe": "Hook: #8, Body: Orange floss, Wing: Peacock"
-  },
-  {
-    "name": "Ross Special",
-    "type": "Modern salmon fly",
-    "bestFor": "Sea run",
-    "description": "Special variant.",
-    "image": "https://example.com/images/ross-special.jpg",
-    "recipe": "Hook: #6, Body: Red, Hackle: Grizzly"
-  },
-  {
-    "name": "Roger's Fancy",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Fancy hairwing.",
-    "image": "https://example.com/images/rogers-fancy.jpg",
-    "recipe": "Hook: #8, Wing: Mixed hair, Body: Gold"
-  },
-  {
-    "name": "Reynard, Yellow",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Yellow variant.",
-    "image": "https://example.com/images/reynard-yellow.jpg",
-    "recipe": "Hook: #6, Body: Yellow floss, Wing: Fox"
-  },
-  {
-    "name": "Reynard, Orange",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Orange version.",
-    "image": "https://example.com/images/reynard-orange.jpg",
-    "recipe": "Hook: #6, Body: Orange, Wing: Hair"
-  },
-  {
-    "name": "Reynard, Blue",
-    "type": "Modern salmon fly",
-    "bestFor": "Sea run",
-    "description": "Blue variant.",
-    "image": "https://example.com/images/reynard-blue.jpg",
-    "recipe": "Hook: #8, Body: Blue thread, Hackle: Blue"
-  },
-  {
-    "name": "Restigouche Black Dose",
-    "type": "Modern salmon fly",
-    "bestFor": "Atlantic salmon",
-    "description": "Black pattern.",
-    "image": "https://example.com/images/restigouche-black.jpg",
-    "recipe": "Hook: #6, Body: Black wool, Wing: Hair"
-  },
-  {
-    "name": "Red Abbey",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Red abbey style.",
-    "image": "https://example.com/images/red-abbey.jpg",
-    "recipe": "Hook: #8, Body: Red floss, Hackle: Red"
-  },
-  {
-    "name": "Professor",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Classic professor.",
-    "image": "https://example.com/images/professor.jpg",
-    "recipe": "Hook: #6, Wing: Mallard, Body: Yellow"
-  },
-  {
-    "name": "Preacher",
-    "type": "Modern salmon fly",
-    "bestFor": "Sea run",
-    "description": "Preacher pattern.",
-    "image": "https://example.com/images/preacher.jpg",
-    "recipe": "Hook: #8, Body: Black, Wing: White"
-  },
-  {
-    "name": "Picture Province",
-    "type": "Modern salmon fly",
-    "bestFor": "Atlantic salmon",
-    "description": "Pictorial fly.",
-    "image": "https://example.com/images/picture-province.jpg",
-    "recipe": "Hook: #6, Body: Mixed, Hackle: Grizzly"
-  },
-  {
-    "name": "Orange Charm",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Orange attractor.",
-    "image": "https://example.com/images/orange-charm.jpg",
-    "recipe": "Hook: #8, Body: Orange thread, Wing: Hair"
-  },
-  {
-    "name": "Orange Blossom Special",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Special variant.",
-    "image": "https://example.com/images/orange-blossom-special.jpg",
-    "recipe": "Hook: #6, Body: Orange floss, Tail: Pheasant"
-  },
-  {
-    "name": "Orange Blossom",
-    "type": "Modern salmon fly",
-    "bestFor": "Sea run",
-    "description": "Blossom pattern.",
-    "image": "https://example.com/images/orange-blossom.jpg",
-    "recipe": "Hook: #8, Wing: Orange hair, Body: Gold"
-  },
-  {
-    "name": "Lightning Bug",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Flashy bug.",
-    "image": "https://example.com/images/lightning-bug.jpg",
-    "recipe": "Hook: #6, Body: Flash, Hackle: Yellow"
-  },
-  {
-    "name": "Hairy Mary",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Hairy wing.",
-    "image": "https://example.com/images/hairy-mary.jpg",
-    "recipe": "Hook: #8, Wing: Hair, Body: Red"
-  },
-  {
-    "name": "Grizzly King",
-    "type": "Modern salmon fly",
-    "bestFor": "Atlantic salmon",
-    "description": "Grizzly hackle.",
-    "image": "https://example.com/images/grizzly-king.jpg",
-    "recipe": "Hook: #6, Hackle: Grizzly, Body: Green"
-  },
-  {
-    "name": "Green Rat",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Green rat series.",
-    "image": "https://example.com/images/green-rat.jpg",
-    "recipe": "Hook: #8, Body: Green floss, Wing: Peacock"
-  },
-  {
-    "name": "Green Cross",
-    "type": "Modern salmon fly",
-    "bestFor": "Sea run",
-    "description": "Cross pattern.",
-    "image": "https://example.com/images/green-cross.jpg",
-    "recipe": "Hook: #6, Body: Green, Hackle: Black"
-  },
-  {
-    "name": "Glitter Bear",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Glittery bear hair.",
-    "image": "https://example.com/images/glitter-bear.jpg",
-    "recipe": "Hook: #8, Wing: Bear hair, Flash: Glitter"
-  },
-  {
-    "name": "Crosfield",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Crosfield classic.",
-    "image": "https://example.com/images/crosfield.jpg",
-    "recipe": "Hook: #6, Body: Silver, Wing: Mallard"
-  },
-  {
-    "name": "Cosseboom",
-    "type": "Modern salmon fly",
-    "bestFor": "Atlantic salmon",
-    "description": "Boom pattern.",
-    "image": "https://example.com/images/cosseboom.jpg",
-    "recipe": "Hook: #8, Tail: Crest, Body: Green"
-  },
-  {
-    "name": "Copper Killer",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Copper body.",
-    "image": "https://example.com/images/copper-killer.jpg",
-    "recipe": "Hook: #6, Body: Copper wire, Hackle: Brown"
-  },
-  {
-    "name": "Claret and Grizzly",
-    "type": "Modern salmon fly",
-    "bestFor": "Salmon",
-    "description": "Claret colors.",
-    "image": "https://example.com/images/claret-grizzly.jpg",
-    "recipe": "Hook: #8, Hackle: Grizzly, Body: Claret"
-  },
-  {
-    "name": "Blue Rat",
-    "type": "Modern salmon fly",
-    "bestFor": "Sea run",
-    "description": "Blue rat series.",
-    "image": "https://example.com/images/blue-rat.jpg",
-    "recipe": "Hook: #6, Body: Blue floss, Wing: Hair"
-  },
-  {
-    "name": "Blue Charm",
-    "type": "Modern salmon fly",
-    "bestFor": "Atlantic salmon",
-    "description": "Charm pattern.",
-    "image": "https://example.com/images/blue-charm.jpg",
-    "recipe": "Hook: #8, Wing: Mallard, Body: Blue"
-  },
-  {
-    "name": "Atherton Squirrel Tail",
-    "type": "Modern salmon fly",
-    "bestFor": "Steelhead",
-    "description": "Squirrel tail wing.",
-    "image": "https://example.com/images/atherton-squirrel.jpg",
-    "recipe": "Hook: #6, Tail: Squirrel, Body: Black"
-  },
-  {
-    "name": "Brown Genoese",
     "type": "Nymph",
-    "bestFor": "Trout",
-    "description": "Brown nymph.",
-    "image": "https://example.com/images/brown-genoese.jpg",
-    "recipe": "Hook: #14, Body: Dubbing, Hackle: Brown"
+    "bestFor": "trout",
+    "description": "Two tungsten beads on a loop of monofilament adds weight and eyes to this fly",
+    "image": "https://globalflyfisher.com/image.php?size=w756&file=/var/www/html/sites/default/files/article_pictures/knotting1_0.jpg",
+    "recipe": ""
   },
   {
-    "name": "Green Genoese",
+    "name": "Knotting Nymphs",
     "type": "Nymph",
-    "bestFor": "Subsurface",
-    "description": "Green variant.",
-    "image": "https://example.com/images/green-genoese.jpg",
-    "recipe": "Hook: #14, Body: Thread, Tail: Fibers"
+    "bestFor": "trout",
+    "description": "Introducing a way of making nymph bodies using elastic bead cord and a knotting technique",
+    "image": "https://globalflyfisher.com/image.php?size=w756&file=/var/www/html/sites/default/files/article_pictures/pip04.jpg",
+    "recipe": ""
   },
   {
-    "name": "Pipette Popper",
-    "type": "Bass bug",
-    "bestFor": "Bass",
-    "description": "Popper for topwater.",
-    "image": "https://example.com/images/pipette-popper.jpg",
-    "recipe": "Hook: #4, Body: Foam, Legs: Rubber"
-  },
-  {
-    "name": "Pipette Hopper",
-    "type": "Terrestrial",
-    "bestFor": "Grasshoppers",
-    "description": "Hopper pattern.",
-    "image": "https://example.com/images/pipette-hopper.jpg",
-    "recipe": "Hook: #10, Body: Foam, Wings: Deer hair"
+    "name": "Pipette Hoppers and Poppers",
+    "type": "Dry Fly",
+    "bestFor": "hoppers and poppers",
+    "description": "Lab equipment flies tied using plastic pipettes.",
+    "image": "https://globalflyfisher.com/sites/default/files/cover_images/ribbontail10.jpg",
+    "recipe": ""
   },
   {
     "name": "Ribbontail Baitfish",
     "type": "Streamer",
-    "bestFor": "Saltwater baitfish",
-    "description": "Ribbon tail minnow.",
-    "image": "https://example.com/images/ribbontail-baitfish.jpg",
-    "recipe": "Hook: #4, Tail: Ribbon, Body: Flash"
+    "bestFor": "baitfish imitation",
+    "description": "A mobile tailed baitfish pattern tied with organza and synthetic fibres",
+    "image": "https://globalflyfisher.com/image.php?size=w656&file=/var/www/html/sites/default/files/article_pictures/cray1.jpg",
+    "recipe": ""
+  },
+  {
+    "name": "Chain Gang Crayfish",
+    "type": "Streamer",
+    "bestFor": "trout, bass, carp",
+    "description": "We should fish crayfish imitations more than we do. Crayfish can be used to target trout, bass, carp and other species",
+    "image": "http://www.jsflyfishing.com/cdn/shop/articles/nathan-wight-copper-john.jpg?v=1734464255",
+    "recipe": ""
+  },
+  {
+    "name": "Copper Braid",
+    "type": "Material",
+    "bestFor": "fly tying",
+    "description": "This type of braid is found in electronics stores, but is a great new addition to the fly tyer’s arsenal of useful copper products",
+    "image": "https://i.ytimg.com/vi/L_-RBI7yisY/maxresdefault.jpg",
+    "recipe": ""
+  },
+  {
+    "name": "Mini Headbanger",
+    "type": "Streamer",
+    "bestFor": "cased nymph caddis",
+    "description": "A scaled-down version of the author’s own Headbanger Caddis, a cased nymph caddis pattern",
+    "image": "https://i.ytimg.com/vi/L_-RBI7yisY/maxresdefault.jpg",
+    "recipe": ""
   }
 ]
