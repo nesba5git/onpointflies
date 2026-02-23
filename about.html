@@ -3,29 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Fly Fishing - On Point Flies</title>
+    <title>About - On Point Flies</title>
+    <meta name="description" content="Learn about On Point Flies, our passion for fly tying, and our commitment to crafting premium hand-tied flies for anglers everywhere.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">On Point <span>Flies</span></a>
+            <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="catalog.html">Fly Catalog</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
                 <li><a href="inventory.html">Inventory</a></li>
-                <li><a href="order.html">Order Flies</a></li>
+                <li><a href="order.html">Order</a></li>
                 <li><a href="contact.html">Contact</a></li>
             </ul>
-        </nav>
-    </header>
-    <section>
-        <h1>About Fly Fishing</h1>
-        <p>Fly fishing is a method of angling where an artificial "fly" is used to catch fish. The fly is cast using a fly rod, reel, and specialized weighted line. It's popular for trout, salmon, and more in rivers and streams worldwide.</p>
-        <p>Whether you're a beginner or expert, our site helps you learn and find the right flies for your next adventure.</p>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/24284799/pexels-photo-24284799.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
+        <div class="hero-content">
+            <span class="section-label">Our Story</span>
+            <h1>About On Point Flies</h1>
+            <p>Passion, craftsmanship, and a deep love for fly fishing drive everything we do.</p>
+        </div>
     </section>
-    <footer>
-        <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+
+    <!-- Story Section -->
+    <section class="section">
+        <div class="container">
+            <div class="split">
+                <div class="split-text animate-on-scroll">
+                    <span class="section-label">The Beginning</span>
+                    <h2>A Passion That Started on the River</h2>
+                    <p>Fly fishing is more than a hobby -- it's a way of life. On Point Flies was born from a deep appreciation for the art of fly tying and a desire to share quality, hand-crafted flies with anglers everywhere.</p>
+                    <p>What started at a small tying vise, experimenting with materials and testing patterns on local rivers, has grown into a catalog of proven fly patterns. Every fly we tie carries the same passion and attention to detail that sparked this journey.</p>
+                    <p>Whether you're chasing trout in mountain streams, targeting bass in warm water, or drifting nymphs through riffles, we have patterns designed to produce results.</p>
+                </div>
+                <div class="split-image animate-on-scroll">
+                    <img src="https://images.pexels.com/photos/7805770/pexels-photo-7805770.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Angler proudly displaying a freshly caught fish on the river">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What We Believe -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">What We Believe</span>
+                <h2>Principles That Guide Our Craft</h2>
+            </div>
+            <div class="grid-3">
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">&#9733;</div>
+                    <h3>Quality Over Quantity</h3>
+                    <p>We don't mass-produce. Each fly is hand-tied with care, using premium hooks and materials that hold up on the water.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">&#127758;</div>
+                    <h3>Respect for the Water</h3>
+                    <p>Fly fishing connects us to nature. We support catch-and-release practices and sustainable approaches to the sport we love.</p>
+                </div>
+                <div class="feature-card animate-on-scroll">
+                    <div class="feature-icon">&#9996;</div>
+                    <h3>Community First</h3>
+                    <p>We're anglers helping anglers. Whether you're a beginner learning your first patterns or a seasoned guide, we're here for you.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Fly Fishing -->
+    <section class="section">
+        <div class="container">
+            <div class="split">
+                <div class="split-image animate-on-scroll">
+                    <img src="https://images.pexels.com/photos/4828164/pexels-photo-4828164.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fisherman standing in a river with fly rod, surrounded by nature">
+                </div>
+                <div class="split-text animate-on-scroll">
+                    <span class="section-label">The Sport</span>
+                    <h2>The Art of Fly Fishing</h2>
+                    <p>Fly fishing is a method of angling where an artificial "fly" is used to catch fish. The fly is cast using a fly rod, reel, and specialized weighted line. It's popular for trout, salmon, and many other species in rivers and streams worldwide.</p>
+                    <p>Unlike conventional fishing, fly fishing relies on the weight of the line rather than the lure to deliver the fly. This creates a unique, graceful casting motion that has captivated anglers for centuries.</p>
+                    <p>Whether you're a beginner discovering the sport or an experienced angler refining your technique, the right fly makes all the difference. That's where we come in.</p>
+                    <a href="catalog.html" class="btn btn-dark">Explore Our Flies</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="section section-dark">
+        <div class="container">
+            <div class="stats-bar">
+                <div class="stat-item animate-on-scroll">
+                    <h3>2,500+</h3>
+                    <p>Flies in Stock</p>
+                </div>
+                <div class="stat-item animate-on-scroll">
+                    <h3>20+</h3>
+                    <p>Pattern Varieties</p>
+                </div>
+                <div class="stat-item animate-on-scroll">
+                    <h3>100%</h3>
+                    <p>Hand-Tied</p>
+                </div>
+                <div class="stat-item animate-on-scroll">
+                    <h3>$2</h3>
+                    <p>Starting Price</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-banner">
+        <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/29327694/pexels-photo-29327694.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
+        <div class="cta-content">
+            <h2>Ready to Hit the Water?</h2>
+            <p>Browse our catalog of proven patterns or get in touch to discuss a custom order.</p>
+            <div class="cta-buttons">
+                <a href="catalog.html" class="btn btn-primary">View Catalog</a>
+                <a href="contact.html" class="btn btn-outline">Contact Us</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>On Point <span>Flies</span></h3>
+                <p>Premium hand-tied flies for the passionate fly fisher. From classic patterns to custom creations, we tie flies that catch fish.</p>
+            </div>
+            <div>
+                <h4>Navigate</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="catalog.html">Catalog</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Orders</h4>
+                <ul class="footer-links">
+                    <li><a href="order.html">How to Order</a></li>
+                    <li><a href="order.html">Pricing</a></li>
+                    <li><a href="order.html">Shipping</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Get in Touch</h4>
+                <ul class="footer-links">
+                    <li>info@onpointflies.com</li>
+                    <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+        </div>
     </footer>
+
+    <script>
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+        navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    </script>
+
 </body>
 </html>

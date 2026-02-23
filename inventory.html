@@ -4,128 +4,288 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly Inventory - On Point Flies</title>
+    <meta name="description" content="Browse our current fly fishing fly inventory. See what's in stock, prices, and available sizes for streamers, nymphs, and dry flies.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        input { margin: 20px; padding: 10px; width: 300px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-    </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">On Point <span>Flies</span></a>
+            <ul class="nav-links" id="navLinks">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="about.html">About</a></li>
-                <li><a href="catalog.html">Fly Catalog</a></li>
-                <li><a href="inventory.html">Inventory</a></li>
-                <li><a href="order.html">Order Flies</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
+                <li><a href="inventory.html" class="active">Inventory</a></li>
+                <li><a href="order.html">Order</a></li>
                 <li><a href="contact.html">Contact</a></li>
             </ul>
-        </nav>
-    </header>
-    <section>
-        <h1>Fly Inventory</h1>
-        <input type="text" id="searchInput" onkeyup="searchTables()" placeholder="Search for flies...">
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
 
-        <h2>Streamers</h2>
-        <table id="streamers_table">
-            <thead>
-                <tr><th>Name</th><th>Size</th><th>Quantity</th><th>Sale Price</th><th>Amount Sold</th><th>Starting Quantity</th><th>Cart Price</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>WOOLY BUGGERS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>CH Black Bugger</td><td>4</td><td>10</td><td>2.99</td><td>0</td><td>10</td><td>0</td></tr>
-                <tr><td>CH RubberLegs Black Bugger</td><td>12</td><td>9</td><td>2.5</td><td>0</td><td>9</td><td>0</td></tr>
-                <tr><td>BH Purple Bugger</td><td>8</td><td>6</td><td>2.25</td><td>0</td><td>6</td><td>0</td></tr>
-                <tr><td>BH Purple Bugger</td><td>10</td><td>8</td><td>2.25</td><td></td><td>12</td><td>0</td></tr>
-                <tr><td>BH Black Bugger</td><td>8</td><td>6</td><td>2.25</td><td>0</td><td>6</td><td>0</td></tr>
-                <tr><td>BH Black Bugger</td><td>12</td><td>12</td><td>2.25</td><td>0</td><td>12</td><td>0</td></tr>
-                <tr><td>BH Chartruse Bugger</td><td>10</td><td>9</td><td>2.25</td><td>0</td><td>9</td><td>0</td></tr>
-                <tr><td>Wooly Bugger Black Hackled Head</td><td>12</td><td>24</td><td>1.99</td><td></td><td>30</td><td>0</td></tr>
-                <tr><td>HELLGRAMMITE</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Woolly Hellgrammite WTD (K)</td><td>8</td><td>18</td><td>1.5</td><td></td><td>24</td><td>0</td></tr>
-                <tr><td>Hellgrammite WTD</td><td>8</td><td>29</td><td>1.5</td><td></td><td>35</td><td>0</td></tr>
-                <tr><td>MUDDLER MINNOWS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Muddler Marabou-Olive</td><td>12</td><td>3</td><td>2.25</td><td>0</td><td>3</td><td>0</td></tr>
-                <tr><td>Muddler Marabou-Olive</td><td>10</td><td>12</td><td>2.25</td><td>0</td><td>12</td><td>0</td></tr>
-                <tr><td>Muddler Minnow</td><td>8</td><td>9</td><td>2.75</td><td>0</td><td>9</td><td>0</td></tr>
-                <tr><td>Muddler Minnow</td><td>6</td><td>12</td><td>2.75</td><td>0</td><td>12</td><td>0</td></tr>
-                <tr><td>Muddler Minnow</td><td>2</td><td>12</td><td>3.5</td><td>0</td><td>12</td><td>0</td></tr>
-                <tr><td>Muddler Minnow</td><td>10</td><td>12</td><td>2.75</td><td>0</td><td>12</td><td>0</td></tr>
-                <tr><td>Muddler Minnow</td><td>16</td><td>12</td><td>2.5</td><td>0</td><td>12</td><td>0</td></tr>
-                <tr><td>Muddler Minnow</td><td>14</td><td>24</td><td>2.5</td><td>0</td><td>24</td><td>0</td></tr>
-                <tr><td>Muddler Minnow</td><td>12</td><td>8</td><td>2.5</td><td></td><td>12</td><td>0</td></tr>
-                <tr><td>ZONKERS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Zonker Pearl/Tan</td><td>2</td><td>6</td><td>4.5</td><td>0</td><td>6</td><td>0</td></tr>
-                <tr><td>Zonker Pearl/Tan</td><td>6</td><td>5</td><td>3.5</td><td>0</td><td>5</td><td>0</td></tr>
-                <tr><td>MISC. STREAMERS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Mickey Finn</td><td>8</td><td>6</td><td>1.25</td><td>0</td><td>6</td><td>0</td></tr>
-                <tr><td>Matuka-Olive</td><td>10</td><td>3</td><td>1</td><td></td><td>9</td><td>0</td></tr>
-                <tr><td>Mickey Finn</td><td>10</td><td>2</td><td>1.25</td><td></td><td>6</td><td>0</td></tr>
-                <tr><td>Black ghost-feather wing</td><td>12</td><td>18</td><td>1.75</td><td>0</td><td>18</td><td>0</td></tr>
-                <tr><td>Little Brown Trout</td><td>12</td><td>15</td><td>1</td><td>0</td><td>15</td><td>0</td></tr>
-                <tr><td>Little Brown Trout</td><td>10</td><td>8</td><td>1</td><td>0</td><td>8</td><td>0</td></tr>
-                <tr><td>Little Brooke Trout</td><td>10</td><td>23</td><td>1</td><td>0</td><td>23</td><td>0</td></tr>
-                <tr><td>Little Brooke Trout</td><td>12</td><td>4</td><td>1</td><td></td><td>8</td><td>0</td></tr>
-                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <tr><td>Total</td><td></td><td>306</td><td></td><td></td><td></td><td>0</td></tr>
-            </tbody>
-        </table>
-
-        <h2>Nymph</h2>
-        <table id="nymph_table">
-            <thead>
-                <tr><th>Name</th><th>Size</th><th>Quantity</th><th>Sales Price</th><th>Total</th><th>Amount sold</th><th>Starting Quantity</th><th>Cart Total</th></tr>
-            </thead>
-            <tbody>
-                <!-- Nymph data rows here, similar format -->
-                <tr><td>WEENIE & MOP FLIES</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <!-- ... all rows from Nymph sheet ... -->
-                <tr><td>Total</td><td></td><td>1037</td><td></td><td>2023.31</td><td></td><td>1147</td><td>0</td></tr>
-            </tbody>
-        </table>
-
-        <h2>Dry Flies</h2>
-        <table id="dry_flies_table">
-            <thead>
-                <tr><th>Name</th><th>Size</th><th>Quantity</th><th>Sales Price</th><th>Total</th><th>Amount Sold</th><th>Starting Quantity</th><th>Cart Total</th></tr>
-            </thead>
-            <tbody>
-                <!-- Dry Flies data rows here -->
-                <tr><td>BLUE WING OLIVE</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-                <!-- ... all rows from Dry Flies sheet ... -->
-                <tr><td>Total</td><td></td><td>1352</td><td></td><td>3111.51</td><td></td><td>1388</td><td>0</td></tr>
-            </tbody>
-        </table>
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
+        <div class="hero-content">
+            <span class="section-label">Current Stock</span>
+            <h1>Fly Inventory</h1>
+            <p>See what's in stock and ready to ship. Use the search and tabs to find exactly what you need.</p>
+        </div>
     </section>
-    <footer>
-        <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+
+    <!-- Inventory Section -->
+    <section class="section">
+        <div class="container">
+            <!-- Search -->
+            <div class="search-wrap">
+                <input type="text" id="searchInput" placeholder="Search inventory by name, size, or price...">
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="streamers">Streamers</button>
+                <button class="tab-btn" data-tab="nymphs">Nymphs</button>
+                <button class="tab-btn" data-tab="dryflies">Dry Flies</button>
+            </div>
+
+            <!-- Streamers Tab -->
+            <div class="tab-content active" id="streamers">
+                <!-- Woolly Buggers -->
+                <div class="inventory-section">
+                    <h2>Woolly Buggers</h2>
+                    <div class="table-wrap">
+                        <table class="styled-table" data-searchable>
+                            <thead>
+                                <tr><th>Name</th><th>Size</th><th>Qty</th><th>Price</th><th>Sold</th><th>Starting Qty</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>CH Black Bugger</td><td>4</td><td>10</td><td>$2.99</td><td>0</td><td>10</td></tr>
+                                <tr><td>CH RubberLegs Black Bugger</td><td>12</td><td>9</td><td>$2.50</td><td>0</td><td>9</td></tr>
+                                <tr><td>BH Purple Bugger</td><td>8</td><td>6</td><td>$2.25</td><td>0</td><td>6</td></tr>
+                                <tr><td>BH Purple Bugger</td><td>10</td><td>8</td><td>$2.25</td><td>--</td><td>12</td></tr>
+                                <tr><td>BH Black Bugger</td><td>8</td><td>6</td><td>$2.25</td><td>0</td><td>6</td></tr>
+                                <tr><td>BH Black Bugger</td><td>12</td><td>12</td><td>$2.25</td><td>0</td><td>12</td></tr>
+                                <tr><td>BH Chartreuse Bugger</td><td>10</td><td>9</td><td>$2.25</td><td>0</td><td>9</td></tr>
+                                <tr><td>Wooly Bugger Black Hackled Head</td><td>12</td><td>24</td><td>$1.99</td><td>--</td><td>30</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Hellgrammite -->
+                <div class="inventory-section">
+                    <h2>Hellgrammite</h2>
+                    <div class="table-wrap">
+                        <table class="styled-table" data-searchable>
+                            <thead>
+                                <tr><th>Name</th><th>Size</th><th>Qty</th><th>Price</th><th>Sold</th><th>Starting Qty</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Woolly Hellgrammite WTD (K)</td><td>8</td><td>18</td><td>$1.50</td><td>--</td><td>24</td></tr>
+                                <tr><td>Hellgrammite WTD</td><td>8</td><td>29</td><td>$1.50</td><td>--</td><td>35</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Muddler Minnows -->
+                <div class="inventory-section">
+                    <h2>Muddler Minnows</h2>
+                    <div class="table-wrap">
+                        <table class="styled-table" data-searchable>
+                            <thead>
+                                <tr><th>Name</th><th>Size</th><th>Qty</th><th>Price</th><th>Sold</th><th>Starting Qty</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Muddler Marabou-Olive</td><td>12</td><td>3</td><td>$2.25</td><td>0</td><td>3</td></tr>
+                                <tr><td>Muddler Marabou-Olive</td><td>10</td><td>12</td><td>$2.25</td><td>0</td><td>12</td></tr>
+                                <tr><td>Muddler Minnow</td><td>8</td><td>9</td><td>$2.75</td><td>0</td><td>9</td></tr>
+                                <tr><td>Muddler Minnow</td><td>6</td><td>12</td><td>$2.75</td><td>0</td><td>12</td></tr>
+                                <tr><td>Muddler Minnow</td><td>2</td><td>12</td><td>$3.50</td><td>0</td><td>12</td></tr>
+                                <tr><td>Muddler Minnow</td><td>10</td><td>12</td><td>$2.75</td><td>0</td><td>12</td></tr>
+                                <tr><td>Muddler Minnow</td><td>16</td><td>12</td><td>$2.50</td><td>0</td><td>12</td></tr>
+                                <tr><td>Muddler Minnow</td><td>14</td><td>24</td><td>$2.50</td><td>0</td><td>24</td></tr>
+                                <tr><td>Muddler Minnow</td><td>12</td><td>8</td><td>$2.50</td><td>--</td><td>12</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Zonkers -->
+                <div class="inventory-section">
+                    <h2>Zonkers</h2>
+                    <div class="table-wrap">
+                        <table class="styled-table" data-searchable>
+                            <thead>
+                                <tr><th>Name</th><th>Size</th><th>Qty</th><th>Price</th><th>Sold</th><th>Starting Qty</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Zonker Pearl/Tan</td><td>2</td><td>6</td><td>$4.50</td><td>0</td><td>6</td></tr>
+                                <tr><td>Zonker Pearl/Tan</td><td>6</td><td>5</td><td>$3.50</td><td>0</td><td>5</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Misc Streamers -->
+                <div class="inventory-section">
+                    <h2>Misc. Streamers</h2>
+                    <div class="table-wrap">
+                        <table class="styled-table" data-searchable>
+                            <thead>
+                                <tr><th>Name</th><th>Size</th><th>Qty</th><th>Price</th><th>Sold</th><th>Starting Qty</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mickey Finn</td><td>8</td><td>6</td><td>$1.25</td><td>0</td><td>6</td></tr>
+                                <tr><td>Matuka-Olive</td><td>10</td><td>3</td><td>$1.00</td><td>--</td><td>9</td></tr>
+                                <tr><td>Mickey Finn</td><td>10</td><td>2</td><td>$1.25</td><td>--</td><td>6</td></tr>
+                                <tr><td>Black Ghost - Feather Wing</td><td>12</td><td>18</td><td>$1.75</td><td>0</td><td>18</td></tr>
+                                <tr><td>Little Brown Trout</td><td>12</td><td>15</td><td>$1.00</td><td>0</td><td>15</td></tr>
+                                <tr><td>Little Brown Trout</td><td>10</td><td>8</td><td>$1.00</td><td>0</td><td>8</td></tr>
+                                <tr><td>Little Brooke Trout</td><td>10</td><td>23</td><td>$1.00</td><td>0</td><td>23</td></tr>
+                                <tr><td>Little Brooke Trout</td><td>12</td><td>4</td><td>$1.00</td><td>--</td><td>8</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Streamers Total -->
+                <div style="text-align:right;padding:1rem 0;">
+                    <span style="display:inline-block;padding:0.75rem 1.5rem;background:var(--color-primary-dark);color:#fff;border-radius:var(--radius-sm);font-weight:700;">Total Streamers in Stock: 306</span>
+                </div>
+            </div>
+
+            <!-- Nymphs Tab -->
+            <div class="tab-content" id="nymphs">
+                <div class="inventory-section">
+                    <h2>Weenie & Mop Flies</h2>
+                    <div class="table-wrap">
+                        <table class="styled-table" data-searchable>
+                            <thead>
+                                <tr><th>Name</th><th>Size</th><th>Qty</th><th>Price</th><th>Sold</th><th>Starting Qty</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="6" style="text-align:center;color:var(--color-text-light);padding:2rem;">Nymph inventory data is being updated. Contact us for current availability.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Nymphs Total -->
+                <div style="text-align:right;padding:1rem 0;">
+                    <span style="display:inline-block;padding:0.75rem 1.5rem;background:var(--color-primary-dark);color:#fff;border-radius:var(--radius-sm);font-weight:700;">Total Nymphs in Stock: 1,037</span>
+                </div>
+            </div>
+
+            <!-- Dry Flies Tab -->
+            <div class="tab-content" id="dryflies">
+                <div class="inventory-section">
+                    <h2>Blue Wing Olive & More</h2>
+                    <div class="table-wrap">
+                        <table class="styled-table" data-searchable>
+                            <thead>
+                                <tr><th>Name</th><th>Size</th><th>Qty</th><th>Price</th><th>Sold</th><th>Starting Qty</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="6" style="text-align:center;color:var(--color-text-light);padding:2rem;">Dry fly inventory data is being updated. Contact us for current availability.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Dry Flies Total -->
+                <div style="text-align:right;padding:1rem 0;">
+                    <span style="display:inline-block;padding:0.75rem 1.5rem;background:var(--color-primary-dark);color:#fff;border-radius:var(--radius-sm);font-weight:700;">Total Dry Flies in Stock: 1,352</span>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="section-alt" style="margin-top:2rem;padding:2rem;border-radius:var(--radius-md);text-align:center;">
+                <h3 style="margin-bottom:0.5rem;">Total Inventory</h3>
+                <p style="font-size:2rem;font-weight:700;color:var(--color-primary-dark);font-family:var(--font-heading);">2,695 Flies</p>
+                <p style="color:var(--color-text-light);margin-top:0.5rem;">Ready to order? <a href="contact.html" style="font-weight:600;">Contact us</a> or learn <a href="order.html" style="font-weight:600;">how to order</a>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>On Point <span>Flies</span></h3>
+                <p>Premium hand-tied flies for the passionate fly fisher. From classic patterns to custom creations, we tie flies that catch fish.</p>
+            </div>
+            <div>
+                <h4>Navigate</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="catalog.html">Catalog</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Orders</h4>
+                <ul class="footer-links">
+                    <li><a href="order.html">How to Order</a></li>
+                    <li><a href="order.html">Pricing</a></li>
+                    <li><a href="order.html">Shipping</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Get in Touch</h4>
+                <ul class="footer-links">
+                    <li>info@onpointflies.com</li>
+                    <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+        </div>
     </footer>
+
     <script>
-        function searchTables() {
-            var input = document.getElementById("searchInput");
-            var filter = input.value.toUpperCase();
-            var tables = document.querySelectorAll("table");
-            tables.forEach(function(table) {
-                var tr = table.getElementsByTagName("tr");
-                for (var i = 1; i < tr.length; i++) {
-                    var found = false;
-                    var td = tr[i].getElementsByTagName("td");
-                    for (var j = 0; j < td.length; j++) {
-                        if (td[j]) {
-                            var txtValue = td[j].textContent || td[j].innerText;
-                            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-                    tr[i].style.display = found ? "" : "none";
-                }
+        // Navbar
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+        navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+
+        // Tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.getAttribute('data-tab')).classList.add('active');
             });
-        }
+        });
+
+        // Search across all visible tables
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const filter = this.value.toUpperCase();
+            document.querySelectorAll('.styled-table[data-searchable]').forEach(table => {
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    let found = false;
+                    row.querySelectorAll('td').forEach(td => {
+                        if (td.textContent.toUpperCase().includes(filter)) found = true;
+                    });
+                    row.style.display = found ? '' : 'none';
+                });
+            });
+        });
     </script>
+
 </body>
 </html>
