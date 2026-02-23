@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fly Inventory - On Point Flies</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        input { margin: 20px; padding: 10px; width: 300px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="catalog.html">Fly Catalog</a></li>
+                <li><a href="inventory.html">Inventory</a></li>
+                <li><a href="order.html">Order Flies</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section>
+        <h1>Fly Inventory</h1>
+        <input type="text" id="searchInput" onkeyup="searchTables()" placeholder="Search for flies...">
+
+        <h2>Streamers</h2>
+        <table id="streamers_table">
+            <thead>
+                <tr><th>Name</th><th>Size</th><th>Quantity</th><th>Sale Price</th><th>Amount Sold</th><th>Starting Quantity</th><th>Cart Price</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>WOOLY BUGGERS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>CH Black Bugger</td><td>4</td><td>10</td><td>2.99</td><td>0</td><td>10</td><td>0</td></tr>
+                <tr><td>CH RubberLegs Black Bugger</td><td>12</td><td>9</td><td>2.5</td><td>0</td><td>9</td><td>0</td></tr>
+                <tr><td>BH Purple Bugger</td><td>8</td><td>6</td><td>2.25</td><td>0</td><td>6</td><td>0</td></tr>
+                <tr><td>BH Purple Bugger</td><td>10</td><td>8</td><td>2.25</td><td></td><td>12</td><td>0</td></tr>
+                <tr><td>BH Black Bugger</td><td>8</td><td>6</td><td>2.25</td><td>0</td><td>6</td><td>0</td></tr>
+                <tr><td>BH Black Bugger</td><td>12</td><td>12</td><td>2.25</td><td>0</td><td>12</td><td>0</td></tr>
+                <tr><td>BH Chartruse Bugger</td><td>10</td><td>9</td><td>2.25</td><td>0</td><td>9</td><td>0</td></tr>
+                <tr><td>Wooly Bugger Black Hackled Head</td><td>12</td><td>24</td><td>1.99</td><td></td><td>30</td><td>0</td></tr>
+                <tr><td>HELLGRAMMITE</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Woolly Hellgrammite WTD (K)</td><td>8</td><td>18</td><td>1.5</td><td></td><td>24</td><td>0</td></tr>
+                <tr><td>Hellgrammite WTD</td><td>8</td><td>29</td><td>1.5</td><td></td><td>35</td><td>0</td></tr>
+                <tr><td>MUDDLER MINNOWS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Muddler Marabou-Olive</td><td>12</td><td>3</td><td>2.25</td><td>0</td><td>3</td><td>0</td></tr>
+                <tr><td>Muddler Marabou-Olive</td><td>10</td><td>12</td><td>2.25</td><td>0</td><td>12</td><td>0</td></tr>
+                <tr><td>Muddler Minnow</td><td>8</td><td>9</td><td>2.75</td><td>0</td><td>9</td><td>0</td></tr>
+                <tr><td>Muddler Minnow</td><td>6</td><td>12</td><td>2.75</td><td>0</td><td>12</td><td>0</td></tr>
+                <tr><td>Muddler Minnow</td><td>2</td><td>12</td><td>3.5</td><td>0</td><td>12</td><td>0</td></tr>
+                <tr><td>Muddler Minnow</td><td>10</td><td>12</td><td>2.75</td><td>0</td><td>12</td><td>0</td></tr>
+                <tr><td>Muddler Minnow</td><td>16</td><td>12</td><td>2.5</td><td>0</td><td>12</td><td>0</td></tr>
+                <tr><td>Muddler Minnow</td><td>14</td><td>24</td><td>2.5</td><td>0</td><td>24</td><td>0</td></tr>
+                <tr><td>Muddler Minnow</td><td>12</td><td>8</td><td>2.5</td><td></td><td>12</td><td>0</td></tr>
+                <tr><td>ZONKERS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Zonker Pearl/Tan</td><td>2</td><td>6</td><td>4.5</td><td>0</td><td>6</td><td>0</td></tr>
+                <tr><td>Zonker Pearl/Tan</td><td>6</td><td>5</td><td>3.5</td><td>0</td><td>5</td><td>0</td></tr>
+                <tr><td>MISC. STREAMERS</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Mickey Finn</td><td>8</td><td>6</td><td>1.25</td><td>0</td><td>6</td><td>0</td></tr>
+                <tr><td>Matuka-Olive</td><td>10</td><td>3</td><td>1</td><td></td><td>9</td><td>0</td></tr>
+                <tr><td>Mickey Finn</td><td>10</td><td>2</td><td>1.25</td><td></td><td>6</td><td>0</td></tr>
+                <tr><td>Black ghost-feather wing</td><td>12</td><td>18</td><td>1.75</td><td>0</td><td>18</td><td>0</td></tr>
+                <tr><td>Little Brown Trout</td><td>12</td><td>15</td><td>1</td><td>0</td><td>15</td><td>0</td></tr>
+                <tr><td>Little Brown Trout</td><td>10</td><td>8</td><td>1</td><td>0</td><td>8</td><td>0</td></tr>
+                <tr><td>Little Brooke Trout</td><td>10</td><td>23</td><td>1</td><td>0</td><td>23</td><td>0</td></tr>
+                <tr><td>Little Brooke Trout</td><td>12</td><td>4</td><td>1</td><td></td><td>8</td><td>0</td></tr>
+                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td>Total</td><td></td><td>306</td><td></td><td></td><td></td><td>0</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Nymph</h2>
+        <table id="nymph_table">
+            <thead>
+                <tr><th>Name</th><th>Size</th><th>Quantity</th><th>Sales Price</th><th>Total</th><th>Amount sold</th><th>Starting Quantity</th><th>Cart Total</th></tr>
+            </thead>
+            <tbody>
+                <!-- Nymph data rows here, similar format -->
+                <tr><td>WEENIE & MOP FLIES</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <!-- ... all rows from Nymph sheet ... -->
+                <tr><td>Total</td><td></td><td>1037</td><td></td><td>2023.31</td><td></td><td>1147</td><td>0</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Dry Flies</h2>
+        <table id="dry_flies_table">
+            <thead>
+                <tr><th>Name</th><th>Size</th><th>Quantity</th><th>Sales Price</th><th>Total</th><th>Amount Sold</th><th>Starting Quantity</th><th>Cart Total</th></tr>
+            </thead>
+            <tbody>
+                <!-- Dry Flies data rows here -->
+                <tr><td>BLUE WING OLIVE</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <!-- ... all rows from Dry Flies sheet ... -->
+                <tr><td>Total</td><td></td><td>1352</td><td></td><td>3111.51</td><td></td><td>1388</td><td>0</td></tr>
+            </tbody>
+        </table>
+    </section>
+    <footer>
+        <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+    </footer>
+    <script>
+        function searchTables() {
+            var input = document.getElementById("searchInput");
+            var filter = input.value.toUpperCase();
+            var tables = document.querySelectorAll("table");
+            tables.forEach(function(table) {
+                var tr = table.getElementsByTagName("tr");
+                for (var i = 1; i < tr.length; i++) {
+                    var found = false;
+                    var td = tr[i].getElementsByTagName("td");
+                    for (var j = 0; j < td.length; j++) {
+                        if (td[j]) {
+                            var txtValue = td[j].textContent || td[j].innerText;
+                            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    tr[i].style.display = found ? "" : "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
