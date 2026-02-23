@@ -20,36 +20,28 @@
     </header>
     <section>
         <h1>Our Fly Catalog</h1>
-        <div class="catalog-grid">
-            <div class="fly-item">
-                <img src="https://cdn11.bigcommerce.com/s-5020eou/images/stencil/1280x1280/products/110/9377/005_100_sideRMB__04883.1516339428.png?c=2" alt="Adams Dry Fly">
-                <h2>Adams Dry Fly</h2>
-                <p>Type: Dry Fly<br>Best for: Trout in rivers<br>Description: A versatile mayfly imitation, great for surface fishing in evenings.</p>
-            </div>
-            <div class="fly-item">
-                <img src="https://thecatchandthehatch.com/wp-content/uploads/product_images/elk-hair-caddis-yellow-sku-224.jpg" alt="Elk Hair Caddis">
-                <h2>Elk Hair Caddis</h2>
-                <p>Type: Dry Fly<br>Best for: Caddis hatches<br>Description: Floats high with elk hair wing; ideal for fast water and skittering techniques.</p>
-            </div>
-            <div class="fly-item">
-                <img src="https://www.fullingmill.com/962P21.jpg" alt="Woolly Bugger">
-                <h2>Woolly Bugger</h2>
-                <p>Type: Streamer<br>Best for: Bass, trout subsurface<br>Description: Mimics leeches or baitfish; strip it through water for aggressive strikes.</p>
-            </div>
-            <div class="fly-item">
-                <img src="https://bigyflyco.com/cdn/shop/files/20241015_134525_1_1050x700.jpg?v=1729028765" alt="Clouser Minnow">
-                <h2>Clouser Minnow</h2>
-                <p>Type: Streamer<br>Best for: Saltwater or large fish<br>Description: Weighted eyes for jigging action; excellent for bonefish or pike.</p>
-            </div>
-            <div class="fly-item">
-                <img src="https://cdn.troutline.ro/media/catalog/product/c/l/classic-pheasant-tails-troutline_shop.jpg" alt="Pheasant Tail Nymph">
-                <h2>Pheasant Tail Nymph</h2>
-                <p>Type: Nymph<br>Best for: Subsurface mayfly nymphs<br>Description: Simple and effective; dead-drift it under indicators for trout.</p>
-            </div>
-        </div>
+        <div id="catalog-grid" class="catalog-grid"></div>
     </section>
     <footer>
         <p>&copy; 2026 On Point Flies. All rights reserved.</p>
     </footer>
+    <script>
+        fetch('flies.json')
+            .then(response => response.json())
+            .then(flies => {
+                const grid = document.getElementById('catalog-grid');
+                flies.forEach(fly => {
+                    const item = document.createElement('div');
+                    item.className = 'fly-item';
+                    item.innerHTML = `
+                        <img src="${fly.image}" alt="${fly.name}">
+                        <h2>${fly.name}</h2>
+                        <p>Type: ${fly.type}<br>Best for: ${fly.bestFor}<br>Description: ${fly.description}<br>Recipe: ${fly.recipe}</p>
+                    `;
+                    grid.appendChild(item);
+                });
+            })
+            .catch(error => console.error('Error loading catalog:', error));
+    </script>
 </body>
 </html>
