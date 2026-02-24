@@ -110,7 +110,7 @@
             <div>
                 <h4>Get in Touch</h4>
                 <ul class="footer-links">
-                    <li>info@onpointflies.com</li>
+                    <li><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d7beb9b1b897b8b9a7b8beb9a3b1bbbeb2a4f9b4b8ba">[email&#160;protected]</a></li>
                     <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
                 </ul>
             </div>
@@ -123,7 +123,7 @@
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // Auth0 Configuration
         const AUTH0_CONFIG = {
             domain: 'dev-ofdinri72f360yav.us.auth0.com',
@@ -140,6 +140,7 @@
                 auth0Client = await auth0.createAuth0Client({
                     domain: AUTH0_CONFIG.domain,
                     clientId: AUTH0_CONFIG.clientId,
+                    cacheLocation: 'localstorage',
                     authorizationParams: {
                         redirect_uri: AUTH0_CONFIG.redirectUri
                     }
@@ -345,13 +346,4 @@
         // Filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                activeFilter = btn.getAttribute('data-filter');
-                filterAndSearch();
-            });
-        });
-    </script>
-
-</body>
-</html>
+                document.querySelectorAll('.filter-btn').forEach(b => b.

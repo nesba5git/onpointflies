@@ -239,6 +239,7 @@
                 auth0Client = await auth0.createAuth0Client({
                     domain: AUTH0_CONFIG.domain,
                     clientId: AUTH0_CONFIG.clientId,
+                    cacheLocation: 'localstorage',
                     authorizationParams: {
                         redirect_uri: AUTH0_CONFIG.redirectUri
                     }

@@ -187,7 +187,7 @@
             <div>
                 <h4>Get in Touch</h4>
                 <ul class="footer-links">
-                    <li>info@onpointflies.com</li>
+                    <li><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="543d3a323b143b3a243b3d3a2032383d31277a373b39">[email&#160;protected]</a></li>
                     <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
                 </ul>
             </div>
@@ -197,7 +197,7 @@
         </div>
     </footer>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // Auth0 Configuration (same as admin)
         const AUTH0_CONFIG = {
             domain: 'dev-ofdinri72f360yav.us.auth0.com',
@@ -214,6 +214,7 @@
                 auth0Client = await auth0.createAuth0Client({
                     domain: AUTH0_CONFIG.domain,
                     clientId: AUTH0_CONFIG.clientId,
+                    cacheLocation: 'localstorage',
                     authorizationParams: {
                         redirect_uri: AUTH0_CONFIG.redirectUri
                     }
@@ -448,13 +449,4 @@
             document.querySelectorAll('.account-tab').forEach(function(tab) {
                 tab.addEventListener('click', function() {
                     document.querySelectorAll('.account-tab').forEach(function(t) { t.classList.remove('active'); });
-                    document.querySelectorAll('.account-panel').forEach(function(p) { p.classList.remove('active'); });
-                    tab.classList.add('active');
-                    document.getElementById(tab.dataset.panel).classList.add('active');
-                });
-            });
-        });
-    </script>
-
-</body>
-</html>
+                    document.querySelectorAll('.account-panel').forEach(function(p) { p.classList.remove
