@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - On Point Flies</title>
+    <meta name="description" content="Manage your On Point Flies account, view favorites, and manage your shopping list.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">On Point <span>Flies</span></a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
+                <li><a href="inventory.html">Inventory</a></li>
+                <li><a href="order.html">Order</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="account.html" class="active">Account</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero page-hero-small">
+        <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/1089234/pexels-photo-1089234.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
+        <div class="hero-content">
+            <span class="section-label">Your Account</span>
+            <h1>My Account</h1>
+            <p>Manage your favorites, shopping list, and account details.</p>
+        </div>
+    </section>
+
+    <!-- Account Content -->
+    <section class="section">
+        <div class="container">
+
+            <!-- Login Section (shown when not authenticated) -->
+            <div id="auth-section" class="account-auth-card">
+                <div class="auth-icon">&#128100;</div>
+                <h2>Welcome to On Point Flies</h2>
+                <p>Sign in to save your favorite flies, create shopping lists, and access exclusive wholesale pricing.</p>
+                <div class="auth-buttons">
+                    <button id="login-btn" class="btn btn-primary">Log In</button>
+                    <button id="signup-btn" class="btn btn-outline-dark">Create Account</button>
+                </div>
+                <div class="auth-features">
+                    <div class="auth-feature">
+                        <span class="feature-icon">&#9829;</span>
+                        <span>Save Favorites</span>
+                    </div>
+                    <div class="auth-feature">
+                        <span class="feature-icon">&#128203;</span>
+                        <span>Shopping Lists</span>
+                    </div>
+                    <div class="auth-feature">
+                        <span class="feature-icon">&#128176;</span>
+                        <span>Wholesale Pricing</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Dashboard (shown when authenticated) -->
+            <div id="account-dashboard" style="display:none;">
+                
+                <!-- User Profile Card -->
+                <div class="profile-card">
+                    <img id="user-avatar" src="" alt="Profile picture" class="profile-avatar">
+                    <div class="profile-info">
+                        <h2 id="user-name"></h2>
+                        <p id="user-email"></p>
+                    </div>
+                    <button id="logout-btn" class="btn btn-outline-dark">Log Out</button>
+                </div>
+
+                <!-- Account Tabs -->
+                <div class="account-tabs">
+                    <button class="account-tab active" data-panel="favorites-panel">
+                        <span class="tab-icon">&#9829;</span> Favorites
+                        <span class="tab-count" id="favorites-count">0</span>
+                    </button>
+                    <button class="account-tab" data-panel="list-panel">
+                        <span class="tab-icon">&#128203;</span> Shopping List
+                        <span class="tab-count" id="list-count">0</span>
+                    </button>
+                    <button class="account-tab" data-panel="orders-panel">
+                        <span class="tab-icon">&#128230;</span> Order History
+                    </button>
+                </div>
+
+                <!-- Favorites Panel -->
+                <div id="favorites-panel" class="account-panel active">
+                    <div class="panel-header">
+                        <h3>My Favorite Flies</h3>
+                        <p>Flies you've saved for quick access</p>
+                    </div>
+                    <div id="favorites-grid" class="favorites-grid">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <div id="favorites-empty" class="empty-state">
+                        <span class="empty-icon">&#9829;</span>
+                        <h4>No favorites yet</h4>
+                        <p>Browse our <a href="catalog.html">catalog</a> and click the heart icon to save your favorite flies.</p>
+                    </div>
+                </div>
+
+                <!-- Shopping List Panel -->
+                <div id="list-panel" class="account-panel">
+                    <div class="panel-header">
+                        <h3>My Shopping List</h3>
+                        <p>Flies you're planning to order</p>
+                    </div>
+                    <div id="shopping-list" class="shopping-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <div id="list-empty" class="empty-state">
+                        <span class="empty-icon">&#128203;</span>
+                        <h4>Your list is empty</h4>
+                        <p>Browse our <a href="catalog.html">catalog</a> and click "Add to List" to start building your order.</p>
+                    </div>
+                    <div id="list-actions" class="list-actions" style="display:none;">
+                        <div class="list-total">
+                            <span>Estimated Total:</span>
+                            <strong id="list-total-amount">$0.00</strong>
+                        </div>
+                        <div class="list-buttons">
+                            <button class="btn btn-outline-dark" onclick="clearShoppingList()">Clear List</button>
+                            <a href="contact.html" class="btn btn-primary">Request Quote</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Panel -->
+                <div id="orders-panel" class="account-panel">
+                    <div class="panel-header">
+                        <h3>Order History</h3>
+                        <p>Your past orders with On Point Flies</p>
+                    </div>
+                    <div class="empty-state">
+                        <span class="empty-icon">&#128230;</span>
+                        <h4>No orders yet</h4>
+                        <p>Once you place an order, it will appear here. Ready to order? <a href="contact.html">Contact us</a> to get started.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>On Point <span>Flies</span></h3>
+                <p>Premium hand-tied flies for the passionate fly fisher. From classic patterns to custom creations, we tie flies that catch fish.</p>
+            </div>
+            <div>
+                <h4>Navigate</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="catalog.html">Catalog</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Orders</h4>
+                <ul class="footer-links">
+                    <li><a href="order.html">How to Order</a></li>
+                    <li><a href="order.html">Pricing</a></li>
+                    <li><a href="order.html">Shipping</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Get in Touch</h4>
+                <ul class="footer-links">
+                    <li>info@onpointflies.com</li>
+                    <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Auth0 Configuration (same as admin)
+        const AUTH0_CONFIG = {
+            domain: 'dev-ofdinri72f360yav.us.auth0.com',
+            clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
+            redirectUri: window.location.origin + '/account.html'
+        };
+
+        let auth0Client = null;
+        let currentUser = null;
+
+        // Initialize Auth0
+        async function initAuth0() {
+            try {
+                auth0Client = await auth0.createAuth0Client({
+                    domain: AUTH0_CONFIG.domain,
+                    clientId: AUTH0_CONFIG.clientId,
+                    authorizationParams: {
+                        redirect_uri: AUTH0_CONFIG.redirectUri
+                    }
+                });
+
+                if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+                    await auth0Client.handleRedirectCallback();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
+                const isAuthenticated = await auth0Client.isAuthenticated();
+                
+                if (isAuthenticated) {
+                    currentUser = await auth0Client.getUser();
+                    showAccountDashboard();
+                } else {
+                    showLoginScreen();
+                }
+            } catch (error) {
+                console.error('Auth0 error:', error);
+            }
+        }
+
+        async function login() {
+            await auth0Client.loginWithRedirect();
+        }
+
+        async function signup() {
+            await auth0Client.loginWithRedirect({
+                authorizationParams: {
+                    screen_hint: 'signup'
+                }
+            });
+        }
+
+        async function logout() {
+            // Clear local data on logout
+            localStorage.removeItem('opf_favorites');
+            localStorage.removeItem('opf_shopping_list');
+            await auth0Client.logout({ logoutParams: { returnTo: window.location.origin } });
+        }
+
+        function showLoginScreen() {
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('account-dashboard').style.display = 'none';
+        }
+
+        function showAccountDashboard() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('account-dashboard').style.display = 'block';
+            
+            document.getElementById('user-name').textContent = currentUser.name || 'Welcome!';
+            document.getElementById('user-email').textContent = currentUser.email || '';
+            document.getElementById('user-avatar').src = currentUser.picture || 'https://via.placeholder.com/80';
+            
+            loadFavorites();
+            loadShoppingList();
+        }
+
+        // Favorites Management
+        function getFavorites() {
+            const stored = localStorage.getItem('opf_favorites');
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function saveFavorites(favorites) {
+            localStorage.setItem('opf_favorites', JSON.stringify(favorites));
+        }
+
+        function loadFavorites() {
+            const favorites = getFavorites();
+            const grid = document.getElementById('favorites-grid');
+            const empty = document.getElementById('favorites-empty');
+            const count = document.getElementById('favorites-count');
+            
+            count.textContent = favorites.length;
+            
+            if (favorites.length === 0) {
+                grid.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'grid';
+            empty.style.display = 'none';
+            
+            grid.innerHTML = favorites.map(fly => `
+                <div class="favorite-card">
+                    <button class="remove-btn" onclick="removeFavorite('${fly.name}')" title="Remove">&times;</button>
+                    <img src="${fly.image}" alt="${fly.name}" onerror="this.src='https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=300'">
+                    <div class="favorite-card-body">
+                        <span class="card-tag">${fly.type}</span>
+                        <h4>${fly.name}</h4>
+                        <p>${fly.bestFor}</p>
+                        <button class="btn btn-sm btn-dark" onclick="addToListFromFavorite('${encodeURIComponent(JSON.stringify(fly))}')">Add to List</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeFavorite(name) {
+            let favorites = getFavorites();
+            favorites = favorites.filter(f => f.name !== name);
+            saveFavorites(favorites);
+            loadFavorites();
+        }
+
+        function addToListFromFavorite(encodedFly) {
+            const fly = JSON.parse(decodeURIComponent(encodedFly));
+            addToShoppingList(fly);
+            loadShoppingList();
+            // Switch to shopping list tab
+            document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.account-panel').forEach(p => p.classList.remove('active'));
+            document.querySelector('[data-panel="list-panel"]').classList.add('active');
+            document.getElementById('list-panel').classList.add('active');
+        }
+
+        // Shopping List Management
+        function getShoppingList() {
+            const stored = localStorage.getItem('opf_shopping_list');
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function saveShoppingList(list) {
+            localStorage.setItem('opf_shopping_list', JSON.stringify(list));
+        }
+
+        function addToShoppingList(fly) {
+            const list = getShoppingList();
+            const existing = list.find(item => item.name === fly.name);
+            if (existing) {
+                existing.quantity = (existing.quantity || 1) + 1;
+            } else {
+                list.push({ ...fly, quantity: 1, price: fly.price || 2.50 });
+            }
+            saveShoppingList(list);
+        }
+
+        function loadShoppingList() {
+            const list = getShoppingList();
+            const container = document.getElementById('shopping-list');
+            const empty = document.getElementById('list-empty');
+            const actions = document.getElementById('list-actions');
+            const count = document.getElementById('list-count');
+            
+            const totalItems = list.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            count.textContent = totalItems;
+            
+            if (list.length === 0) {
+                container.style.display = 'none';
+                empty.style.display = 'block';
+                actions.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'block';
+            empty.style.display = 'none';
+            actions.style.display = 'flex';
+            
+            let total = 0;
+            container.innerHTML = list.map(item => {
+                const itemTotal = (item.price || 2.50) * (item.quantity || 1);
+                total += itemTotal;
+                return `
+                    <div class="list-item">
+                        <img src="${item.image}" alt="${item.name}" onerror="this.src='https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=100'">
+                        <div class="list-item-info">
+                            <h4>${item.name}</h4>
+                            <span class="card-tag">${item.type}</span>
+                        </div>
+                        <div class="list-item-qty">
+                            <button onclick="updateQuantity('${item.name}', -1)">-</button>
+                            <span>${item.quantity || 1}</span>
+                            <button onclick="updateQuantity('${item.name}', 1)">+</button>
+                        </div>
+                        <div class="list-item-price">$${itemTotal.toFixed(2)}</div>
+                        <button class="remove-btn" onclick="removeFromList('${item.name}')">&times;</button>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('list-total-amount').textContent = '$' + total.toFixed(2);
+        }
+
+        function updateQuantity(name, delta) {
+            const list = getShoppingList();
+            const item = list.find(i => i.name === name);
+            if (item) {
+                item.quantity = Math.max(1, (item.quantity || 1) + delta);
+                saveShoppingList(list);
+                loadShoppingList();
+            }
+        }
+
+        function removeFromList(name) {
+            let list = getShoppingList();
+            list = list.filter(i => i.name !== name);
+            saveShoppingList(list);
+            loadShoppingList();
+        }
+
+        function clearShoppingList() {
+            if (confirm('Clear your entire shopping list?')) {
+                saveShoppingList([]);
+                loadShoppingList();
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initAuth0();
+
+            // Navbar
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                navbar.classList.toggle('scrolled', window.scrollY > 50);
+            });
+
+            const navToggle = document.getElementById('navToggle');
+            const navLinks = document.getElementById('navLinks');
+            navToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('open');
+            });
+
+            // Auth buttons
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('signup-btn').addEventListener('click', signup);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
+            // Account tabs
+            document.querySelectorAll('.account-tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.account-tab').forEach(function(t) { t.classList.remove('active'); });
+                    document.querySelectorAll('.account-panel').forEach(function(p) { p.classList.remove('active'); });
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.panel).classList.add('active');
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

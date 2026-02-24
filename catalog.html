@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
 </head>
 <body>
 
@@ -23,7 +24,7 @@
                 <li><a href="inventory.html">Inventory</a></li>
                 <li><a href="order.html">Order</a></li>
                 <li><a href="contact.html">Contact</a></li>
-                <li><a href="admin.html">Admin</a></li>
+                <li><a href="account.html" id="account-link">Account</a></li>
             </ul>
             <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
                 <span></span><span></span><span></span>
@@ -109,7 +110,7 @@
             <div>
                 <h4>Get in Touch</h4>
                 <ul class="footer-links">
-                    <li><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d9b0b7bfb699b6b7a9b6b0b7adbfb5b0bcaaf7bab6b4">[email&#160;protected]</a></li>
+                    <li>info@onpointflies.com</li>
                     <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
                 </ul>
             </div>
@@ -119,14 +120,138 @@
         </div>
     </footer>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Auth0 Configuration
+        const AUTH0_CONFIG = {
+            domain: 'dev-ofdinri72f360yav.us.auth0.com',
+            clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
+            redirectUri: window.location.origin + '/catalog.html'
+        };
+
+        let auth0Client = null;
+        let isAuthenticated = false;
+
+        // Initialize Auth0
+        async function initAuth0() {
+            try {
+                auth0Client = await auth0.createAuth0Client({
+                    domain: AUTH0_CONFIG.domain,
+                    clientId: AUTH0_CONFIG.clientId,
+                    authorizationParams: {
+                        redirect_uri: AUTH0_CONFIG.redirectUri
+                    }
+                });
+
+                if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+                    await auth0Client.handleRedirectCallback();
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
+                isAuthenticated = await auth0Client.isAuthenticated();
+                updateAccountLink();
+            } catch (error) {
+                console.error('Auth0 error:', error);
+            }
+        }
+
+        function updateAccountLink() {
+            const link = document.getElementById('account-link');
+            if (isAuthenticated) {
+                link.innerHTML = '&#128100; My Account';
+            }
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' show';
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+
+        // Favorites Management
+        function getFavorites() {
+            const stored = localStorage.getItem('opf_favorites');
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function saveFavorites(favorites) {
+            localStorage.setItem('opf_favorites', JSON.stringify(favorites));
+        }
+
+        function isFavorite(flyName) {
+            return getFavorites().some(f => f.name === flyName);
+        }
+
+        function toggleFavorite(fly) {
+            if (!isAuthenticated) {
+                showToast('Please log in to save favorites', 'info');
+                setTimeout(() => {
+                    window.location.href = 'account.html';
+                }, 1500);
+                return;
+            }
+
+            let favorites = getFavorites();
+            const index = favorites.findIndex(f => f.name === fly.name);
+            
+            if (index > -1) {
+                favorites.splice(index, 1);
+                showToast('Removed from favorites');
+            } else {
+                favorites.push(fly);
+                showToast('Added to favorites! ❤️');
+            }
+            
+            saveFavorites(favorites);
+            renderFlies(allFlies); // Re-render to update heart icons
+        }
+
+        // Shopping List Management
+        function getShoppingList() {
+            const stored = localStorage.getItem('opf_shopping_list');
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function saveShoppingList(list) {
+            localStorage.setItem('opf_shopping_list', JSON.stringify(list));
+        }
+
+        function addToList(fly) {
+            if (!isAuthenticated) {
+                showToast('Please log in to use shopping lists', 'info');
+                setTimeout(() => {
+                    window.location.href = 'account.html';
+                }, 1500);
+                return;
+            }
+
+            const list = getShoppingList();
+            const existing = list.find(item => item.name === fly.name);
+            
+            if (existing) {
+                existing.quantity = (existing.quantity || 1) + 1;
+                showToast(`Added another ${fly.name} (${existing.quantity} total)`);
+            } else {
+                list.push({ ...fly, quantity: 1, price: 2.50 });
+                showToast('Added to shopping list! 📋');
+            }
+            
+            saveShoppingList(list);
+        }
+
+        // Catalog
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
         const navToggle = document.getElementById('navToggle');
         const navLinks = document.getElementById('navLinks');
         navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
 
-        // Load catalog
         let allFlies = [];
         let activeFilter = 'all';
 
@@ -135,6 +260,7 @@
             .then(flies => {
                 allFlies = flies;
                 renderFlies(flies);
+                initAuth0();
             })
             .catch(err => console.error('Error loading catalog:', err));
 
@@ -160,9 +286,15 @@
                     ? `<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;">${fly.recipe}</pre></details>`
                     : '';
 
+                const isFav = isFavorite(fly.name);
+                const flyData = encodeURIComponent(JSON.stringify(fly));
+
                 card.innerHTML = `
                     <div class="card-image">
                         <img src="${fly.image}" alt="${fly.name}" loading="lazy" onerror="this.src='https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=600'">
+                        <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(JSON.parse(decodeURIComponent('${flyData}')))" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">
+                            ${isFav ? '&#9829;' : '&#9825;'}
+                        </button>
                     </div>
                     <div class="card-body">
                         <span class="card-tag">${fly.type}</span>
@@ -170,6 +302,9 @@
                         <p style="font-size:0.85rem;margin-bottom:0.35rem;"><strong>Best for:</strong> ${fly.bestFor}</p>
                         <p>${fly.description}</p>
                         ${recipePreview}
+                        <button class="btn btn-sm btn-dark add-to-list-btn" onclick="addToList(JSON.parse(decodeURIComponent('${flyData}')))">
+                            + Add to List
+                        </button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -210,4 +345,13 @@
         // Filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeFilter = btn.getAttribute('data-filter');
+                filterAndSearch();
+            });
+        });
+    </script>
+
+</body>
+</html>
