@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - On Point Flies</title>
-    <meta name="description" content="Admin panel for On Point Flies inventory management.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <!-- Auth0 SPA SDK -->
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
 </head>
 <body>
-
-    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">On Point <span>Flies</span></a>
@@ -25,15 +21,11 @@
                 <li><a href="inventory.html">Inventory</a></li>
                 <li><a href="order.html">Order</a></li>
                 <li><a href="contact.html">Contact</a></li>
-                <li><a href="admin.html" class="active">Admin</a></li>
+                <li><a href="account.html">Account</a></li>
             </ul>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-                <span></span><span></span><span></span>
-            </button>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
         </div>
     </nav>
-
-    <!-- Page Hero -->
     <section class="page-hero page-hero-small">
         <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
         <div class="hero-content">
@@ -42,539 +34,163 @@
             <p>Manage your fly inventory and catalog.</p>
         </div>
     </section>
-
-    <!-- Admin Content -->
     <section class="section">
         <div class="container">
-
-            <!-- Login Section (shown when not authenticated) -->
             <div id="auth-section" class="admin-auth-card">
                 <div class="auth-icon">&#128274;</div>
                 <h2>Admin Login Required</h2>
                 <p>Please log in with your Auth0 account to access the admin panel.</p>
-                <button id="login-btn" class="btn btn-primary" style="margin-top:1.5rem;">
-                    Log In with Auth0
-                </button>
+                <button id="login-btn" class="btn btn-primary" style="margin-top:1.5rem;">Log In with Auth0</button>
                 <div id="auth-error" class="auth-error" style="display:none;"></div>
             </div>
-
-            <!-- Admin Dashboard (shown when authenticated) -->
             <div id="admin-dashboard" style="display:none;">
-                
-                <!-- User Info Bar -->
                 <div class="admin-user-bar">
-                    <div class="user-info">
-                        <img id="user-avatar" src="" alt="User avatar" class="user-avatar">
-                        <div>
-                            <span class="user-greeting">Welcome back,</span>
-                            <strong id="user-name"></strong>
-                        </div>
-                    </div>
+                    <div class="user-info"><img id="user-avatar" src="" alt="User avatar" class="user-avatar"><div><span class="user-greeting">Welcome back,</span><strong id="user-name"></strong></div></div>
                     <button id="logout-btn" class="btn btn-outline-dark">Log Out</button>
                 </div>
-
-                <!-- Admin Tabs -->
                 <div class="admin-tabs">
                     <button class="admin-tab active" data-panel="inventory-panel">Inventory</button>
                     <button class="admin-tab" data-panel="catalog-panel">Catalog</button>
                     <button class="admin-tab" data-panel="export-panel">Export Data</button>
                 </div>
-
-                <!-- Inventory Panel -->
                 <div id="inventory-panel" class="admin-panel active">
-                    <div class="panel-header">
-                        <h3>Inventory Management</h3>
-                        <button class="btn btn-primary btn-sm" onclick="addInventoryItem()">+ Add Item</button>
-                    </div>
-                    
-                    <div class="admin-filters">
-                        <input type="text" id="admin-search" placeholder="Search inventory..." class="admin-input">
-                        <select id="admin-category" class="admin-select">
-                            <option value="all">All Categories</option>
-                            <option value="streamers">Streamers</option>
-                            <option value="nymphs">Nymphs</option>
-                            <option value="dryflies">Dry Flies</option>
-                        </select>
-                    </div>
-
-                    <div class="table-wrap">
-                        <table class="styled-table admin-table" id="inventory-table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Category</th>
-                                    <th>Size</th>
-                                    <th>Qty</th>
-                                    <th>Price</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventory-tbody"></tbody>
-                        </table>
-                    </div>
+                    <div class="panel-header"><h3>Inventory Management</h3><button class="btn btn-primary btn-sm" onclick="addInventoryItem()">+ Add Item</button></div>
+                    <div class="admin-filters"><input type="text" id="admin-search" placeholder="Search inventory..." class="admin-input"><select id="admin-category" class="admin-select"><option value="all">All Categories</option><option value="streamers">Streamers</option><option value="nymphs">Nymphs</option><option value="dryflies">Dry Flies</option></select></div>
+                    <div class="table-wrap"><table class="styled-table admin-table" id="inventory-table"><thead><tr><th>Name</th><th>Category</th><th>Size</th><th>Qty</th><th>Price</th><th>Actions</th></tr></thead><tbody id="inventory-tbody"></tbody></table></div>
                 </div>
-
-                <!-- Catalog Panel -->
                 <div id="catalog-panel" class="admin-panel">
-                    <div class="panel-header">
-                        <h3>Catalog Management</h3>
-                        <button class="btn btn-primary btn-sm" onclick="addCatalogItem()">+ Add Fly Pattern</button>
-                    </div>
+                    <div class="panel-header"><h3>Catalog Management</h3><button class="btn btn-primary btn-sm" onclick="addCatalogItem()">+ Add Fly Pattern</button></div>
                     <div class="catalog-admin-grid" id="catalog-admin-grid"></div>
                 </div>
-
-                <!-- Export Panel -->
                 <div id="export-panel" class="admin-panel">
-                    <div class="panel-header">
-                        <h3>Export Data</h3>
-                    </div>
+                    <div class="panel-header"><h3>Export Data</h3></div>
                     <div class="export-options">
-                        <div class="export-card">
-                            <h4>Export Inventory</h4>
-                            <p>Download your current inventory data as JSON for backup or migration.</p>
-                            <button class="btn btn-dark" onclick="exportInventory()">Download Inventory JSON</button>
-                        </div>
-                        <div class="export-card">
-                            <h4>Export Catalog</h4>
-                            <p>Download your fly catalog (flies.json) with all patterns and recipes.</p>
-                            <button class="btn btn-dark" onclick="exportCatalog()">Download Catalog JSON</button>
-                        </div>
-                        <div class="export-card">
-                            <h4>Import Data</h4>
-                            <p>Upload a JSON file to update your inventory or catalog data.</p>
-                            <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
-                            <button class="btn btn-outline-dark" onclick="document.getElementById('import-file').click()">Import JSON File</button>
-                        </div>
+                        <div class="export-card"><h4>Export Inventory</h4><p>Download your current inventory data as JSON.</p><button class="btn btn-dark" onclick="exportInventory()">Download Inventory JSON</button></div>
+                        <div class="export-card"><h4>Export Catalog</h4><p>Download your fly catalog (flies.json).</p><button class="btn btn-dark" onclick="exportCatalog()">Download Catalog JSON</button></div>
                     </div>
                 </div>
-
             </div>
-
         </div>
     </section>
-
-    <!-- Edit Modal -->
     <div id="edit-modal" class="modal" style="display:none;">
         <div class="modal-overlay" onclick="closeModal()"></div>
         <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Edit Item</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
+            <div class="modal-header"><h3 id="modal-title">Edit Item</h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
             <form id="edit-form" onsubmit="saveItem(event)">
                 <div id="modal-fields"></div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-outline-dark" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
+                <div class="modal-actions"><button type="button" class="btn btn-outline-dark" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
             </form>
         </div>
     </div>
-
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-grid">
-            <div class="footer-brand">
-                <h3>On Point <span>Flies</span></h3>
-                <p>Premium hand-tied flies for the passionate fly fisher. From classic patterns to custom creations, we tie flies that catch fish.</p>
-            </div>
-            <div>
-                <h4>Navigate</h4>
-                <ul class="footer-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="catalog.html">Catalog</a></li>
-                    <li><a href="inventory.html">Inventory</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>Orders</h4>
-                <ul class="footer-links">
-                    <li><a href="order.html">How to Order</a></li>
-                    <li><a href="order.html">Pricing</a></li>
-                    <li><a href="order.html">Shipping</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>Get in Touch</h4>
-                <ul class="footer-links">
-                    <li><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5930373f36193637293630372d3f35303c2a773a3634">[email&#160;protected]</a></li>
-                    <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
-                </ul>
-            </div>
+            <div class="footer-brand"><h3>On Point <span>Flies</span></h3><p>Premium hand-tied flies for the passionate fly fisher.</p></div>
+            <div><h4>Navigate</h4><ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="catalog.html">Catalog</a></li></ul></div>
+            <div><h4>Orders</h4><ul class="footer-links"><li><a href="order.html">How to Order</a></li><li><a href="contact.html">Contact</a></li></ul></div>
         </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 On Point Flies. All rights reserved.</p>
-        </div>
+        <div class="footer-bottom"><p>&copy; 2026 On Point Flies. All rights reserved.</p></div>
     </footer>
+<script>
+var AUTH0_CONFIG = { domain: 'dev-ofdinri72f360yav.us.auth0.com', clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V', redirectUri: window.location.origin + '/admin.html' };
+var auth0Client = null, isAuthenticated = false;
+var inventoryData = [
+    {id:1,name:'CH Black Bugger',category:'streamers',size:'4',qty:10,price:2.99},
+    {id:2,name:'CH RubberLegs Black Bugger',category:'streamers',size:'12',qty:9,price:2.50},
+    {id:3,name:'BH Purple Bugger',category:'streamers',size:'8',qty:6,price:2.25},
+    {id:4,name:'Muddler Minnow',category:'streamers',size:'8',qty:9,price:2.75},
+    {id:5,name:'Zonker Pearl/Tan',category:'streamers',size:'2',qty:6,price:4.50}
+];
+var catalogData = [];
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        // Auth0 Configuration
-        const AUTH0_CONFIG = {
-            domain: 'dev-ofdinri72f360yav.us.auth0.com',
-            clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
-            redirectUri: window.location.origin + '/admin.html'
-        };
+async function initAuth0() {
+    try {
+        auth0Client = await auth0.createAuth0Client({ domain: AUTH0_CONFIG.domain, clientId: AUTH0_CONFIG.clientId, cacheLocation: 'localstorage', authorizationParams: { redirect_uri: AUTH0_CONFIG.redirectUri } });
+        if (window.location.search.includes('code=') && window.location.search.includes('state=')) { await auth0Client.handleRedirectCallback(); window.history.replaceState({}, document.title, window.location.pathname); }
+        isAuthenticated = await auth0Client.isAuthenticated();
+        if (isAuthenticated) { await showAdminDashboard(); } else { showLoginScreen(); }
+    } catch (error) { console.error('Auth0 error:', error); showAuthError('Failed to initialize: ' + error.message); }
+}
 
-        let auth0Client = null;
-        let isAuthenticated = false;
+async function login() { if (!auth0Client) { showAuthError('Auth0 not ready.'); return; } await auth0Client.loginWithRedirect(); }
+async function logout() { await auth0Client.logout({ logoutParams: { returnTo: window.location.origin } }); }
+function showAuthError(msg) { var e = document.getElementById('auth-error'); e.textContent = msg; e.style.display = 'block'; }
+function showLoginScreen() { document.getElementById('auth-section').style.display = 'block'; document.getElementById('admin-dashboard').style.display = 'none'; }
+async function showAdminDashboard() {
+    document.getElementById('auth-section').style.display = 'none';
+    document.getElementById('admin-dashboard').style.display = 'block';
+    var user = await auth0Client.getUser();
+    document.getElementById('user-name').textContent = user.name || user.email;
+    document.getElementById('user-avatar').src = user.picture || 'https://via.placeholder.com/40';
+    loadCatalog(); renderInventory();
+}
 
-        // Sample inventory data
-        let inventoryData = [
-            { id: 1, name: 'CH Black Bugger', category: 'streamers', size: '4', qty: 10, price: 2.99 },
-            { id: 2, name: 'CH RubberLegs Black Bugger', category: 'streamers', size: '12', qty: 9, price: 2.50 },
-            { id: 3, name: 'BH Purple Bugger', category: 'streamers', size: '8', qty: 6, price: 2.25 },
-            { id: 4, name: 'BH Purple Bugger', category: 'streamers', size: '10', qty: 8, price: 2.25 },
-            { id: 5, name: 'Muddler Minnow', category: 'streamers', size: '8', qty: 9, price: 2.75 },
-            { id: 6, name: 'Zonker Pearl/Tan', category: 'streamers', size: '2', qty: 6, price: 4.50 },
-            { id: 7, name: 'Mickey Finn', category: 'streamers', size: '8', qty: 6, price: 1.25 },
-        ];
+async function loadCatalog() { try { var r = await fetch('flies.json'); catalogData = await r.json(); renderCatalogAdmin(); } catch (e) { console.error('Error loading catalog:', e); } }
+function renderInventory() {
+    var tbody = document.getElementById('inventory-tbody'), search = document.getElementById('admin-search').value.toLowerCase(), cat = document.getElementById('admin-category').value;
+    var filtered = inventoryData.filter(function(item) { return (!search || item.name.toLowerCase().indexOf(search) > -1) && (cat === 'all' || item.category === cat); });
+    var html = '';
+    for (var i = 0; i < filtered.length; i++) {
+        var item = filtered[i];
+        html += '<tr><td>' + item.name + '</td><td><span class="card-tag">' + item.category + '</span></td><td>' + item.size + '</td><td>' + item.qty + '</td><td>$' + item.price.toFixed(2) + '</td><td><button class="btn-icon" onclick="editInventoryItem(' + item.id + ')">&#9998;</button><button class="btn-icon btn-icon-danger" onclick="deleteInventoryItem(' + item.id + ')">&#128465;</button></td></tr>';
+    }
+    tbody.innerHTML = html;
+}
+function renderCatalogAdmin() {
+    var grid = document.getElementById('catalog-admin-grid'), html = '';
+    for (var i = 0; i < catalogData.length; i++) {
+        var fly = catalogData[i];
+        html += '<div class="catalog-admin-card"><img src="' + fly.image + '" alt="' + fly.name + '"><div class="catalog-admin-card-body"><span class="card-tag">' + fly.type + '</span><h4>' + fly.name + '</h4><p>' + fly.bestFor + '</p><div class="catalog-admin-actions"><button class="btn-icon" onclick="editCatalogItem(' + i + ')">&#9998;</button><button class="btn-icon btn-icon-danger" onclick="deleteCatalogItem(' + i + ')">&#128465;</button></div></div></div>';
+    }
+    grid.innerHTML = html;
+}
 
-        let catalogData = [];
+var currentEditType = null, currentEditId = null;
+function addInventoryItem() { currentEditType = 'inventory'; currentEditId = null; document.getElementById('modal-title').textContent = 'Add Inventory Item'; document.getElementById('modal-fields').innerHTML = '<div class="form-group"><label>Name</label><input type="text" id="item-name" required></div><div class="form-row"><div class="form-group"><label>Category</label><select id="item-category"><option value="streamers">Streamers</option><option value="nymphs">Nymphs</option><option value="dryflies">Dry Flies</option></select></div><div class="form-group"><label>Size</label><input type="text" id="item-size" required></div></div><div class="form-row"><div class="form-group"><label>Quantity</label><input type="number" id="item-qty" min="0" required></div><div class="form-group"><label>Price ($)</label><input type="number" id="item-price" step="0.01" min="0" required></div></div>'; openModal(); }
+function editInventoryItem(id) { currentEditType = 'inventory'; currentEditId = id; var item = inventoryData.find(function(i) { return i.id === id; }); if (!item) return; document.getElementById('modal-title').textContent = 'Edit Inventory Item'; document.getElementById('modal-fields').innerHTML = '<div class="form-group"><label>Name</label><input type="text" id="item-name" value="' + item.name + '" required></div><div class="form-row"><div class="form-group"><label>Category</label><select id="item-category"><option value="streamers"' + (item.category === 'streamers' ? ' selected' : '') + '>Streamers</option><option value="nymphs"' + (item.category === 'nymphs' ? ' selected' : '') + '>Nymphs</option><option value="dryflies"' + (item.category === 'dryflies' ? ' selected' : '') + '>Dry Flies</option></select></div><div class="form-group"><label>Size</label><input type="text" id="item-size" value="' + item.size + '" required></div></div><div class="form-row"><div class="form-group"><label>Quantity</label><input type="number" id="item-qty" value="' + item.qty + '" min="0" required></div><div class="form-group"><label>Price ($)</label><input type="number" id="item-price" value="' + item.price + '" step="0.01" min="0" required></div></div>'; openModal(); }
+function deleteInventoryItem(id) { if (confirm('Delete this item?')) { inventoryData = inventoryData.filter(function(i) { return i.id !== id; }); renderInventory(); } }
+function addCatalogItem() { currentEditType = 'catalog'; currentEditId = null; document.getElementById('modal-title').textContent = 'Add Fly Pattern'; document.getElementById('modal-fields').innerHTML = '<div class="form-group"><label>Name</label><input type="text" id="fly-name" required></div><div class="form-row"><div class="form-group"><label>Type</label><select id="fly-type"><option value="Streamer">Streamer</option><option value="Nymph">Nymph</option><option value="Dry Fly">Dry Fly</option></select></div><div class="form-group"><label>Best For</label><input type="text" id="fly-bestfor" required></div></div><div class="form-group"><label>Description</label><textarea id="fly-description" rows="3"></textarea></div><div class="form-group"><label>Image URL</label><input type="url" id="fly-image"></div><div class="form-group"><label>Recipe</label><textarea id="fly-recipe" rows="5"></textarea></div>'; openModal(); }
+function editCatalogItem(index) { currentEditType = 'catalog'; currentEditId = index; var fly = catalogData[index]; if (!fly) return; document.getElementById('modal-title').textContent = 'Edit Fly Pattern'; document.getElementById('modal-fields').innerHTML = '<div class="form-group"><label>Name</label><input type="text" id="fly-name" value="' + fly.name + '" required></div><div class="form-row"><div class="form-group"><label>Type</label><select id="fly-type"><option value="Streamer"' + (fly.type === 'Streamer' ? ' selected' : '') + '>Streamer</option><option value="Nymph"' + (fly.type === 'Nymph' ? ' selected' : '') + '>Nymph</option><option value="Dry Fly"' + (fly.type === 'Dry Fly' ? ' selected' : '') + '>Dry Fly</option></select></div><div class="form-group"><label>Best For</label><input type="text" id="fly-bestfor" value="' + fly.bestFor + '" required></div></div><div class="form-group"><label>Description</label><textarea id="fly-description" rows="3">' + (fly.description || '') + '</textarea></div><div class="form-group"><label>Image URL</label><input type="url" id="fly-image" value="' + (fly.image || '') + '"></div><div class="form-group"><label>Recipe</label><textarea id="fly-recipe" rows="5">' + (fly.recipe || '') + '</textarea></div>'; openModal(); }
+function deleteCatalogItem(index) { if (confirm('Delete this fly pattern?')) { catalogData.splice(index, 1); renderCatalogAdmin(); } }
+function saveItem(event) {
+    event.preventDefault();
+    if (currentEditType === 'inventory') {
+        var item = { id: currentEditId || Date.now(), name: document.getElementById('item-name').value, category: document.getElementById('item-category').value, size: document.getElementById('item-size').value, qty: parseInt(document.getElementById('item-qty').value), price: parseFloat(document.getElementById('item-price').value) };
+        if (currentEditId) { var idx = inventoryData.findIndex(function(i) { return i.id === currentEditId; }); if (idx !== -1) inventoryData[idx] = item; } else { inventoryData.push(item); }
+        renderInventory();
+    } else if (currentEditType === 'catalog') {
+        var fly = { name: document.getElementById('fly-name').value, type: document.getElementById('fly-type').value, bestFor: document.getElementById('fly-bestfor').value, description: document.getElementById('fly-description').value, image: document.getElementById('fly-image').value, recipe: document.getElementById('fly-recipe').value };
+        if (currentEditId !== null) { catalogData[currentEditId] = fly; } else { catalogData.push(fly); }
+        renderCatalogAdmin();
+    }
+    closeModal();
+}
+function exportInventory() { downloadJSON(inventoryData, 'inventory.json'); }
+function exportCatalog() { downloadJSON(catalogData, 'flies.json'); }
+function downloadJSON(data, filename) { var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url); }
+function openModal() { document.getElementById('edit-modal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function closeModal() { document.getElementById('edit-modal').style.display = 'none'; document.body.style.overflow = ''; }
 
-        // Auth0 Initialization
-        async function initAuth0() {
-            try {
-                auth0Client = await auth0.createAuth0Client({
-                    domain: AUTH0_CONFIG.domain,
-                    clientId: AUTH0_CONFIG.clientId,
-                    cacheLocation: 'localstorage',
-                    authorizationParams: {
-                        redirect_uri: AUTH0_CONFIG.redirectUri
-                    }
-                });
-
-                if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-                    await auth0Client.handleRedirectCallback();
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-
-                isAuthenticated = await auth0Client.isAuthenticated();
-                
-                if (isAuthenticated) {
-                    await showAdminDashboard();
-                } else {
-                    showLoginScreen();
-                }
-            } catch (error) {
-                console.error('Auth0 initialization error:', error);
-                showAuthError('Failed to initialize authentication: ' + error.message);
-            }
-        }
-
-        async function login() {
-            if (!auth0Client) {
-                showAuthError('Auth0 is not configured.');
-                return;
-            }
-            try {
-                await auth0Client.loginWithRedirect();
-            } catch (error) {
-                console.error('Login error:', error);
-                showAuthError('Login failed: ' + error.message);
-            }
-        }
-
-        async function logout() {
-            if (!auth0Client) return;
-            await auth0Client.logout({ logoutParams: { returnTo: window.location.origin } });
-        }
-
-        function showAuthError(message) {
-            const errorDiv = document.getElementById('auth-error');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-
-        function showLoginScreen() {
-            document.getElementById('auth-section').style.display = 'block';
-            document.getElementById('admin-dashboard').style.display = 'none';
-        }
-
-        async function showAdminDashboard() {
-            document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'block';
-            const user = await auth0Client.getUser();
-            document.getElementById('user-name').textContent = user.name || user.email;
-            document.getElementById('user-avatar').src = user.picture || 'https://via.placeholder.com/40';
-            loadCatalog();
-            renderInventory();
-        }
-
-        // Data Management
-        async function loadCatalog() {
-            try {
-                const response = await fetch('flies.json');
-                catalogData = await response.json();
-                renderCatalogAdmin();
-            } catch (error) {
-                console.error('Error loading catalog:', error);
-            }
-        }
-
-        function renderInventory() {
-            const tbody = document.getElementById('inventory-tbody');
-            const searchTerm = document.getElementById('admin-search').value.toLowerCase();
-            const categoryFilter = document.getElementById('admin-category').value;
-
-            let filtered = inventoryData;
-            if (searchTerm) {
-                filtered = filtered.filter(item => item.name.toLowerCase().includes(searchTerm));
-            }
-            if (categoryFilter !== 'all') {
-                filtered = filtered.filter(item => item.category === categoryFilter);
-            }
-
-            tbody.innerHTML = filtered.map(item => `
-                <tr>
-                    <td>${item.name}</td>
-                    <td><span class="card-tag">${item.category}</span></td>
-                    <td>${item.size}</td>
-                    <td>${item.qty}</td>
-                    <td>$${item.price.toFixed(2)}</td>
-                    <td>
-                        <button class="btn-icon" onclick="editInventoryItem(${item.id})" title="Edit">&#9998;</button>
-                        <button class="btn-icon btn-icon-danger" onclick="deleteInventoryItem(${item.id})" title="Delete">&#128465;</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function renderCatalogAdmin() {
-            const grid = document.getElementById('catalog-admin-grid');
-            grid.innerHTML = catalogData.map((fly, index) => `
-                <div class="catalog-admin-card">
-                    <img src="${fly.image}" alt="${fly.name}" onerror="this.src='https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=300'">
-                    <div class="catalog-admin-card-body">
-                        <span class="card-tag">${fly.type}</span>
-                        <h4>${fly.name}</h4>
-                        <p>${fly.bestFor}</p>
-                        <div class="catalog-admin-actions">
-                            <button class="btn-icon" onclick="editCatalogItem(${index})" title="Edit">&#9998;</button>
-                            <button class="btn-icon btn-icon-danger" onclick="deleteCatalogItem(${index})" title="Delete">&#128465;</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // CRUD Operations
-        let currentEditType = null;
-        let currentEditId = null;
-
-        function addInventoryItem() {
-            currentEditType = 'inventory';
-            currentEditId = null;
-            document.getElementById('modal-title').textContent = 'Add Inventory Item';
-            document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group"><label for="item-name">Name</label><input type="text" id="item-name" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="item-category">Category</label>
-                        <select id="item-category" required><option value="streamers">Streamers</option><option value="nymphs">Nymphs</option><option value="dryflies">Dry Flies</option></select>
-                    </div>
-                    <div class="form-group"><label for="item-size">Size</label><input type="text" id="item-size" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label for="item-qty">Quantity</label><input type="number" id="item-qty" min="0" required></div>
-                    <div class="form-group"><label for="item-price">Price ($)</label><input type="number" id="item-price" step="0.01" min="0" required></div>
-                </div>
-            `;
-            openModal();
-        }
-
-        function editInventoryItem(id) {
-            currentEditType = 'inventory';
-            currentEditId = id;
-            const item = inventoryData.find(i => i.id === id);
-            if (!item) return;
-            document.getElementById('modal-title').textContent = 'Edit Inventory Item';
-            document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group"><label for="item-name">Name</label><input type="text" id="item-name" value="${item.name}" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="item-category">Category</label>
-                        <select id="item-category" required><option value="streamers" ${item.category === 'streamers' ? 'selected' : ''}>Streamers</option><option value="nymphs" ${item.category === 'nymphs' ? 'selected' : ''}>Nymphs</option><option value="dryflies" ${item.category === 'dryflies' ? 'selected' : ''}>Dry Flies</option></select>
-                    </div>
-                    <div class="form-group"><label for="item-size">Size</label><input type="text" id="item-size" value="${item.size}" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label for="item-qty">Quantity</label><input type="number" id="item-qty" value="${item.qty}" min="0" required></div>
-                    <div class="form-group"><label for="item-price">Price ($)</label><input type="number" id="item-price" value="${item.price}" step="0.01" min="0" required></div>
-                </div>
-            `;
-            openModal();
-        }
-
-        function deleteInventoryItem(id) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                inventoryData = inventoryData.filter(i => i.id !== id);
-                renderInventory();
-            }
-        }
-
-        function addCatalogItem() {
-            currentEditType = 'catalog';
-            currentEditId = null;
-            document.getElementById('modal-title').textContent = 'Add Fly Pattern';
-            document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group"><label for="fly-name">Name</label><input type="text" id="fly-name" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="fly-type">Type</label>
-                        <select id="fly-type" required><option value="Streamer">Streamer</option><option value="Nymph">Nymph</option><option value="Dry Fly">Dry Fly</option><option value="Material">Material</option></select>
-                    </div>
-                    <div class="form-group"><label for="fly-bestfor">Best For</label><input type="text" id="fly-bestfor" placeholder="e.g., trout, bass" required></div>
-                </div>
-                <div class="form-group"><label for="fly-description">Description</label><textarea id="fly-description" rows="3"></textarea></div>
-                <div class="form-group"><label for="fly-image">Image URL</label><input type="url" id="fly-image" placeholder="https://..."></div>
-                <div class="form-group"><label for="fly-recipe">Recipe</label><textarea id="fly-recipe" rows="5" placeholder="Hook: ..."></textarea></div>
-            `;
-            openModal();
-        }
-
-        function editCatalogItem(index) {
-            currentEditType = 'catalog';
-            currentEditId = index;
-            const fly = catalogData[index];
-            if (!fly) return;
-            document.getElementById('modal-title').textContent = 'Edit Fly Pattern';
-            document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group"><label for="fly-name">Name</label><input type="text" id="fly-name" value="${fly.name}" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="fly-type">Type</label>
-                        <select id="fly-type" required><option value="Streamer" ${fly.type === 'Streamer' ? 'selected' : ''}>Streamer</option><option value="Nymph" ${fly.type === 'Nymph' ? 'selected' : ''}>Nymph</option><option value="Dry Fly" ${fly.type === 'Dry Fly' ? 'selected' : ''}>Dry Fly</option><option value="Material" ${fly.type === 'Material' ? 'selected' : ''}>Material</option></select>
-                    </div>
-                    <div class="form-group"><label for="fly-bestfor">Best For</label><input type="text" id="fly-bestfor" value="${fly.bestFor}" required></div>
-                </div>
-                <div class="form-group"><label for="fly-description">Description</label><textarea id="fly-description" rows="3">${fly.description || ''}</textarea></div>
-                <div class="form-group"><label for="fly-image">Image URL</label><input type="url" id="fly-image" value="${fly.image || ''}"></div>
-                <div class="form-group"><label for="fly-recipe">Recipe</label><textarea id="fly-recipe" rows="5">${fly.recipe || ''}</textarea></div>
-            `;
-            openModal();
-        }
-
-        function deleteCatalogItem(index) {
-            if (confirm('Are you sure you want to delete this fly pattern?')) {
-                catalogData.splice(index, 1);
-                renderCatalogAdmin();
-            }
-        }
-
-        function saveItem(event) {
-            event.preventDefault();
-            if (currentEditType === 'inventory') {
-                const item = {
-                    id: currentEditId || Date.now(),
-                    name: document.getElementById('item-name').value,
-                    category: document.getElementById('item-category').value,
-                    size: document.getElementById('item-size').value,
-                    qty: parseInt(document.getElementById('item-qty').value),
-                    price: parseFloat(document.getElementById('item-price').value)
-                };
-                if (currentEditId) {
-                    const index = inventoryData.findIndex(i => i.id === currentEditId);
-                    if (index !== -1) inventoryData[index] = item;
-                } else {
-                    inventoryData.push(item);
-                }
-                renderInventory();
-            } else if (currentEditType === 'catalog') {
-                const fly = {
-                    name: document.getElementById('fly-name').value,
-                    type: document.getElementById('fly-type').value,
-                    bestFor: document.getElementById('fly-bestfor').value,
-                    description: document.getElementById('fly-description').value,
-                    image: document.getElementById('fly-image').value,
-                    recipe: document.getElementById('fly-recipe').value
-                };
-                if (currentEditId !== null) {
-                    catalogData[currentEditId] = fly;
-                } else {
-                    catalogData.push(fly);
-                }
-                renderCatalogAdmin();
-            }
-            closeModal();
-        }
-
-        // Export / Import
-        function exportInventory() { downloadJSON(inventoryData, 'inventory.json'); }
-        function exportCatalog() { downloadJSON(catalogData, 'flies.json'); }
-
-        function downloadJSON(data, filename) {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function handleImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data) && data.length > 0) {
-                        if (data[0].hasOwnProperty('type') && data[0].hasOwnProperty('bestFor')) {
-                            catalogData = data;
-                            renderCatalogAdmin();
-                            alert('Catalog data imported successfully!');
-                        } else if (data[0].hasOwnProperty('category') && data[0].hasOwnProperty('qty')) {
-                            inventoryData = data;
-                            renderInventory();
-                            alert('Inventory data imported successfully!');
-                        } else {
-                            alert('Unknown data format.');
-                        }
-                    }
-                } catch (error) {
-                    alert('Error parsing JSON file: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = '';
-        }
-
-        // UI Helpers
-        function openModal() {
-            document.getElementById('edit-modal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('edit-modal').style.display = 'none';
-            document.body.style.overflow = '';
-        }
-
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            initAuth0();
-
-            var navbar = document.getElementById('navbar');
-            window.addEventListener('scroll', function() {
-                navbar.classList.toggle('scrolled', window.scrollY > 50);
-            });
-
-            var navToggle = document.getElementById('navToggle');
-            var navLinks = document.getElementById('navLinks');
-            navToggle.addEventListener('click', function() {
-                navLinks.classList.toggle('open');
-            });
-
-            document.getElementById('login-btn').addEventListener('click', login);
-            document.getElementById('logout-btn').addEventListener('click', logout);
-
-            document.querySelectorAll('.admin-tab').forEach(function(tab) {
-                tab.addEventListener('click', function() {
-                    document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
-                    document.querySelectorAll('.admin-panel').forEach(function(p) { p.classList.remove('active'); });
-                    tab.classList.add('active');
-                    document.getElementById(tab.dataset.panel).classList.add('active');
-                });
-            });
-
-            document.getElementById('admin-search').addEventListener('input', renderInventory);
-            document.getElementById('admin-c
+document.addEventListener('DOMContentLoaded', function() {
+    initAuth0();
+    var navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 50); });
+    document.getElementById('navToggle').addEventListener('click', function() { document.getElementById('navLinks').classList.toggle('open'); });
+    document.getElementById('login-btn').addEventListener('click', login);
+    document.getElementById('logout-btn').addEventListener('click', logout);
+    var tabs = document.querySelectorAll('.admin-tab');
+    for (var i = 0; i < tabs.length; i++) {
+        tabs[i].addEventListener('click', function() {
+            for (var j = 0; j < tabs.length; j++) tabs[j].classList.remove('active');
+            var panels = document.querySelectorAll('.admin-panel');
+            for (var j = 0; j < panels.length; j++) panels[j].classList.remove('active');
+            this.classList.add('active');
+            document.getElementById(this.dataset.panel).classList.add('active');
+        });
+    }
+    document.getElementById('admin-search').addEventListener('input', renderInventory);
+    document.getElementById('admin-category').addEventListener('change', renderInventory);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+});
+</script>
+</body>
+</html>

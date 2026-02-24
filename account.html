@@ -23,12 +23,9 @@
                 <li><a href="contact.html">Contact</a></li>
                 <li><a href="account.html" class="active">Account</a></li>
             </ul>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-                <span></span><span></span><span></span>
-            </button>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
         </div>
     </nav>
-
     <section class="page-hero page-hero-small">
         <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/1089234/pexels-photo-1089234.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
         <div class="hero-content">
@@ -37,7 +34,6 @@
             <p>Manage your favorites, shopping list, and account details.</p>
         </div>
     </section>
-
     <section class="section">
         <div class="container">
             <div id="auth-section" class="account-auth-card">
@@ -54,62 +50,38 @@
                     <div class="auth-feature"><span class="feature-icon">&#128176;</span><span>Wholesale Pricing</span></div>
                 </div>
             </div>
-
             <div id="account-dashboard" style="display:none;">
                 <div class="profile-card">
                     <img id="user-avatar" src="" alt="Profile picture" class="profile-avatar">
-                    <div class="profile-info">
-                        <h2 id="user-name"></h2>
-                        <p id="user-email"></p>
-                    </div>
+                    <div class="profile-info"><h2 id="user-name"></h2><p id="user-email"></p></div>
                     <button id="logout-btn" class="btn btn-outline-dark">Log Out</button>
                 </div>
-
                 <div class="account-tabs">
                     <button class="account-tab active" data-panel="favorites-panel"><span class="tab-icon">&#9829;</span> Favorites <span class="tab-count" id="favorites-count">0</span></button>
                     <button class="account-tab" data-panel="list-panel"><span class="tab-icon">&#128203;</span> Shopping List <span class="tab-count" id="list-count">0</span></button>
                     <button class="account-tab" data-panel="orders-panel"><span class="tab-icon">&#128230;</span> Order History</button>
                 </div>
-
                 <div id="favorites-panel" class="account-panel active">
                     <div class="panel-header"><h3>My Favorite Flies</h3><p>Flies you've saved for quick access</p></div>
                     <div id="favorites-grid" class="favorites-grid"></div>
-                    <div id="favorites-empty" class="empty-state">
-                        <span class="empty-icon">&#9829;</span>
-                        <h4>No favorites yet</h4>
-                        <p>Browse our <a href="catalog.html">catalog</a> and click the heart icon to save your favorite flies.</p>
-                    </div>
+                    <div id="favorites-empty" class="empty-state"><span class="empty-icon">&#9829;</span><h4>No favorites yet</h4><p>Browse our <a href="catalog.html">catalog</a> and click the heart icon to save your favorite flies.</p></div>
                 </div>
-
                 <div id="list-panel" class="account-panel">
                     <div class="panel-header"><h3>My Shopping List</h3><p>Flies you're planning to order</p></div>
                     <div id="shopping-list" class="shopping-list"></div>
-                    <div id="list-empty" class="empty-state">
-                        <span class="empty-icon">&#128203;</span>
-                        <h4>Your list is empty</h4>
-                        <p>Browse our <a href="catalog.html">catalog</a> and click "Add to List" to start building your order.</p>
-                    </div>
+                    <div id="list-empty" class="empty-state"><span class="empty-icon">&#128203;</span><h4>Your list is empty</h4><p>Browse our <a href="catalog.html">catalog</a> and click "Add to List" to start building your order.</p></div>
                     <div id="list-actions" class="list-actions" style="display:none;">
                         <div class="list-total"><span>Estimated Total:</span><strong id="list-total-amount">$0.00</strong></div>
-                        <div class="list-buttons">
-                            <button class="btn btn-outline-dark" onclick="clearShoppingList()">Clear List</button>
-                            <a href="contact.html" class="btn btn-primary">Request Quote</a>
-                        </div>
+                        <div class="list-buttons"><button class="btn btn-outline-dark" onclick="clearShoppingList()">Clear List</button><a href="contact.html" class="btn btn-primary">Request Quote</a></div>
                     </div>
                 </div>
-
                 <div id="orders-panel" class="account-panel">
                     <div class="panel-header"><h3>Order History</h3><p>Your past orders with On Point Flies</p></div>
-                    <div class="empty-state">
-                        <span class="empty-icon">&#128230;</span>
-                        <h4>No orders yet</h4>
-                        <p>Once you place an order, it will appear here. <a href="contact.html">Contact us</a> to get started.</p>
-                    </div>
+                    <div class="empty-state"><span class="empty-icon">&#128230;</span><h4>No orders yet</h4><p>Once you place an order, it will appear here. <a href="contact.html">Contact us</a> to get started.</p></div>
                 </div>
             </div>
         </div>
     </section>
-
     <footer class="footer">
         <div class="footer-grid">
             <div class="footer-brand"><h3>On Point <span>Flies</span></h3><p>Premium hand-tied flies for the passionate fly fisher.</p></div>
@@ -118,225 +90,87 @@
         </div>
         <div class="footer-bottom"><p>&copy; 2026 On Point Flies. All rights reserved.</p></div>
     </footer>
-
 <script>
-const AUTH0_CONFIG = {
-    domain: 'dev-ofdinri72f360yav.us.auth0.com',
-    clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
-    redirectUri: window.location.origin + '/account.html'
-};
-
-let auth0Client = null;
-let currentUser = null;
+var AUTH0_CONFIG = { domain: 'dev-ofdinri72f360yav.us.auth0.com', clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V', redirectUri: window.location.origin + '/account.html' };
+var auth0Client = null, currentUser = null;
 
 async function initAuth0() {
     try {
         console.log('Initializing Auth0...');
-        auth0Client = await auth0.createAuth0Client({
-            domain: AUTH0_CONFIG.domain,
-            clientId: AUTH0_CONFIG.clientId,
-            cacheLocation: 'localstorage',
-            authorizationParams: { redirect_uri: AUTH0_CONFIG.redirectUri }
-        });
+        auth0Client = await auth0.createAuth0Client({ domain: AUTH0_CONFIG.domain, clientId: AUTH0_CONFIG.clientId, cacheLocation: 'localstorage', authorizationParams: { redirect_uri: AUTH0_CONFIG.redirectUri } });
         console.log('Auth0 ready');
-
-        if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-            await auth0Client.handleRedirectCallback();
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
-        const isAuth = await auth0Client.isAuthenticated();
+        if (window.location.search.includes('code=') && window.location.search.includes('state=')) { await auth0Client.handleRedirectCallback(); window.history.replaceState({}, document.title, window.location.pathname); }
+        var isAuth = await auth0Client.isAuthenticated();
         console.log('Authenticated:', isAuth);
-        
-        if (isAuth) {
-            currentUser = await auth0Client.getUser();
-            showDashboard();
-        } else {
-            showLogin();
-        }
-    } catch (err) {
-        console.error('Auth0 error:', err);
-    }
+        if (isAuth) { currentUser = await auth0Client.getUser(); showDashboard(); } else { showLogin(); }
+    } catch (err) { console.error('Auth0 error:', err); }
 }
 
-async function login() {
-    if (!auth0Client) { alert('Loading, please wait...'); return; }
-    await auth0Client.loginWithRedirect();
-}
+async function login() { if (!auth0Client) { alert('Loading, please wait...'); return; } await auth0Client.loginWithRedirect(); }
+async function signup() { if (!auth0Client) { alert('Loading, please wait...'); return; } await auth0Client.loginWithRedirect({ authorizationParams: { screen_hint: 'signup' } }); }
+async function logout() { localStorage.removeItem('opf_favorites'); localStorage.removeItem('opf_shopping_list'); await auth0Client.logout({ logoutParams: { returnTo: window.location.origin } }); }
 
-async function signup() {
-    if (!auth0Client) { alert('Loading, please wait...'); return; }
-    await auth0Client.loginWithRedirect({ authorizationParams: { screen_hint: 'signup' } });
-}
-
-async function logout() {
-    localStorage.removeItem('opf_favorites');
-    localStorage.removeItem('opf_shopping_list');
-    await auth0Client.logout({ logoutParams: { returnTo: window.location.origin } });
-}
-
-function showLogin() {
-    document.getElementById('auth-section').style.display = 'block';
-    document.getElementById('account-dashboard').style.display = 'none';
-}
-
+function showLogin() { document.getElementById('auth-section').style.display = 'block'; document.getElementById('account-dashboard').style.display = 'none'; }
 function showDashboard() {
     document.getElementById('auth-section').style.display = 'none';
     document.getElementById('account-dashboard').style.display = 'block';
     document.getElementById('user-name').textContent = currentUser.name || 'Welcome!';
     document.getElementById('user-email').textContent = currentUser.email || '';
     document.getElementById('user-avatar').src = currentUser.picture || 'https://via.placeholder.com/80';
-    loadFavorites();
-    loadShoppingList();
+    loadFavorites(); loadShoppingList();
 }
 
-function getFavorites() {
-    var s = localStorage.getItem('opf_favorites');
-    return s ? JSON.parse(s) : [];
-}
-
-function saveFavorites(f) {
-    localStorage.setItem('opf_favorites', JSON.stringify(f));
-}
-
+function getFavorites() { var s = localStorage.getItem('opf_favorites'); return s ? JSON.parse(s) : []; }
+function saveFavorites(f) { localStorage.setItem('opf_favorites', JSON.stringify(f)); }
 function loadFavorites() {
-    var favs = getFavorites();
-    var grid = document.getElementById('favorites-grid');
-    var empty = document.getElementById('favorites-empty');
+    var favs = getFavorites(), grid = document.getElementById('favorites-grid'), empty = document.getElementById('favorites-empty');
     document.getElementById('favorites-count').textContent = favs.length;
-    
-    if (favs.length === 0) {
-        grid.style.display = 'none';
-        empty.style.display = 'block';
-        return;
-    }
-    
-    grid.style.display = 'grid';
-    empty.style.display = 'none';
-    
+    if (favs.length === 0) { grid.style.display = 'none'; empty.style.display = 'block'; return; }
+    grid.style.display = 'grid'; empty.style.display = 'none';
     var html = '';
     for (var i = 0; i < favs.length; i++) {
         var fly = favs[i];
-        html += '<div class="favorite-card">';
-        html += '<button class="remove-btn" onclick="removeFavorite(\'' + fly.name + '\')">&times;</button>';
-        html += '<img src="' + fly.image + '" alt="' + fly.name + '">';
-        html += '<div class="favorite-card-body">';
-        html += '<span class="card-tag">' + fly.type + '</span>';
-        html += '<h4>' + fly.name + '</h4>';
-        html += '<p>' + fly.bestFor + '</p>';
-        html += '</div></div>';
+        html += '<div class="favorite-card"><button class="remove-btn" onclick="removeFavorite(\'' + fly.name + '\')">&times;</button><img src="' + fly.image + '" alt="' + fly.name + '"><div class="favorite-card-body"><span class="card-tag">' + fly.type + '</span><h4>' + fly.name + '</h4><p>' + fly.bestFor + '</p></div></div>';
     }
     grid.innerHTML = html;
 }
+function removeFavorite(name) { var favs = getFavorites().filter(function(f) { return f.name !== name; }); saveFavorites(favs); loadFavorites(); }
 
-function removeFavorite(name) {
-    var favs = getFavorites().filter(function(f) { return f.name !== name; });
-    saveFavorites(favs);
-    loadFavorites();
-}
-
-function getShoppingList() {
-    var s = localStorage.getItem('opf_shopping_list');
-    return s ? JSON.parse(s) : [];
-}
-
-function saveShoppingList(list) {
-    localStorage.setItem('opf_shopping_list', JSON.stringify(list));
-}
-
+function getShoppingList() { var s = localStorage.getItem('opf_shopping_list'); return s ? JSON.parse(s) : []; }
+function saveShoppingList(list) { localStorage.setItem('opf_shopping_list', JSON.stringify(list)); }
 function loadShoppingList() {
-    var list = getShoppingList();
-    var container = document.getElementById('shopping-list');
-    var empty = document.getElementById('list-empty');
-    var actions = document.getElementById('list-actions');
-    var total = 0;
-    var count = 0;
-    
-    for (var i = 0; i < list.length; i++) {
-        count += list[i].quantity || 1;
-    }
+    var list = getShoppingList(), container = document.getElementById('shopping-list'), empty = document.getElementById('list-empty'), actions = document.getElementById('list-actions'), total = 0, count = 0;
+    for (var i = 0; i < list.length; i++) count += list[i].quantity || 1;
     document.getElementById('list-count').textContent = count;
-    
-    if (list.length === 0) {
-        container.style.display = 'none';
-        empty.style.display = 'block';
-        actions.style.display = 'none';
-        return;
-    }
-    
-    container.style.display = 'block';
-    empty.style.display = 'none';
-    actions.style.display = 'flex';
-    
+    if (list.length === 0) { container.style.display = 'none'; empty.style.display = 'block'; actions.style.display = 'none'; return; }
+    container.style.display = 'block'; empty.style.display = 'none'; actions.style.display = 'flex';
     var html = '';
     for (var i = 0; i < list.length; i++) {
-        var item = list[i];
-        var itemTotal = (item.price || 2.50) * (item.quantity || 1);
+        var item = list[i], itemTotal = (item.price || 2.50) * (item.quantity || 1);
         total += itemTotal;
-        html += '<div class="list-item">';
-        html += '<img src="' + item.image + '" alt="' + item.name + '">';
-        html += '<div class="list-item-info"><h4>' + item.name + '</h4><span class="card-tag">' + item.type + '</span></div>';
-        html += '<div class="list-item-qty">';
-        html += '<button onclick="updateQty(\'' + item.name + '\',-1)">-</button>';
-        html += '<span>' + (item.quantity || 1) + '</span>';
-        html += '<button onclick="updateQty(\'' + item.name + '\',1)">+</button>';
-        html += '</div>';
-        html += '<div class="list-item-price">$' + itemTotal.toFixed(2) + '</div>';
-        html += '<button class="remove-btn" onclick="removeItem(\'' + item.name + '\')">&times;</button>';
-        html += '</div>';
+        html += '<div class="list-item"><img src="' + item.image + '" alt="' + item.name + '"><div class="list-item-info"><h4>' + item.name + '</h4><span class="card-tag">' + item.type + '</span></div><div class="list-item-qty"><button onclick="updateQty(\'' + item.name + '\',-1)">-</button><span>' + (item.quantity || 1) + '</span><button onclick="updateQty(\'' + item.name + '\',1)">+</button></div><div class="list-item-price">$' + itemTotal.toFixed(2) + '</div><button class="remove-btn" onclick="removeItem(\'' + item.name + '\')">&times;</button></div>';
     }
     container.innerHTML = html;
     document.getElementById('list-total-amount').textContent = '$' + total.toFixed(2);
 }
-
-function updateQty(name, delta) {
-    var list = getShoppingList();
-    for (var i = 0; i < list.length; i++) {
-        if (list[i].name === name) {
-            list[i].quantity = Math.max(1, (list[i].quantity || 1) + delta);
-            break;
-        }
-    }
-    saveShoppingList(list);
-    loadShoppingList();
-}
-
-function removeItem(name) {
-    var list = getShoppingList().filter(function(i) { return i.name !== name; });
-    saveShoppingList(list);
-    loadShoppingList();
-}
-
-function clearShoppingList() {
-    if (confirm('Clear your entire shopping list?')) {
-        saveShoppingList([]);
-        loadShoppingList();
-    }
-}
+function updateQty(name, delta) { var list = getShoppingList(); for (var i = 0; i < list.length; i++) if (list[i].name === name) { list[i].quantity = Math.max(1, (list[i].quantity || 1) + delta); break; } saveShoppingList(list); loadShoppingList(); }
+function removeItem(name) { var list = getShoppingList().filter(function(i) { return i.name !== name; }); saveShoppingList(list); loadShoppingList(); }
+function clearShoppingList() { if (confirm('Clear your entire shopping list?')) { saveShoppingList([]); loadShoppingList(); } }
 
 document.addEventListener('DOMContentLoaded', function() {
     initAuth0();
-
     var navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', function() {
-        navbar.classList.toggle('scrolled', window.scrollY > 50);
-    });
-
-    document.getElementById('navToggle').addEventListener('click', function() {
-        document.getElementById('navLinks').classList.toggle('open');
-    });
-
+    window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 50); });
+    document.getElementById('navToggle').addEventListener('click', function() { document.getElementById('navLinks').classList.toggle('open'); });
     document.getElementById('login-btn').addEventListener('click', login);
     document.getElementById('signup-btn').addEventListener('click', signup);
     document.getElementById('logout-btn').addEventListener('click', logout);
-
     var tabs = document.querySelectorAll('.account-tab');
     for (var i = 0; i < tabs.length; i++) {
         tabs[i].addEventListener('click', function() {
-            var allTabs = document.querySelectorAll('.account-tab');
-            var allPanels = document.querySelectorAll('.account-panel');
-            for (var j = 0; j < allTabs.length; j++) { allTabs[j].classList.remove('active'); }
-            for (var j = 0; j < allPanels.length; j++) { allPanels[j].classList.remove('active'); }
+            var allTabs = document.querySelectorAll('.account-tab'), allPanels = document.querySelectorAll('.account-panel');
+            for (var j = 0; j < allTabs.length; j++) allTabs[j].classList.remove('active');
+            for (var j = 0; j < allPanels.length; j++) allPanels[j].classList.remove('active');
             this.classList.add('active');
             document.getElementById(this.dataset.panel).classList.add('active');
         });

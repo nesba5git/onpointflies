@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fly Catalog - On Point Flies</title>
-    <meta name="description" content="Browse our complete catalog of hand-tied fly fishing flies. Streamers, nymphs, dry flies and more.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
@@ -12,8 +11,6 @@
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
 </head>
 <body>
-
-    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">On Point <span>Flies</span></a>
@@ -26,324 +23,138 @@
                 <li><a href="contact.html">Contact</a></li>
                 <li><a href="account.html" id="account-link">Account</a></li>
             </ul>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-                <span></span><span></span><span></span>
-            </button>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
         </div>
     </nav>
-
-    <!-- Page Hero -->
     <section class="page-hero">
         <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/1089234/pexels-photo-1089234.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
         <div class="hero-content">
             <span class="section-label">Browse Patterns</span>
             <h1>Fly Catalog</h1>
-            <p>Explore our collection of hand-tied flies designed to catch fish in any water.</p>
+            <p>Explore our collection of hand-tied flies.</p>
         </div>
     </section>
-
-    <!-- Catalog Section -->
     <section class="section">
         <div class="container">
-            <!-- Search -->
-            <div class="search-wrap">
-                <input type="text" id="searchInput" placeholder="Search flies by name, type, or species...">
-            </div>
-
-            <!-- Filters -->
+            <div class="search-wrap"><input type="text" id="searchInput" placeholder="Search flies..."></div>
             <div class="filter-bar">
                 <button class="filter-btn active" data-filter="all">All Flies</button>
                 <button class="filter-btn" data-filter="Streamer">Streamers</button>
                 <button class="filter-btn" data-filter="Nymph">Nymphs</button>
                 <button class="filter-btn" data-filter="Dry Fly">Dry Flies</button>
-                <button class="filter-btn" data-filter="Material">Materials</button>
             </div>
-
-            <!-- Catalog Grid -->
             <div class="catalog-grid" id="catalog-grid"></div>
-
-            <!-- Empty State -->
-            <div id="empty-state" style="display:none;text-align:center;padding:3rem;color:var(--color-text-light);">
-                <p style="font-size:1.1rem;">No flies match your search. Try a different term.</p>
-            </div>
+            <div id="empty-state" style="display:none;text-align:center;padding:3rem;"><p>No flies match your search.</p></div>
         </div>
     </section>
-
-    <!-- CTA -->
-    <section class="cta-banner">
-        <div class="hero-bg" style="background-image: url('greysen-johnson-cZVzzFadTMc-unsplash.jpg');"></div>
-        <div class="cta-content">
-            <h2>Don't See What You Need?</h2>
-            <p>We specialize in custom orders. Tell us what you're after and we'll tie it for you.</p>
-            <div class="cta-buttons">
-                <a href="order.html" class="btn btn-primary">Custom Orders</a>
-                <a href="contact.html" class="btn btn-outline">Get in Touch</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
     <footer class="footer">
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <h3>On Point <span>Flies</span></h3>
-                <p>Premium hand-tied flies for the passionate fly fisher. From classic patterns to custom creations, we tie flies that catch fish.</p>
-            </div>
-            <div>
-                <h4>Navigate</h4>
-                <ul class="footer-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="catalog.html">Catalog</a></li>
-                    <li><a href="inventory.html">Inventory</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>Orders</h4>
-                <ul class="footer-links">
-                    <li><a href="order.html">How to Order</a></li>
-                    <li><a href="order.html">Pricing</a></li>
-                    <li><a href="order.html">Shipping</a></li>
-                    <li><a href="contact.html">Contact</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4>Get in Touch</h4>
-                <ul class="footer-links">
-                    <li><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d7beb9b1b897b8b9a7b8beb9a3b1bbbeb2a4f9b4b8ba">[email&#160;protected]</a></li>
-                    <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 On Point Flies. All rights reserved.</p>
-        </div>
+        <div class="footer-bottom"><p>&copy; 2026 On Point Flies. All rights reserved.</p></div>
     </footer>
-
-    <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
+<script>
+var AUTH0_CONFIG = {
+    domain: 'dev-ofdinri72f360yav.us.auth0.com',
+    clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
+    redirectUri: window.location.origin + '/catalog.html'
+};
+var auth0Client = null;
+var isAuthenticated = false;
+var allFlies = [];
+var activeFilter = 'all';
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        // Auth0 Configuration
-        const AUTH0_CONFIG = {
-            domain: 'dev-ofdinri72f360yav.us.auth0.com',
-            clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
-            redirectUri: window.location.origin + '/catalog.html'
-        };
-
-        let auth0Client = null;
-        let isAuthenticated = false;
-
-        // Initialize Auth0
-        async function initAuth0() {
-            try {
-                auth0Client = await auth0.createAuth0Client({
-                    domain: AUTH0_CONFIG.domain,
-                    clientId: AUTH0_CONFIG.clientId,
-                    cacheLocation: 'localstorage',
-                    authorizationParams: {
-                        redirect_uri: AUTH0_CONFIG.redirectUri
-                    }
-                });
-
-                if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-                    await auth0Client.handleRedirectCallback();
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-
-                isAuthenticated = await auth0Client.isAuthenticated();
-                updateAccountLink();
-            } catch (error) {
-                console.error('Auth0 error:', error);
-            }
+async function initAuth0() {
+    try {
+        auth0Client = await auth0.createAuth0Client({
+            domain: AUTH0_CONFIG.domain,
+            clientId: AUTH0_CONFIG.clientId,
+            cacheLocation: 'localstorage',
+            authorizationParams: { redirect_uri: AUTH0_CONFIG.redirectUri }
+        });
+        if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+            await auth0Client.handleRedirectCallback();
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
+        isAuthenticated = await auth0Client.isAuthenticated();
+        if (isAuthenticated) document.getElementById('account-link').innerHTML = '&#128100; Account';
+    } catch (err) { console.error('Auth0 error:', err); }
+}
 
-        function updateAccountLink() {
-            const link = document.getElementById('account-link');
-            if (isAuthenticated) {
-                link.innerHTML = '&#128100; My Account';
-            }
-        }
+function showToast(msg, type) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + (type||'success') + ' show';
+    setTimeout(function(){ t.className = 'toast'; }, 3000);
+}
 
-        // Toast notifications
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast ' + type + ' show';
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
-        }
+function getFavorites() { var s = localStorage.getItem('opf_favorites'); return s ? JSON.parse(s) : []; }
+function saveFavorites(f) { localStorage.setItem('opf_favorites', JSON.stringify(f)); }
+function isFavorite(name) { var f = getFavorites(); for(var i=0;i<f.length;i++) if(f[i].name===name)return true; return false; }
 
-        // Favorites Management
-        function getFavorites() {
-            const stored = localStorage.getItem('opf_favorites');
-            return stored ? JSON.parse(stored) : [];
-        }
+function toggleFavorite(flyJson) {
+    if (!isAuthenticated) { showToast('Please log in to save favorites','info'); setTimeout(function(){window.location.href='account.html';},1500); return; }
+    var fly = JSON.parse(flyJson);
+    var favs = getFavorites();
+    var found = -1;
+    for(var i=0;i<favs.length;i++) if(favs[i].name===fly.name){found=i;break;}
+    if(found>-1){favs.splice(found,1);showToast('Removed from favorites');}
+    else{favs.push(fly);showToast('Added to favorites!');}
+    saveFavorites(favs);
+    renderFlies(allFlies);
+}
 
-        function saveFavorites(favorites) {
-            localStorage.setItem('opf_favorites', JSON.stringify(favorites));
-        }
+function getShoppingList() { var s = localStorage.getItem('opf_shopping_list'); return s ? JSON.parse(s) : []; }
+function saveShoppingList(l) { localStorage.setItem('opf_shopping_list', JSON.stringify(l)); }
 
-        function isFavorite(flyName) {
-            return getFavorites().some(f => f.name === flyName);
-        }
+function addToList(flyJson) {
+    if (!isAuthenticated) { showToast('Please log in to use shopping lists','info'); setTimeout(function(){window.location.href='account.html';},1500); return; }
+    var fly = JSON.parse(flyJson);
+    var list = getShoppingList();
+    var found = null;
+    for(var i=0;i<list.length;i++) if(list[i].name===fly.name){found=list[i];break;}
+    if(found){found.quantity=(found.quantity||1)+1;showToast('Added another '+fly.name);}
+    else{fly.quantity=1;fly.price=2.50;list.push(fly);showToast('Added to shopping list!');}
+    saveShoppingList(list);
+}
 
-        function toggleFavorite(fly) {
-            if (!isAuthenticated) {
-                showToast('Please log in to save favorites', 'info');
-                setTimeout(() => {
-                    window.location.href = 'account.html';
-                }, 1500);
-                return;
-            }
+function renderFlies(flies) {
+    var grid = document.getElementById('catalog-grid');
+    var empty = document.getElementById('empty-state');
+    var filtered = [];
+    for(var i=0;i<flies.length;i++) if(activeFilter==='all'||flies[i].type===activeFilter) filtered.push(flies[i]);
+    var query = document.getElementById('searchInput').value.toLowerCase();
+    if(query){var s=[];for(var i=0;i<filtered.length;i++){var f=filtered[i];if(f.name.toLowerCase().indexOf(query)>-1||f.type.toLowerCase().indexOf(query)>-1||f.bestFor.toLowerCase().indexOf(query)>-1)s.push(f);}filtered=s;}
+    if(filtered.length===0){grid.innerHTML='';empty.style.display='block';return;}
+    empty.style.display='none';
+    var html='';
+    for(var i=0;i<filtered.length;i++){
+        var fly=filtered[i];
+        var fav=isFavorite(fly.name);
+        var fd=JSON.stringify(fly).replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        html+='<div class="card"><div class="card-image"><img src="'+fly.image+'" alt="'+fly.name+'">';
+        html+='<button class="favorite-btn '+(fav?'active':'')+'" onclick="toggleFavorite(\''+fd+'\')">'+(fav?'&#9829;':'&#9825;')+'</button></div>';
+        html+='<div class="card-body"><span class="card-tag">'+fly.type+'</span><h3>'+fly.name+'</h3>';
+        html+='<p><strong>Best for:</strong> '+fly.bestFor+'</p><p>'+fly.description+'</p>';
+        if(fly.recipe)html+='<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;">'+fly.recipe+'</pre></details>';
+        html+='<button class="btn btn-sm btn-dark add-to-list-btn" onclick="addToList(\''+fd+'\')">+ Add to List</button>';
+        html+='</div></div>';
+    }
+    grid.innerHTML=html;
+}
 
-            let favorites = getFavorites();
-            const index = favorites.findIndex(f => f.name === fly.name);
-            
-            if (index > -1) {
-                favorites.splice(index, 1);
-                showToast('Removed from favorites');
-            } else {
-                favorites.push(fly);
-                showToast('Added to favorites! ❤️');
-            }
-            
-            saveFavorites(favorites);
-            renderFlies(allFlies); // Re-render to update heart icons
-        }
-
-        // Shopping List Management
-        function getShoppingList() {
-            const stored = localStorage.getItem('opf_shopping_list');
-            return stored ? JSON.parse(stored) : [];
-        }
-
-        function saveShoppingList(list) {
-            localStorage.setItem('opf_shopping_list', JSON.stringify(list));
-        }
-
-        function addToList(fly) {
-            if (!isAuthenticated) {
-                showToast('Please log in to use shopping lists', 'info');
-                setTimeout(() => {
-                    window.location.href = 'account.html';
-                }, 1500);
-                return;
-            }
-
-            const list = getShoppingList();
-            const existing = list.find(item => item.name === fly.name);
-            
-            if (existing) {
-                existing.quantity = (existing.quantity || 1) + 1;
-                showToast(`Added another ${fly.name} (${existing.quantity} total)`);
-            } else {
-                list.push({ ...fly, quantity: 1, price: 2.50 });
-                showToast('Added to shopping list! 📋');
-            }
-            
-            saveShoppingList(list);
-        }
-
-        // Catalog
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
-        const navToggle = document.getElementById('navToggle');
-        const navLinks = document.getElementById('navLinks');
-        navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
-
-        let allFlies = [];
-        let activeFilter = 'all';
-
-        fetch('flies.json')
-            .then(r => r.json())
-            .then(flies => {
-                allFlies = flies;
-                renderFlies(flies);
-                initAuth0();
-            })
-            .catch(err => console.error('Error loading catalog:', err));
-
-        function renderFlies(flies) {
-            const grid = document.getElementById('catalog-grid');
-            const empty = document.getElementById('empty-state');
-            grid.innerHTML = '';
-
-            if (flies.length === 0) {
-                empty.style.display = 'block';
-                return;
-            }
-            empty.style.display = 'none';
-
-            flies.forEach((fly, i) => {
-                const card = document.createElement('div');
-                card.className = 'card animate-on-scroll';
-                card.style.transitionDelay = `${Math.min(i * 0.05, 0.4)}s`;
-                card.setAttribute('data-type', fly.type);
-
-                const hasRecipe = fly.recipe && fly.recipe.trim().length > 0;
-                const recipePreview = hasRecipe
-                    ? `<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;">${fly.recipe}</pre></details>`
-                    : '';
-
-                const isFav = isFavorite(fly.name);
-                const flyData = encodeURIComponent(JSON.stringify(fly));
-
-                card.innerHTML = `
-                    <div class="card-image">
-                        <img src="${fly.image}" alt="${fly.name}" loading="lazy" onerror="this.src='https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=600'">
-                        <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(JSON.parse(decodeURIComponent('${flyData}')))" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">
-                            ${isFav ? '&#9829;' : '&#9825;'}
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <span class="card-tag">${fly.type}</span>
-                        <h3>${fly.name}</h3>
-                        <p style="font-size:0.85rem;margin-bottom:0.35rem;"><strong>Best for:</strong> ${fly.bestFor}</p>
-                        <p>${fly.description}</p>
-                        ${recipePreview}
-                        <button class="btn btn-sm btn-dark add-to-list-btn" onclick="addToList(JSON.parse(decodeURIComponent('${flyData}')))">
-                            + Add to List
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-
-            // Re-observe for animations
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) entry.target.classList.add('visible');
-                });
-            }, { threshold: 0.1 });
-            grid.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
-        }
-
-        function filterAndSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            let filtered = allFlies;
-
-            if (activeFilter !== 'all') {
-                filtered = filtered.filter(f => f.type === activeFilter);
-            }
-
-            if (query) {
-                filtered = filtered.filter(f =>
-                    f.name.toLowerCase().includes(query) ||
-                    f.type.toLowerCase().includes(query) ||
-                    f.bestFor.toLowerCase().includes(query) ||
-                    f.description.toLowerCase().includes(query)
-                );
-            }
-
-            renderFlies(filtered);
-        }
-
-        // Search
-        document.getElementById('searchInput').addEventListener('input', filterAndSearch);
-
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.
+document.addEventListener('DOMContentLoaded', function() {
+    var navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 50); });
+    document.getElementById('navToggle').addEventListener('click', function() { document.getElementById('navLinks').classList.toggle('open'); });
+    document.getElementById('searchInput').addEventListener('input', function() { renderFlies(allFlies); });
+    var btns = document.querySelectorAll('.filter-btn');
+    for(var i=0;i<btns.length;i++) btns[i].addEventListener('click', function() {
+        for(var j=0;j<btns.length;j++) btns[j].classList.remove('active');
+        this.classList.add('active');
+        activeFilter = this.getAttribute('data-filter');
+        renderFlies(allFlies);
+    });
+    fetch('flies.json').then(function(r){return r.json();}).then(function(flies){allFlies=flies;renderFlies(flies);initAuth0();});
+});
+</script>
+</body>
+</html>
