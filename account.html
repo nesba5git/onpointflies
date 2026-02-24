@@ -211,6 +211,7 @@
         // Initialize Auth0
         async function initAuth0() {
             try {
+                console.log('Initializing Auth0...');
                 auth0Client = await auth0.createAuth0Client({
                     domain: AUTH0_CONFIG.domain,
                     clientId: AUTH0_CONFIG.clientId,
@@ -219,13 +220,16 @@
                         redirect_uri: AUTH0_CONFIG.redirectUri
                     }
                 });
+                console.log('Auth0 client created successfully');
 
                 if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+                    console.log('Handling redirect callback...');
                     await auth0Client.handleRedirectCallback();
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
 
                 const isAuthenticated = await auth0Client.isAuthenticated();
+                console.log('Is authenticated:', isAuthenticated);
                 
                 if (isAuthenticated) {
                     currentUser = await auth0Client.getUser();
@@ -234,15 +238,26 @@
                     showLoginScreen();
                 }
             } catch (error) {
-                console.error('Auth0 error:', error);
+                console.error('Auth0 initialization error:', error);
+                alert('Error loading authentication: ' + error.message);
             }
         }
 
         async function login() {
+            if (!auth0Client) {
+                console.error('Auth0 not initialized');
+                alert('Authentication system is loading. Please try again.');
+                return;
+            }
             await auth0Client.loginWithRedirect();
         }
 
         async function signup() {
+            if (!auth0Client) {
+                console.error('Auth0 not initialized');
+                alert('Authentication system is loading. Please try again.');
+                return;
+            }
             await auth0Client.loginWithRedirect({
                 authorizationParams: {
                     screen_hint: 'signup'
