@@ -56,10 +56,6 @@
                     Log In with Auth0
                 </button>
                 <div id="auth-error" class="auth-error" style="display:none;"></div>
-                <div class="auth-setup-note" style="display:none;">
-                    <strong>Setup Required:</strong> You need to configure Auth0 credentials in this file. 
-                    See the <a href="https://docs.netlify.com/extend/install-and-use/setup-guides/auth0/" target="_blank">Netlify Auth0 setup guide</a>.
-                </div>
             </div>
 
             <!-- Admin Dashboard (shown when authenticated) -->
@@ -113,9 +109,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="inventory-tbody">
-                                <!-- Populated by JavaScript -->
-                            </tbody>
+                            <tbody id="inventory-tbody"></tbody>
                         </table>
                     </div>
                 </div>
@@ -126,10 +120,7 @@
                         <h3>Catalog Management</h3>
                         <button class="btn btn-primary btn-sm" onclick="addCatalogItem()">+ Add Fly Pattern</button>
                     </div>
-
-                    <div class="catalog-admin-grid" id="catalog-admin-grid">
-                        <!-- Populated by JavaScript -->
-                    </div>
+                    <div class="catalog-admin-grid" id="catalog-admin-grid"></div>
                 </div>
 
                 <!-- Export Panel -->
@@ -137,7 +128,6 @@
                     <div class="panel-header">
                         <h3>Export Data</h3>
                     </div>
-                    
                     <div class="export-options">
                         <div class="export-card">
                             <h4>Export Inventory</h4>
@@ -172,9 +162,7 @@
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
             <form id="edit-form" onsubmit="saveItem(event)">
-                <div id="modal-fields">
-                    <!-- Dynamic form fields -->
-                </div>
+                <div id="modal-fields"></div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-outline-dark" onclick="closeModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -211,7 +199,7 @@
             <div>
                 <h4>Get in Touch</h4>
                 <ul class="footer-links">
-                    <li><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a6cfc8c0c9e6c9c8d6c9cfc8d2c0cacfc3d588c5c9cb">[email&#160;protected]</a></li>
+                    <li>info@onpointflies.com</li>
                     <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
                 </ul>
             </div>
@@ -221,32 +209,18 @@
         </div>
     </footer>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-        // ==================================================
-        // AUTH0 CONFIGURATION
-        // ==================================================
-        // IMPORTANT: Replace these values with your Auth0 credentials
-        // from your Netlify dashboard after enabling the Auth0 extension
-        // 
-        // Option 1: Hardcode values (simple, but less secure)
-        // Option 2: Use Netlify environment variables (recommended)
-        //
-        // After setting up Auth0 in Netlify:
-        // 1. Go to Site configuration > Environment variables
-        // 2. Copy AUTH0_DOMAIN and AUTH0_CLIENT_ID values
-        // 3. Replace the placeholders below
-        // ==================================================
-
+    <script>
+        // Auth0 Configuration
         const AUTH0_CONFIG = {
-            domain: 'dev-ofdinri72f360yav.us.auth0.com',        // e.g., 'dev-xxxxx.us.auth0.com'
-            clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',   // e.g., 'aBcDeFgHiJkLmNoPqRsTuVwXyZ'
+            domain: 'dev-ofdinri72f360yav.us.auth0.com',
+            clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
             redirectUri: window.location.origin + '/admin.html'
         };
 
         let auth0Client = null;
         let isAuthenticated = false;
 
-        // Sample inventory data (in production, this would come from a database or API)
+        // Sample inventory data
         let inventoryData = [
             { id: 1, name: 'CH Black Bugger', category: 'streamers', size: '4', qty: 10, price: 2.99 },
             { id: 2, name: 'CH RubberLegs Black Bugger', category: 'streamers', size: '12', qty: 9, price: 2.50 },
@@ -259,17 +233,8 @@
 
         let catalogData = [];
 
-        // ==================================================
-        // AUTH0 INITIALIZATION
-        // ==================================================
+        // Auth0 Initialization
         async function initAuth0() {
-            // Check if Auth0 is configured
-            if (AUTH0_CONFIG.domain === 'YOUR_AUTH0_DOMAIN') {
-                console.warn('Auth0 not configured. Please update AUTH0_CONFIG in admin.html');
-                document.querySelector('.auth-setup-note').style.display = 'block';
-                return;
-            }
-
             try {
                 auth0Client = await auth0.createAuth0Client({
                     domain: AUTH0_CONFIG.domain,
@@ -279,13 +244,11 @@
                     }
                 });
 
-                // Handle redirect callback
                 if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
                     await auth0Client.handleRedirectCallback();
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }
 
-                // Check if user is authenticated
                 isAuthenticated = await auth0Client.isAuthenticated();
                 
                 if (isAuthenticated) {
@@ -293,33 +256,28 @@
                 } else {
                     showLoginScreen();
                 }
-
             } catch (error) {
                 console.error('Auth0 initialization error:', error);
-                showAuthError('Failed to initialize authentication. Please check your Auth0 configuration.');
+                showAuthError('Failed to initialize authentication: ' + error.message);
             }
         }
 
         async function login() {
             if (!auth0Client) {
-                showAuthError('Auth0 is not configured. Please set up Auth0 first.');
+                showAuthError('Auth0 is not configured.');
                 return;
             }
             try {
                 await auth0Client.loginWithRedirect();
             } catch (error) {
                 console.error('Login error:', error);
-                showAuthError('Login failed. Please try again.');
+                showAuthError('Login failed: ' + error.message);
             }
         }
 
         async function logout() {
             if (!auth0Client) return;
-            await auth0Client.logout({
-                logoutParams: {
-                    returnTo: window.location.origin
-                }
-            });
+            await auth0Client.logout({ logoutParams: { returnTo: window.location.origin } });
         }
 
         function showAuthError(message) {
@@ -336,20 +294,14 @@
         async function showAdminDashboard() {
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'block';
-
-            // Get user info
             const user = await auth0Client.getUser();
             document.getElementById('user-name').textContent = user.name || user.email;
             document.getElementById('user-avatar').src = user.picture || 'https://via.placeholder.com/40';
-
-            // Load data
             loadCatalog();
             renderInventory();
         }
 
-        // ==================================================
-        // DATA MANAGEMENT
-        // ==================================================
+        // Data Management
         async function loadCatalog() {
             try {
                 const response = await fetch('flies.json');
@@ -366,13 +318,9 @@
             const categoryFilter = document.getElementById('admin-category').value;
 
             let filtered = inventoryData;
-
             if (searchTerm) {
-                filtered = filtered.filter(item => 
-                    item.name.toLowerCase().includes(searchTerm)
-                );
+                filtered = filtered.filter(item => item.name.toLowerCase().includes(searchTerm));
             }
-
             if (categoryFilter !== 'all') {
                 filtered = filtered.filter(item => item.category === categoryFilter);
             }
@@ -410,9 +358,7 @@
             `).join('');
         }
 
-        // ==================================================
-        // CRUD OPERATIONS
-        // ==================================================
+        // CRUD Operations
         let currentEditType = null;
         let currentEditId = null;
 
@@ -421,33 +367,16 @@
             currentEditId = null;
             document.getElementById('modal-title').textContent = 'Add Inventory Item';
             document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group">
-                    <label for="item-name">Name</label>
-                    <input type="text" id="item-name" required>
+                <div class="form-group"><label for="item-name">Name</label><input type="text" id="item-name" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label for="item-category">Category</label>
+                        <select id="item-category" required><option value="streamers">Streamers</option><option value="nymphs">Nymphs</option><option value="dryflies">Dry Flies</option></select>
+                    </div>
+                    <div class="form-group"><label for="item-size">Size</label><input type="text" id="item-size" required></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="item-category">Category</label>
-                        <select id="item-category" required>
-                            <option value="streamers">Streamers</option>
-                            <option value="nymphs">Nymphs</option>
-                            <option value="dryflies">Dry Flies</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="item-size">Size</label>
-                        <input type="text" id="item-size" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="item-qty">Quantity</label>
-                        <input type="number" id="item-qty" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="item-price">Price ($)</label>
-                        <input type="number" id="item-price" step="0.01" min="0" required>
-                    </div>
+                    <div class="form-group"><label for="item-qty">Quantity</label><input type="number" id="item-qty" min="0" required></div>
+                    <div class="form-group"><label for="item-price">Price ($)</label><input type="number" id="item-price" step="0.01" min="0" required></div>
                 </div>
             `;
             openModal();
@@ -458,36 +387,18 @@
             currentEditId = id;
             const item = inventoryData.find(i => i.id === id);
             if (!item) return;
-
             document.getElementById('modal-title').textContent = 'Edit Inventory Item';
             document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group">
-                    <label for="item-name">Name</label>
-                    <input type="text" id="item-name" value="${item.name}" required>
+                <div class="form-group"><label for="item-name">Name</label><input type="text" id="item-name" value="${item.name}" required></div>
+                <div class="form-row">
+                    <div class="form-group"><label for="item-category">Category</label>
+                        <select id="item-category" required><option value="streamers" ${item.category === 'streamers' ? 'selected' : ''}>Streamers</option><option value="nymphs" ${item.category === 'nymphs' ? 'selected' : ''}>Nymphs</option><option value="dryflies" ${item.category === 'dryflies' ? 'selected' : ''}>Dry Flies</option></select>
+                    </div>
+                    <div class="form-group"><label for="item-size">Size</label><input type="text" id="item-size" value="${item.size}" required></div>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="item-category">Category</label>
-                        <select id="item-category" required>
-                            <option value="streamers" ${item.category === 'streamers' ? 'selected' : ''}>Streamers</option>
-                            <option value="nymphs" ${item.category === 'nymphs' ? 'selected' : ''}>Nymphs</option>
-                            <option value="dryflies" ${item.category === 'dryflies' ? 'selected' : ''}>Dry Flies</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="item-size">Size</label>
-                        <input type="text" id="item-size" value="${item.size}" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="item-qty">Quantity</label>
-                        <input type="number" id="item-qty" value="${item.qty}" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="item-price">Price ($)</label>
-                        <input type="number" id="item-price" value="${item.price}" step="0.01" min="0" required>
-                    </div>
+                    <div class="form-group"><label for="item-qty">Quantity</label><input type="number" id="item-qty" value="${item.qty}" min="0" required></div>
+                    <div class="form-group"><label for="item-price">Price ($)</label><input type="number" id="item-price" value="${item.price}" step="0.01" min="0" required></div>
                 </div>
             `;
             openModal();
@@ -505,37 +416,16 @@
             currentEditId = null;
             document.getElementById('modal-title').textContent = 'Add Fly Pattern';
             document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group">
-                    <label for="fly-name">Name</label>
-                    <input type="text" id="fly-name" required>
-                </div>
+                <div class="form-group"><label for="fly-name">Name</label><input type="text" id="fly-name" required></div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="fly-type">Type</label>
-                        <select id="fly-type" required>
-                            <option value="Streamer">Streamer</option>
-                            <option value="Nymph">Nymph</option>
-                            <option value="Dry Fly">Dry Fly</option>
-                            <option value="Material">Material</option>
-                        </select>
+                    <div class="form-group"><label for="fly-type">Type</label>
+                        <select id="fly-type" required><option value="Streamer">Streamer</option><option value="Nymph">Nymph</option><option value="Dry Fly">Dry Fly</option><option value="Material">Material</option></select>
                     </div>
-                    <div class="form-group">
-                        <label for="fly-bestfor">Best For</label>
-                        <input type="text" id="fly-bestfor" placeholder="e.g., trout, bass" required>
-                    </div>
+                    <div class="form-group"><label for="fly-bestfor">Best For</label><input type="text" id="fly-bestfor" placeholder="e.g., trout, bass" required></div>
                 </div>
-                <div class="form-group">
-                    <label for="fly-description">Description</label>
-                    <textarea id="fly-description" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="fly-image">Image URL</label>
-                    <input type="url" id="fly-image" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label for="fly-recipe">Recipe</label>
-                    <textarea id="fly-recipe" rows="5" placeholder="Hook: ...&#10;Thread: ...&#10;Body: ..."></textarea>
-                </div>
+                <div class="form-group"><label for="fly-description">Description</label><textarea id="fly-description" rows="3"></textarea></div>
+                <div class="form-group"><label for="fly-image">Image URL</label><input type="url" id="fly-image" placeholder="https://..."></div>
+                <div class="form-group"><label for="fly-recipe">Recipe</label><textarea id="fly-recipe" rows="5" placeholder="Hook: ..."></textarea></div>
             `;
             openModal();
         }
@@ -545,40 +435,18 @@
             currentEditId = index;
             const fly = catalogData[index];
             if (!fly) return;
-
             document.getElementById('modal-title').textContent = 'Edit Fly Pattern';
             document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group">
-                    <label for="fly-name">Name</label>
-                    <input type="text" id="fly-name" value="${fly.name}" required>
-                </div>
+                <div class="form-group"><label for="fly-name">Name</label><input type="text" id="fly-name" value="${fly.name}" required></div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="fly-type">Type</label>
-                        <select id="fly-type" required>
-                            <option value="Streamer" ${fly.type === 'Streamer' ? 'selected' : ''}>Streamer</option>
-                            <option value="Nymph" ${fly.type === 'Nymph' ? 'selected' : ''}>Nymph</option>
-                            <option value="Dry Fly" ${fly.type === 'Dry Fly' ? 'selected' : ''}>Dry Fly</option>
-                            <option value="Material" ${fly.type === 'Material' ? 'selected' : ''}>Material</option>
-                        </select>
+                    <div class="form-group"><label for="fly-type">Type</label>
+                        <select id="fly-type" required><option value="Streamer" ${fly.type === 'Streamer' ? 'selected' : ''}>Streamer</option><option value="Nymph" ${fly.type === 'Nymph' ? 'selected' : ''}>Nymph</option><option value="Dry Fly" ${fly.type === 'Dry Fly' ? 'selected' : ''}>Dry Fly</option><option value="Material" ${fly.type === 'Material' ? 'selected' : ''}>Material</option></select>
                     </div>
-                    <div class="form-group">
-                        <label for="fly-bestfor">Best For</label>
-                        <input type="text" id="fly-bestfor" value="${fly.bestFor}" required>
-                    </div>
+                    <div class="form-group"><label for="fly-bestfor">Best For</label><input type="text" id="fly-bestfor" value="${fly.bestFor}" required></div>
                 </div>
-                <div class="form-group">
-                    <label for="fly-description">Description</label>
-                    <textarea id="fly-description" rows="3">${fly.description || ''}</textarea>
-                </div>
-                <div class="form-group">
-                    <label for="fly-image">Image URL</label>
-                    <input type="url" id="fly-image" value="${fly.image || ''}">
-                </div>
-                <div class="form-group">
-                    <label for="fly-recipe">Recipe</label>
-                    <textarea id="fly-recipe" rows="5">${fly.recipe || ''}</textarea>
-                </div>
+                <div class="form-group"><label for="fly-description">Description</label><textarea id="fly-description" rows="3">${fly.description || ''}</textarea></div>
+                <div class="form-group"><label for="fly-image">Image URL</label><input type="url" id="fly-image" value="${fly.image || ''}"></div>
+                <div class="form-group"><label for="fly-recipe">Recipe</label><textarea id="fly-recipe" rows="5">${fly.recipe || ''}</textarea></div>
             `;
             openModal();
         }
@@ -592,7 +460,6 @@
 
         function saveItem(event) {
             event.preventDefault();
-
             if (currentEditType === 'inventory') {
                 const item = {
                     id: currentEditId || Date.now(),
@@ -602,7 +469,6 @@
                     qty: parseInt(document.getElementById('item-qty').value),
                     price: parseFloat(document.getElementById('item-price').value)
                 };
-
                 if (currentEditId) {
                     const index = inventoryData.findIndex(i => i.id === currentEditId);
                     if (index !== -1) inventoryData[index] = item;
@@ -610,7 +476,6 @@
                     inventoryData.push(item);
                 }
                 renderInventory();
-
             } else if (currentEditType === 'catalog') {
                 const fly = {
                     name: document.getElementById('fly-name').value,
@@ -620,7 +485,6 @@
                     image: document.getElementById('fly-image').value,
                     recipe: document.getElementById('fly-recipe').value
                 };
-
                 if (currentEditId !== null) {
                     catalogData[currentEditId] = fly;
                 } else {
@@ -628,20 +492,12 @@
                 }
                 renderCatalogAdmin();
             }
-
             closeModal();
         }
 
-        // ==================================================
-        // EXPORT / IMPORT
-        // ==================================================
-        function exportInventory() {
-            downloadJSON(inventoryData, 'inventory.json');
-        }
-
-        function exportCatalog() {
-            downloadJSON(catalogData, 'flies.json');
-        }
+        // Export / Import
+        function exportInventory() { downloadJSON(inventoryData, 'inventory.json'); }
+        function exportCatalog() { downloadJSON(catalogData, 'flies.json'); }
 
         function downloadJSON(data, filename) {
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -656,26 +512,21 @@
         function handleImport(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const data = JSON.parse(e.target.result);
-                    
-                    // Detect type based on data structure
                     if (Array.isArray(data) && data.length > 0) {
                         if (data[0].hasOwnProperty('type') && data[0].hasOwnProperty('bestFor')) {
-                            // It's catalog data
                             catalogData = data;
                             renderCatalogAdmin();
                             alert('Catalog data imported successfully!');
                         } else if (data[0].hasOwnProperty('category') && data[0].hasOwnProperty('qty')) {
-                            // It's inventory data
                             inventoryData = data;
                             renderInventory();
                             alert('Inventory data imported successfully!');
                         } else {
-                            alert('Unknown data format. Please check your JSON file.');
+                            alert('Unknown data format.');
                         }
                     }
                 } catch (error) {
@@ -683,12 +534,10 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // Reset input
+            event.target.value = '';
         }
 
-        // ==================================================
-        // UI HELPERS
-        // ==================================================
+        // UI Helpers
         function openModal() {
             document.getElementById('edit-modal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -699,36 +548,41 @@
             document.body.style.overflow = '';
         }
 
-        // ==================================================
-        // EVENT LISTENERS
-        // ==================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize Auth0
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
             initAuth0();
 
-            // Navbar scroll effect
-            const navbar = document.getElementById('navbar');
-            window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+            var navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                navbar.classList.toggle('scrolled', window.scrollY > 50);
+            });
 
-            // Mobile nav toggle
-            const navToggle = document.getElementById('navToggle');
-            const navLinks = document.getElementById('navLinks');
-            navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+            var navToggle = document.getElementById('navToggle');
+            var navLinks = document.getElementById('navLinks');
+            navToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('open');
+            });
 
-            // Auth buttons
             document.getElementById('login-btn').addEventListener('click', login);
             document.getElementById('logout-btn').addEventListener('click', logout);
 
-            // Admin tabs
-            document.querySelectorAll('.admin-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.admin-tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
+                    document.querySelectorAll('.admin-panel').forEach(function(p) { p.classList.remove('active'); });
                     tab.classList.add('active');
                     document.getElementById(tab.dataset.panel).classList.add('active');
                 });
             });
 
-            // Search and filter
             document.getElementById('admin-search').addEventListener('input', renderInventory);
-            document.getElementById('admin-category').addEventListener('chan
+            document.getElementById('admin-category').addEventListener('change', renderInventory);
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+            });
+        });
+    </script>
+
+</body>
+</html>
