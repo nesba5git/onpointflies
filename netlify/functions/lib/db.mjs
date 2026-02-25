@@ -15,3 +15,11 @@ export function getShoppingListStore() {
 export function getOrdersStore() {
   return getStore({ name: 'orders', consistency: 'eventual' });
 }
+
+export function getCatalogStore() {
+  return getStore({ name: 'catalog', consistency: 'eventual' });
+}
+
+export function getInventoryStore() {
+  return getStore({ name: 'inventory', consistency: 'eventual' });
+}
