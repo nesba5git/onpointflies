@@ -212,33 +212,32 @@
     <script>
         // Auth0 Configuration
         const AUTH0_CONFIG = {
-            domain: 'dev-ofdinri72f360yav.us.auth0.com',
-            clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
+            domain: '',
+            clientId: '',
             redirectUri: window.location.origin + '/admin.html'
         };
+
+        async function loadAuth0Config() {
+            var resp = await fetch('/api/auth-config');
+            var config = await resp.json();
+            AUTH0_CONFIG.domain = config.domain;
+            AUTH0_CONFIG.clientId = config.clientId;
+        }
 
         let auth0Client = null;
         let isAuthenticated = false;
 
-        // Sample inventory data
-        let inventoryData = [
-            { id: 1, name: 'CH Black Bugger', category: 'streamers', size: '4', qty: 10, price: 2.99 },
-            { id: 2, name: 'CH RubberLegs Black Bugger', category: 'streamers', size: '12', qty: 9, price: 2.50 },
-            { id: 3, name: 'BH Purple Bugger', category: 'streamers', size: '8', qty: 6, price: 2.25 },
-            { id: 4, name: 'BH Purple Bugger', category: 'streamers', size: '10', qty: 8, price: 2.25 },
-            { id: 5, name: 'Muddler Minnow', category: 'streamers', size: '8', qty: 9, price: 2.75 },
-            { id: 6, name: 'Zonker Pearl/Tan', category: 'streamers', size: '2', qty: 6, price: 4.50 },
-            { id: 7, name: 'Mickey Finn', category: 'streamers', size: '8', qty: 6, price: 1.25 },
-        ];
-
+        let inventoryData = [];
         let catalogData = [];
 
         // Auth0 Initialization
         async function initAuth0() {
             try {
+                await loadAuth0Config();
                 auth0Client = await auth0.createAuth0Client({
                     domain: AUTH0_CONFIG.domain,
                     clientId: AUTH0_CONFIG.clientId,
+                    cacheLocation: 'localstorage',
                     authorizationParams: {
                         redirect_uri: AUTH0_CONFIG.redirectUri
                     }
