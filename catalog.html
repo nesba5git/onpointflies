@@ -127,10 +127,17 @@
     <script>
         // Auth0 Configuration
         var AUTH0_CONFIG = {
-            domain: 'dev-ofdinri72f360yav.us.auth0.com',
-            clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
+            domain: '',
+            clientId: '',
             redirectUri: window.location.origin + '/catalog.html'
         };
+
+        async function loadAuth0Config() {
+            var resp = await fetch('/api/auth-config');
+            var config = await resp.json();
+            AUTH0_CONFIG.domain = config.domain;
+            AUTH0_CONFIG.clientId = config.clientId;
+        }
 
         var auth0Client = null;
         var isAuthenticated = false;
@@ -139,6 +146,7 @@
         // Initialize Auth0
         async function initAuth0() {
             try {
+                await loadAuth0Config();
                 auth0Client = await auth0.createAuth0Client({
                     domain: AUTH0_CONFIG.domain,
                     clientId: AUTH0_CONFIG.clientId,
@@ -301,7 +309,7 @@
 
                 card.innerHTML =
                     '<div class="card-image">' +
-                        '<img src="' + fly.image + '" alt="' + fly.name + '" loading="lazy" onerror="this.src=\'https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=600\'">' +
+                        '<img src="' + fly.image + '" alt="' + fly.name + '" loading="lazy" onerror="this.src=\'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg\'">' +
                         '<button class="favorite-btn ' + (isFav ? 'active' : '') + '" onclick="toggleFavorite(JSON.parse(decodeURIComponent(\'' + flyData + '\')))" title="' + (isFav ? 'Remove from favorites' : 'Add to favorites') + '">' +
                             (isFav ? '&#9829;' : '&#9825;') +
                         '</button>' +
