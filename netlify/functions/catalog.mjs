@@ -1,4 +1,4 @@
-import { getCatalogStore } from './lib/db.mjs';
+import { getCatalogStore, initBlobsContext } from './lib/db.mjs';
 import { verifyAuth, respond } from './lib/auth.mjs';
 
 const STORE_KEY = 'all';
@@ -93,6 +93,7 @@ export const handler = async (event) => {
   }
 
   try {
+    initBlobsContext(event);
     const store = getCatalogStore();
 
     // GET — public, no auth required
