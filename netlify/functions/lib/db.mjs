@@ -1,24 +1,17 @@
-import { connectLambda, getStore } from '@netlify/blobs';
-
-// V1 (handler-based) functions require connectLambda to initialize the
-// Blobs context from the Lambda event. Call this at the top of every handler
-// that accesses a store.
-export function initBlobsContext(event) {
-  connectLambda(event);
-}
+import { getStore } from '@netlify/blobs';
 
 export function getUserStore() {
-  return getStore({ name: 'users', consistency: 'strong' });
+  return getStore({ name: 'users', consistency: 'eventual' });
 }
 
 export function getFavoritesStore() {
-  return getStore({ name: 'favorites', consistency: 'strong' });
+  return getStore({ name: 'favorites', consistency: 'eventual' });
 }
 
 export function getShoppingListStore() {
-  return getStore({ name: 'shopping-list', consistency: 'strong' });
+  return getStore({ name: 'shopping-list', consistency: 'eventual' });
 }
 
 export function getOrdersStore() {
-  return getStore({ name: 'orders', consistency: 'strong' });
+  return getStore({ name: 'orders', consistency: 'eventual' });
 }
