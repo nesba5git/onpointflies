@@ -212,10 +212,17 @@
     <script>
         // Auth0 Configuration
         const AUTH0_CONFIG = {
-            domain: 'dev-ofdinri72f360yav.us.auth0.com',
-            clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
+            domain: '',
+            clientId: '',
             redirectUri: window.location.origin + '/admin.html'
         };
+
+        async function loadAuth0Config() {
+            var resp = await fetch('/api/auth-config');
+            var config = await resp.json();
+            AUTH0_CONFIG.domain = config.domain;
+            AUTH0_CONFIG.clientId = config.clientId;
+        }
 
         let auth0Client = null;
         let isAuthenticated = false;
@@ -236,6 +243,7 @@
         // Auth0 Initialization
         async function initAuth0() {
             try {
+                await loadAuth0Config();
                 auth0Client = await auth0.createAuth0Client({
                     domain: AUTH0_CONFIG.domain,
                     clientId: AUTH0_CONFIG.clientId,

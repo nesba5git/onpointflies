@@ -103,8 +103,15 @@
         <div class="footer-bottom"><p>&copy; 2026 On Point Flies. All rights reserved.</p></div>
     </footer>
 <script>
-var AUTH0_CONFIG = { domain: 'dev-ofdinri72f360yav.us.auth0.com', clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V', redirectUri: window.location.origin + '/account.html' };
+var AUTH0_CONFIG = { domain: '', clientId: '', redirectUri: window.location.origin + '/account.html' };
 var auth0Client = null, currentUser = null;
+
+async function loadAuth0Config() {
+    var resp = await fetch('/api/auth-config');
+    var config = await resp.json();
+    AUTH0_CONFIG.domain = config.domain;
+    AUTH0_CONFIG.clientId = config.clientId;
+}
 
 function showToast(message, type) {
     type = type || 'success';
@@ -116,6 +123,7 @@ function showToast(message, type) {
 
 async function initAuth0() {
     try {
+        await loadAuth0Config();
         auth0Client = await auth0.createAuth0Client({ domain: AUTH0_CONFIG.domain, clientId: AUTH0_CONFIG.clientId, cacheLocation: 'localstorage', authorizationParams: { redirect_uri: AUTH0_CONFIG.redirectUri } });
         if (window.location.search.includes('code=') && window.location.search.includes('state=')) { await auth0Client.handleRedirectCallback(); window.history.replaceState({}, document.title, window.location.pathname); }
         var isAuth = await auth0Client.isAuthenticated();
