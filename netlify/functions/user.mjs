@@ -1,4 +1,4 @@
-import { initDb } from './lib/db.mjs';
+import { getUserStore } from './lib/db.mjs';
 import { verifyAuth, respond } from './lib/auth.mjs';
 
 export const handler = async (event) => {
@@ -10,26 +10,31 @@ export const handler = async (event) => {
   if (!user) return respond({ error: 'Unauthorized' }, 401);
 
   try {
-    const sql = await initDb();
+    const store = getUserStore();
+    const existing = await store.get(user.sub, { type: 'json' });
 
-    // Get or create user
-    const existing = await sql`SELECT * FROM users WHERE auth0_id = ${user.sub}`;
-
-    if (existing.length > 0) {
-      await sql`
-        UPDATE users
-        SET email = ${user.email}, name = ${user.name}, picture = ${user.picture}, updated_at = NOW()
-        WHERE auth0_id = ${user.sub}
-      `;
-      return respond(existing[0]);
+    if (existing) {
+      const updated = {
+        ...existing,
+        email: user.email,
+        name: user.name,
+        picture: user.picture,
+        updated_at: new Date().toISOString(),
+      };
+      await store.setJSON(user.sub, updated);
+      return respond(updated);
     }
 
-    const newUser = await sql`
-      INSERT INTO users (auth0_id, email, name, picture)
-      VALUES (${user.sub}, ${user.email}, ${user.name}, ${user.picture})
-      RETURNING *
-    `;
-    return respond(newUser[0]);
+    const newUser = {
+      auth0_id: user.sub,
+      email: user.email,
+      name: user.name,
+      picture: user.picture,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    await store.setJSON(user.sub, newUser);
+    return respond(newUser);
   } catch (err) {
     console.error('User error:', err);
     return respond({ error: err.message }, 500);

@@ -1,5 +1,5 @@
 // api.js - On Point Flies API Client
-// Communicates with Netlify Functions backend backed by Neon PostgreSQL
+// Communicates with Netlify Functions backend backed by Netlify Blobs
 var OPF_API = {
   token: null,
 
