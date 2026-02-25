@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <script src="api.js"></script>
 </head>
 <body>
 
@@ -125,14 +126,15 @@
 
     <script>
         // Auth0 Configuration
-        const AUTH0_CONFIG = {
+        var AUTH0_CONFIG = {
             domain: 'dev-ofdinri72f360yav.us.auth0.com',
             clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V',
             redirectUri: window.location.origin + '/catalog.html'
         };
 
-        let auth0Client = null;
-        let isAuthenticated = false;
+        var auth0Client = null;
+        var isAuthenticated = false;
+        var cachedFavorites = []; // In-memory cache of user's favorites
 
         // Initialize Auth0
         async function initAuth0() {
@@ -141,9 +143,7 @@
                     domain: AUTH0_CONFIG.domain,
                     clientId: AUTH0_CONFIG.clientId,
                     cacheLocation: 'localstorage',
-                    authorizationParams: {
-                        redirect_uri: AUTH0_CONFIG.redirectUri
-                    }
+                    authorizationParams: { redirect_uri: AUTH0_CONFIG.redirectUri }
                 });
 
                 if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
@@ -153,197 +153,197 @@
 
                 isAuthenticated = await auth0Client.isAuthenticated();
                 updateAccountLink();
+
+                if (isAuthenticated) {
+                    await OPF_API.setToken(auth0Client);
+                    // Sync user with database
+                    try { await OPF_API.syncUser(); } catch(e) { console.error('User sync:', e); }
+                    // Migrate any old localStorage data
+                    await OPF_API.migrateLocalData();
+                    // Load favorites from database for heart icon state
+                    try {
+                        cachedFavorites = await OPF_API.getFavorites();
+                    } catch(e) { console.error('Load favorites:', e); }
+                    // Re-render with favorites state
+                    renderFlies(allFlies);
+                }
             } catch (error) {
                 console.error('Auth0 error:', error);
             }
         }
 
         function updateAccountLink() {
-            const link = document.getElementById('account-link');
+            var link = document.getElementById('account-link');
             if (isAuthenticated) {
                 link.innerHTML = '&#128100; My Account';
             }
         }
 
         // Toast notifications
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
+        function showToast(message, type) {
+            type = type || 'success';
+            var toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast ' + type + ' show';
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 3000);
+            setTimeout(function() { toast.className = 'toast'; }, 3000);
         }
 
-        // Favorites Management
-        function getFavorites() {
-            const stored = localStorage.getItem('opf_favorites');
-            return stored ? JSON.parse(stored) : [];
-        }
-
-        function saveFavorites(favorites) {
-            localStorage.setItem('opf_favorites', JSON.stringify(favorites));
-        }
-
+        // Favorites Management (Database-backed)
         function isFavorite(flyName) {
-            return getFavorites().some(f => f.name === flyName);
+            return cachedFavorites.some(function(f) { return f.name === flyName; });
         }
 
-        function toggleFavorite(fly) {
+        async function toggleFavorite(fly) {
             if (!isAuthenticated) {
                 showToast('Please log in to save favorites', 'info');
-                setTimeout(() => {
-                    window.location.href = 'account.html';
-                }, 1500);
+                setTimeout(function() { window.location.href = 'account.html'; }, 1500);
                 return;
             }
 
-            let favorites = getFavorites();
-            const index = favorites.findIndex(f => f.name === fly.name);
-            
-            if (index > -1) {
-                favorites.splice(index, 1);
-                showToast('Removed from favorites');
-            } else {
-                favorites.push(fly);
-                showToast('Added to favorites! ❤️');
+            var index = cachedFavorites.findIndex(function(f) { return f.name === fly.name; });
+
+            try {
+                if (index > -1) {
+                    await OPF_API.removeFavorite(fly.name);
+                    cachedFavorites.splice(index, 1);
+                    showToast('Removed from favorites');
+                } else {
+                    await OPF_API.addFavorite(fly);
+                    cachedFavorites.push(fly);
+                    showToast('Added to favorites!');
+                }
+                renderFlies(allFlies);
+            } catch (err) {
+                showToast('Failed to update favorites', 'error');
+                console.error('Favorite error:', err);
             }
-            
-            saveFavorites(favorites);
-            renderFlies(allFlies); // Re-render to update heart icons
         }
 
-        // Shopping List Management
-        function getShoppingList() {
-            const stored = localStorage.getItem('opf_shopping_list');
-            return stored ? JSON.parse(stored) : [];
-        }
-
-        function saveShoppingList(list) {
-            localStorage.setItem('opf_shopping_list', JSON.stringify(list));
-        }
-
-        function addToList(fly) {
+        // Shopping List Management (Database-backed)
+        async function addToList(fly) {
             if (!isAuthenticated) {
                 showToast('Please log in to use shopping lists', 'info');
-                setTimeout(() => {
-                    window.location.href = 'account.html';
-                }, 1500);
+                setTimeout(function() { window.location.href = 'account.html'; }, 1500);
                 return;
             }
 
-            const list = getShoppingList();
-            const existing = list.find(item => item.name === fly.name);
-            
-            if (existing) {
-                existing.quantity = (existing.quantity || 1) + 1;
-                showToast(`Added another ${fly.name} (${existing.quantity} total)`);
-            } else {
-                list.push({ ...fly, quantity: 1, price: 2.50 });
-                showToast('Added to shopping list! 📋');
+            try {
+                var result = await OPF_API.addToShoppingList(fly);
+                if (result.quantity) {
+                    showToast('Added another ' + fly.name + ' (' + result.quantity + ' total)');
+                } else {
+                    showToast('Added to shopping list!');
+                }
+            } catch (err) {
+                showToast('Failed to add to list', 'error');
+                console.error('Shopping list error:', err);
             }
-            
-            saveShoppingList(list);
         }
 
         // Catalog
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
-        const navToggle = document.getElementById('navToggle');
-        const navLinks = document.getElementById('navLinks');
-        navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+        var navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 50); });
+        var navToggle = document.getElementById('navToggle');
+        var navLinks = document.getElementById('navLinks');
+        navToggle.addEventListener('click', function() { navLinks.classList.toggle('open'); });
 
-        let allFlies = [];
-        let activeFilter = 'all';
+        var allFlies = [];
+        var activeFilter = 'all';
 
         fetch('flies.json')
-            .then(r => r.json())
-            .then(flies => {
+            .then(function(r) { return r.json(); })
+            .then(function(flies) {
                 allFlies = flies;
                 renderFlies(flies);
                 initAuth0();
             })
-            .catch(err => console.error('Error loading catalog:', err));
+            .catch(function(err) { console.error('Error loading catalog:', err); });
 
         function renderFlies(flies) {
-            const grid = document.getElementById('catalog-grid');
-            const empty = document.getElementById('empty-state');
+            var grid = document.getElementById('catalog-grid');
+            var empty = document.getElementById('empty-state');
             grid.innerHTML = '';
 
-            if (flies.length === 0) {
+            // Apply current filter
+            var filtered = flies;
+            var query = document.getElementById('searchInput').value.toLowerCase();
+            if (activeFilter !== 'all') {
+                filtered = filtered.filter(function(f) { return f.type === activeFilter; });
+            }
+            if (query) {
+                filtered = filtered.filter(function(f) {
+                    return f.name.toLowerCase().includes(query) ||
+                        f.type.toLowerCase().includes(query) ||
+                        f.bestFor.toLowerCase().includes(query) ||
+                        f.description.toLowerCase().includes(query);
+                });
+            }
+
+            if (filtered.length === 0) {
                 empty.style.display = 'block';
                 return;
             }
             empty.style.display = 'none';
 
-            flies.forEach((fly, i) => {
-                const card = document.createElement('div');
+            filtered.forEach(function(fly, i) {
+                var card = document.createElement('div');
                 card.className = 'card animate-on-scroll';
-                card.style.transitionDelay = `${Math.min(i * 0.05, 0.4)}s`;
+                card.style.transitionDelay = Math.min(i * 0.05, 0.4) + 's';
                 card.setAttribute('data-type', fly.type);
 
-                const hasRecipe = fly.recipe && fly.recipe.trim().length > 0;
-                const recipePreview = hasRecipe
-                    ? `<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;">${fly.recipe}</pre></details>`
+                var hasRecipe = fly.recipe && fly.recipe.trim().length > 0;
+                var recipePreview = hasRecipe
+                    ? '<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;">' + fly.recipe + '</pre></details>'
                     : '';
 
-                const isFav = isFavorite(fly.name);
-                const flyData = encodeURIComponent(JSON.stringify(fly));
+                var isFav = isFavorite(fly.name);
+                var flyData = encodeURIComponent(JSON.stringify(fly));
 
-                card.innerHTML = `
-                    <div class="card-image">
-                        <img src="${fly.image}" alt="${fly.name}" loading="lazy" onerror="this.src='https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=600'">
-                        <button class="favorite-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(JSON.parse(decodeURIComponent('${flyData}')))" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">
-                            ${isFav ? '&#9829;' : '&#9825;'}
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <span class="card-tag">${fly.type}</span>
-                        <h3>${fly.name}</h3>
-                        <p style="font-size:0.85rem;margin-bottom:0.35rem;"><strong>Best for:</strong> ${fly.bestFor}</p>
-                        <p>${fly.description}</p>
-                        ${recipePreview}
-                        <button class="btn btn-sm btn-dark add-to-list-btn" onclick="addToList(JSON.parse(decodeURIComponent('${flyData}')))">
-                            + Add to List
-                        </button>
-                    </div>
-                `;
+                card.innerHTML =
+                    '<div class="card-image">' +
+                        '<img src="' + fly.image + '" alt="' + fly.name + '" loading="lazy" onerror="this.src=\'https://images.pexels.com/photos/3099227/pexels-photo-3099227.jpeg?auto=compress&cs=tinysrgb&w=600\'">' +
+                        '<button class="favorite-btn ' + (isFav ? 'active' : '') + '" onclick="toggleFavorite(JSON.parse(decodeURIComponent(\'' + flyData + '\')))" title="' + (isFav ? 'Remove from favorites' : 'Add to favorites') + '">' +
+                            (isFav ? '&#9829;' : '&#9825;') +
+                        '</button>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        '<span class="card-tag">' + fly.type + '</span>' +
+                        '<h3>' + fly.name + '</h3>' +
+                        '<p style="font-size:0.85rem;margin-bottom:0.35rem;"><strong>Best for:</strong> ' + fly.bestFor + '</p>' +
+                        '<p>' + fly.description + '</p>' +
+                        recipePreview +
+                        '<button class="btn btn-sm btn-dark add-to-list-btn" onclick="addToList(JSON.parse(decodeURIComponent(\'' + flyData + '\')))">' +
+                            '+ Add to List' +
+                        '</button>' +
+                    '</div>';
                 grid.appendChild(card);
             });
 
             // Re-observe for animations
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
                     if (entry.isIntersecting) entry.target.classList.add('visible');
                 });
             }, { threshold: 0.1 });
-            grid.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+            grid.querySelectorAll('.animate-on-scroll').forEach(function(el) { observer.observe(el); });
         }
 
         function filterAndSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            let filtered = allFlies;
-
-            if (activeFilter !== 'all') {
-                filtered = filtered.filter(f => f.type === activeFilter);
-            }
-
-            if (query) {
-                filtered = filtered.filter(f =>
-                    f.name.toLowerCase().includes(query) ||
-                    f.type.toLowerCase().includes(query) ||
-                    f.bestFor.toLowerCase().includes(query) ||
-                    f.description.toLowerCase().includes(query)
-                );
-            }
-
-            renderFlies(filtered);
+            renderFlies(allFlies);
         }
 
         // Search
         document.getElementById('searchInput').addEventListener('input', filterAndSearch);
 
         // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.
+        document.querySelectorAll('.filter-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                activeFilter = btn.getAttribute('data-filter');
+                filterAndSearch();
+            });
+        });
+    </script>
+</body>
+</html>

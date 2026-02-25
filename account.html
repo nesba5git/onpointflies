@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <script src="api.js"></script>
 </head>
 <body>
     <nav class="navbar" id="navbar">
@@ -31,7 +32,7 @@
         <div class="hero-content">
             <span class="section-label">Your Account</span>
             <h1>My Account</h1>
-            <p>Manage your favorites, shopping list, and account details.</p>
+            <p>Manage your favorites, shopping list, and order history.</p>
         </div>
     </section>
     <section class="section">
@@ -39,7 +40,7 @@
             <div id="auth-section" class="account-auth-card">
                 <div class="auth-icon">&#128100;</div>
                 <h2>Welcome to On Point Flies</h2>
-                <p>Sign in to save your favorite flies, create shopping lists, and access exclusive wholesale pricing.</p>
+                <p>Sign in to save your favorite flies, create shopping lists, and track your orders.</p>
                 <div class="auth-buttons">
                     <button id="login-btn" class="btn btn-primary">Log In</button>
                     <button id="signup-btn" class="btn btn-outline-dark">Create Account</button>
@@ -47,7 +48,7 @@
                 <div class="auth-features">
                     <div class="auth-feature"><span class="feature-icon">&#9829;</span><span>Save Favorites</span></div>
                     <div class="auth-feature"><span class="feature-icon">&#128203;</span><span>Shopping Lists</span></div>
-                    <div class="auth-feature"><span class="feature-icon">&#128176;</span><span>Wholesale Pricing</span></div>
+                    <div class="auth-feature"><span class="feature-icon">&#128230;</span><span>Order History</span></div>
                 </div>
             </div>
             <div id="account-dashboard" style="display:none;">
@@ -59,29 +60,40 @@
                 <div class="account-tabs">
                     <button class="account-tab active" data-panel="favorites-panel"><span class="tab-icon">&#9829;</span> Favorites <span class="tab-count" id="favorites-count">0</span></button>
                     <button class="account-tab" data-panel="list-panel"><span class="tab-icon">&#128203;</span> Shopping List <span class="tab-count" id="list-count">0</span></button>
-                    <button class="account-tab" data-panel="orders-panel"><span class="tab-icon">&#128230;</span> Order History</button>
+                    <button class="account-tab" data-panel="orders-panel"><span class="tab-icon">&#128230;</span> Order History <span class="tab-count" id="orders-count">0</span></button>
                 </div>
                 <div id="favorites-panel" class="account-panel active">
                     <div class="panel-header"><h3>My Favorite Flies</h3><p>Flies you've saved for quick access</p></div>
+                    <div id="favorites-loading" class="loading-state">Loading favorites...</div>
                     <div id="favorites-grid" class="favorites-grid"></div>
-                    <div id="favorites-empty" class="empty-state"><span class="empty-icon">&#9829;</span><h4>No favorites yet</h4><p>Browse our <a href="catalog.html">catalog</a> and click the heart icon to save your favorite flies.</p></div>
+                    <div id="favorites-empty" class="empty-state" style="display:none;"><span class="empty-icon">&#9829;</span><h4>No favorites yet</h4><p>Browse our <a href="catalog.html">catalog</a> and click the heart icon to save your favorite flies.</p></div>
                 </div>
                 <div id="list-panel" class="account-panel">
                     <div class="panel-header"><h3>My Shopping List</h3><p>Flies you're planning to order</p></div>
+                    <div id="list-loading" class="loading-state">Loading shopping list...</div>
                     <div id="shopping-list" class="shopping-list"></div>
-                    <div id="list-empty" class="empty-state"><span class="empty-icon">&#128203;</span><h4>Your list is empty</h4><p>Browse our <a href="catalog.html">catalog</a> and click "Add to List" to start building your order.</p></div>
+                    <div id="list-empty" class="empty-state" style="display:none;"><span class="empty-icon">&#128203;</span><h4>Your list is empty</h4><p>Browse our <a href="catalog.html">catalog</a> and click "Add to List" to start building your order.</p></div>
                     <div id="list-actions" class="list-actions" style="display:none;">
                         <div class="list-total"><span>Estimated Total:</span><strong id="list-total-amount">$0.00</strong></div>
-                        <div class="list-buttons"><button class="btn btn-outline-dark" onclick="clearShoppingList()">Clear List</button><a href="contact.html" class="btn btn-primary">Request Quote</a></div>
+                        <div class="list-buttons">
+                            <button class="btn btn-outline-dark" onclick="clearShoppingList()">Clear List</button>
+                            <button class="btn btn-primary" onclick="placeOrder()">Place Order</button>
+                        </div>
                     </div>
                 </div>
                 <div id="orders-panel" class="account-panel">
-                    <div class="panel-header"><h3>Order History</h3><p>Your past orders with On Point Flies</p></div>
-                    <div class="empty-state"><span class="empty-icon">&#128230;</span><h4>No orders yet</h4><p>Once you place an order, it will appear here. <a href="contact.html">Contact us</a> to get started.</p></div>
+                    <div class="panel-header"><h3>Order History</h3><p>Your orders with On Point Flies</p></div>
+                    <div id="orders-loading" class="loading-state">Loading orders...</div>
+                    <div id="orders-list" class="orders-list"></div>
+                    <div id="orders-empty" class="empty-state" style="display:none;"><span class="empty-icon">&#128230;</span><h4>No orders yet</h4><p>Add flies to your shopping list and place an order to get started.</p></div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
     <footer class="footer">
         <div class="footer-grid">
             <div class="footer-brand"><h3>On Point <span>Flies</span></h3><p>Premium hand-tied flies for the passionate fly fisher.</p></div>
@@ -94,15 +106,30 @@
 var AUTH0_CONFIG = { domain: 'dev-ofdinri72f360yav.us.auth0.com', clientId: 'cFJGoFKtK0pgeR16J2fmX4saKHy8I86V', redirectUri: window.location.origin + '/account.html' };
 var auth0Client = null, currentUser = null;
 
+function showToast(message, type) {
+    type = type || 'success';
+    var toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast ' + type + ' show';
+    setTimeout(function() { toast.className = 'toast'; }, 3000);
+}
+
 async function initAuth0() {
     try {
-        console.log('Initializing Auth0...');
         auth0Client = await auth0.createAuth0Client({ domain: AUTH0_CONFIG.domain, clientId: AUTH0_CONFIG.clientId, cacheLocation: 'localstorage', authorizationParams: { redirect_uri: AUTH0_CONFIG.redirectUri } });
-        console.log('Auth0 ready');
         if (window.location.search.includes('code=') && window.location.search.includes('state=')) { await auth0Client.handleRedirectCallback(); window.history.replaceState({}, document.title, window.location.pathname); }
         var isAuth = await auth0Client.isAuthenticated();
-        console.log('Authenticated:', isAuth);
-        if (isAuth) { currentUser = await auth0Client.getUser(); showDashboard(); } else { showLogin(); }
+        if (isAuth) {
+            currentUser = await auth0Client.getUser();
+            await OPF_API.setToken(auth0Client);
+            // Sync user with database
+            try { await OPF_API.syncUser(); } catch(e) { console.error('User sync error:', e); }
+            // Migrate any old localStorage data
+            await OPF_API.migrateLocalData();
+            showDashboard();
+        } else {
+            showLogin();
+        }
     } catch (err) { console.error('Auth0 error:', err); }
 }
 
@@ -117,45 +144,194 @@ function showDashboard() {
     document.getElementById('user-name').textContent = currentUser.name || 'Welcome!';
     document.getElementById('user-email').textContent = currentUser.email || '';
     document.getElementById('user-avatar').src = currentUser.picture || 'https://via.placeholder.com/80';
-    loadFavorites(); loadShoppingList();
+    loadFavorites();
+    loadShoppingList();
+    loadOrders();
 }
 
-function getFavorites() { var s = localStorage.getItem('opf_favorites'); return s ? JSON.parse(s) : []; }
-function saveFavorites(f) { localStorage.setItem('opf_favorites', JSON.stringify(f)); }
-function loadFavorites() {
-    var favs = getFavorites(), grid = document.getElementById('favorites-grid'), empty = document.getElementById('favorites-empty');
-    document.getElementById('favorites-count').textContent = favs.length;
-    if (favs.length === 0) { grid.style.display = 'none'; empty.style.display = 'block'; return; }
-    grid.style.display = 'grid'; empty.style.display = 'none';
-    var html = '';
-    for (var i = 0; i < favs.length; i++) {
-        var fly = favs[i];
-        html += '<div class="favorite-card"><button class="remove-btn" onclick="removeFavorite(\'' + fly.name + '\')">&times;</button><img src="' + fly.image + '" alt="' + fly.name + '"><div class="favorite-card-body"><span class="card-tag">' + fly.type + '</span><h4>' + fly.name + '</h4><p>' + fly.bestFor + '</p></div></div>';
-    }
-    grid.innerHTML = html;
-}
-function removeFavorite(name) { var favs = getFavorites().filter(function(f) { return f.name !== name; }); saveFavorites(favs); loadFavorites(); }
+// ---- Favorites (Database-backed) ----
+async function loadFavorites() {
+    var grid = document.getElementById('favorites-grid');
+    var empty = document.getElementById('favorites-empty');
+    var loading = document.getElementById('favorites-loading');
+    loading.style.display = 'block';
+    grid.style.display = 'none';
+    empty.style.display = 'none';
 
-function getShoppingList() { var s = localStorage.getItem('opf_shopping_list'); return s ? JSON.parse(s) : []; }
-function saveShoppingList(list) { localStorage.setItem('opf_shopping_list', JSON.stringify(list)); }
-function loadShoppingList() {
-    var list = getShoppingList(), container = document.getElementById('shopping-list'), empty = document.getElementById('list-empty'), actions = document.getElementById('list-actions'), total = 0, count = 0;
-    for (var i = 0; i < list.length; i++) count += list[i].quantity || 1;
-    document.getElementById('list-count').textContent = count;
-    if (list.length === 0) { container.style.display = 'none'; empty.style.display = 'block'; actions.style.display = 'none'; return; }
-    container.style.display = 'block'; empty.style.display = 'none'; actions.style.display = 'flex';
-    var html = '';
-    for (var i = 0; i < list.length; i++) {
-        var item = list[i], itemTotal = (item.price || 2.50) * (item.quantity || 1);
-        total += itemTotal;
-        html += '<div class="list-item"><img src="' + item.image + '" alt="' + item.name + '"><div class="list-item-info"><h4>' + item.name + '</h4><span class="card-tag">' + item.type + '</span></div><div class="list-item-qty"><button onclick="updateQty(\'' + item.name + '\',-1)">-</button><span>' + (item.quantity || 1) + '</span><button onclick="updateQty(\'' + item.name + '\',1)">+</button></div><div class="list-item-price">$' + itemTotal.toFixed(2) + '</div><button class="remove-btn" onclick="removeItem(\'' + item.name + '\')">&times;</button></div>';
+    try {
+        var favs = await OPF_API.getFavorites();
+        document.getElementById('favorites-count').textContent = favs.length;
+        loading.style.display = 'none';
+
+        if (favs.length === 0) { empty.style.display = 'block'; return; }
+        grid.style.display = 'grid';
+
+        var html = '';
+        for (var i = 0; i < favs.length; i++) {
+            var fly = favs[i];
+            html += '<div class="favorite-card"><button class="remove-btn" onclick="removeFavorite(\'' + fly.name.replace(/'/g, "\\'") + '\')">&times;</button><img src="' + fly.image + '" alt="' + fly.name + '"><div class="favorite-card-body"><span class="card-tag">' + fly.type + '</span><h4>' + fly.name + '</h4><p>' + (fly.bestFor || '') + '</p></div></div>';
+        }
+        grid.innerHTML = html;
+    } catch (err) {
+        loading.style.display = 'none';
+        empty.style.display = 'block';
+        console.error('Load favorites error:', err);
     }
-    container.innerHTML = html;
-    document.getElementById('list-total-amount').textContent = '$' + total.toFixed(2);
 }
-function updateQty(name, delta) { var list = getShoppingList(); for (var i = 0; i < list.length; i++) if (list[i].name === name) { list[i].quantity = Math.max(1, (list[i].quantity || 1) + delta); break; } saveShoppingList(list); loadShoppingList(); }
-function removeItem(name) { var list = getShoppingList().filter(function(i) { return i.name !== name; }); saveShoppingList(list); loadShoppingList(); }
-function clearShoppingList() { if (confirm('Clear your entire shopping list?')) { saveShoppingList([]); loadShoppingList(); } }
+
+async function removeFavorite(name) {
+    try {
+        await OPF_API.removeFavorite(name);
+        showToast('Removed from favorites');
+        loadFavorites();
+    } catch (err) {
+        showToast('Failed to remove favorite', 'error');
+    }
+}
+
+// ---- Shopping List (Database-backed) ----
+async function loadShoppingList() {
+    var container = document.getElementById('shopping-list');
+    var empty = document.getElementById('list-empty');
+    var actions = document.getElementById('list-actions');
+    var loading = document.getElementById('list-loading');
+    loading.style.display = 'block';
+    container.style.display = 'none';
+    empty.style.display = 'none';
+    actions.style.display = 'none';
+
+    try {
+        var list = await OPF_API.getShoppingList();
+        var total = 0, count = 0;
+        for (var i = 0; i < list.length; i++) count += list[i].quantity || 1;
+        document.getElementById('list-count').textContent = count;
+        loading.style.display = 'none';
+
+        if (list.length === 0) { empty.style.display = 'block'; return; }
+        container.style.display = 'block';
+        actions.style.display = 'flex';
+
+        var html = '';
+        for (var i = 0; i < list.length; i++) {
+            var item = list[i], itemTotal = (parseFloat(item.price) || 2.50) * (item.quantity || 1);
+            total += itemTotal;
+            html += '<div class="list-item"><img src="' + item.image + '" alt="' + item.name + '"><div class="list-item-info"><h4>' + item.name + '</h4><span class="card-tag">' + item.type + '</span></div><div class="list-item-qty"><button onclick="updateQty(\'' + item.name.replace(/'/g, "\\'") + '\',-1)">-</button><span>' + (item.quantity || 1) + '</span><button onclick="updateQty(\'' + item.name.replace(/'/g, "\\'") + '\',1)">+</button></div><div class="list-item-price">$' + itemTotal.toFixed(2) + '</div><button class="remove-btn" onclick="removeItem(\'' + item.name.replace(/'/g, "\\'") + '\')">&times;</button></div>';
+        }
+        container.innerHTML = html;
+        document.getElementById('list-total-amount').textContent = '$' + total.toFixed(2);
+    } catch (err) {
+        loading.style.display = 'none';
+        empty.style.display = 'block';
+        console.error('Load shopping list error:', err);
+    }
+}
+
+async function updateQty(name, delta) {
+    // Get current quantity from the displayed list
+    var items = document.querySelectorAll('.list-item');
+    for (var i = 0; i < items.length; i++) {
+        var h4 = items[i].querySelector('h4');
+        if (h4 && h4.textContent === name) {
+            var qtySpan = items[i].querySelector('.list-item-qty span');
+            var currentQty = parseInt(qtySpan.textContent) || 1;
+            var newQty = Math.max(1, currentQty + delta);
+            try {
+                await OPF_API.updateShoppingListQty(name, newQty);
+                loadShoppingList();
+            } catch (err) { showToast('Failed to update quantity', 'error'); }
+            return;
+        }
+    }
+}
+
+async function removeItem(name) {
+    try {
+        await OPF_API.removeFromShoppingList(name);
+        showToast('Removed from list');
+        loadShoppingList();
+    } catch (err) { showToast('Failed to remove item', 'error'); }
+}
+
+async function clearShoppingList() {
+    if (!confirm('Clear your entire shopping list?')) return;
+    try {
+        await OPF_API.clearShoppingList();
+        showToast('Shopping list cleared');
+        loadShoppingList();
+    } catch (err) { showToast('Failed to clear list', 'error'); }
+}
+
+// ---- Orders (Database-backed) ----
+async function placeOrder() {
+    var notes = prompt('Add any notes for your order (optional):');
+    if (notes === null) return; // User cancelled
+
+    try {
+        showToast('Placing your order...', 'info');
+        var order = await OPF_API.placeOrder(notes);
+        showToast('Order placed successfully!');
+        loadShoppingList();
+        loadOrders();
+        // Switch to orders tab
+        var allTabs = document.querySelectorAll('.account-tab'), allPanels = document.querySelectorAll('.account-panel');
+        for (var j = 0; j < allTabs.length; j++) allTabs[j].classList.remove('active');
+        for (var j = 0; j < allPanels.length; j++) allPanels[j].classList.remove('active');
+        allTabs[2].classList.add('active');
+        document.getElementById('orders-panel').classList.add('active');
+    } catch (err) {
+        showToast(err.message || 'Failed to place order', 'error');
+    }
+}
+
+async function loadOrders() {
+    var container = document.getElementById('orders-list');
+    var empty = document.getElementById('orders-empty');
+    var loading = document.getElementById('orders-loading');
+    loading.style.display = 'block';
+    container.style.display = 'none';
+    empty.style.display = 'none';
+
+    try {
+        var orders = await OPF_API.getOrders();
+        document.getElementById('orders-count').textContent = orders.length;
+        loading.style.display = 'none';
+
+        if (orders.length === 0) { empty.style.display = 'block'; return; }
+        container.style.display = 'block';
+
+        var html = '';
+        for (var i = 0; i < orders.length; i++) {
+            var order = orders[i];
+            var date = new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            var statusClass = order.status === 'pending' ? 'status-pending' : order.status === 'confirmed' ? 'status-confirmed' : order.status === 'shipped' ? 'status-shipped' : order.status === 'completed' ? 'status-completed' : '';
+
+            html += '<div class="order-card">';
+            html += '<div class="order-header">';
+            html += '<div class="order-meta"><span class="order-date">' + date + '</span><span class="order-id">Order #' + order.id + '</span></div>';
+            html += '<div class="order-summary"><span class="order-status ' + statusClass + '">' + (order.status || 'pending') + '</span><span class="order-total">$' + parseFloat(order.total_amount).toFixed(2) + ' (' + order.total_flies + ' flies)</span></div>';
+            html += '</div>';
+
+            if (order.notes) {
+                html += '<div class="order-notes"><strong>Notes:</strong> ' + order.notes + '</div>';
+            }
+
+            if (order.items && order.items.length > 0) {
+                html += '<div class="order-items"><table class="order-items-table"><thead><tr><th>Fly</th><th>Type</th><th>Qty</th><th>Price</th></tr></thead><tbody>';
+                for (var j = 0; j < order.items.length; j++) {
+                    var item = order.items[j];
+                    html += '<tr><td>' + item.name + '</td><td>' + (item.type || '-') + '</td><td>' + item.quantity + '</td><td>$' + (parseFloat(item.price) * item.quantity).toFixed(2) + '</td></tr>';
+                }
+                html += '</tbody></table></div>';
+            }
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    } catch (err) {
+        loading.style.display = 'none';
+        empty.style.display = 'block';
+        console.error('Load orders error:', err);
+    }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     initAuth0();

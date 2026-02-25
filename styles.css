@@ -277,4 +277,29 @@ h3 { font-size: 1.25rem; }
   .list-buttons { width: 100%; flex-direction: column; }
   .admin-filters { flex-direction: column; }
   .auth-features { flex-direction: column; gap: 1rem; }
+  .order-header { flex-direction: column; gap: 0.75rem; }
+  .order-items-table th, .order-items-table td { padding: 0.5rem; font-size: 0.8rem; }
 }
+
+/* Loading State */
+.loading-state { text-align: center; padding: 2rem; color: var(--color-text-light); font-size: 0.95rem; }
+
+/* Order History */
+.orders-list { display: flex; flex-direction: column; gap: 1.5rem; }
+.order-card { background: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); overflow: hidden; }
+.order-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border); }
+.order-meta { display: flex; flex-direction: column; gap: 0.25rem; }
+.order-date { font-weight: 600; color: var(--color-primary-dark); }
+.order-id { font-size: 0.8rem; color: var(--color-text-light); }
+.order-summary { display: flex; align-items: center; gap: 1rem; }
+.order-total { font-weight: 600; font-size: 0.95rem; }
+.order-status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-confirmed { background: #dbeafe; color: #1e40af; }
+.status-shipped { background: #e0e7ff; color: #3730a3; }
+.status-completed { background: #d1fae5; color: #065f46; }
+.order-notes { padding: 0.75rem 1.5rem; font-size: 0.9rem; color: var(--color-text-light); border-bottom: 1px solid var(--color-border); background: var(--color-bg-alt); }
+.order-items { padding: 1rem 1.5rem; }
+.order-items-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.order-items-table th { text-align: left; font-weight: 600; padding: 0.5rem 0.75rem; color: var(--color-text-light); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); }
+.order-items-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--color-border); }
