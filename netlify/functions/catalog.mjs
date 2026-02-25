@@ -93,17 +93,32 @@ export const handler = async (event) => {
   }
 
   try {
-    const store = getCatalogStore();
+    let store;
+    try {
+      store = getCatalogStore();
+    } catch (storeErr) {
+      console.warn('Blobs store unavailable:', storeErr.message);
+      // If store creation fails on a GET, return default data
+      if (event.httpMethod === 'GET') {
+        return respond(DEFAULT_CATALOG);
+      }
+      return respond({ error: 'Storage not available' }, 503);
+    }
 
     // GET — public, no auth required
     if (event.httpMethod === 'GET') {
-      let catalog = await store.get(STORE_KEY, { type: 'json' });
-      if (!catalog) {
-        // Seed with default data on first access
-        catalog = DEFAULT_CATALOG;
-        await store.setJSON(STORE_KEY, catalog);
+      try {
+        let catalog = await store.get(STORE_KEY, { type: 'json' });
+        if (!catalog) {
+          // Seed with default data on first access
+          catalog = DEFAULT_CATALOG;
+          await store.setJSON(STORE_KEY, catalog);
+        }
+        return respond(catalog);
+      } catch (blobErr) {
+        console.warn('Blobs read failed, serving default catalog:', blobErr.message);
+        return respond(DEFAULT_CATALOG);
       }
-      return respond(catalog);
     }
 
     // All write operations require authentication

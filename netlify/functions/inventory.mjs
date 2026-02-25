@@ -47,17 +47,32 @@ export const handler = async (event) => {
   }
 
   try {
-    const store = getInventoryStore();
+    let store;
+    try {
+      store = getInventoryStore();
+    } catch (storeErr) {
+      console.warn('Blobs store unavailable:', storeErr.message);
+      // If store creation fails on a GET, return default data
+      if (event.httpMethod === 'GET') {
+        return respond(DEFAULT_INVENTORY);
+      }
+      return respond({ error: 'Storage not available' }, 503);
+    }
 
     // GET — public, no auth required
     if (event.httpMethod === 'GET') {
-      let inventory = await store.get(STORE_KEY, { type: 'json' });
-      if (!inventory) {
-        // Seed with default data on first access
-        inventory = DEFAULT_INVENTORY;
-        await store.setJSON(STORE_KEY, inventory);
+      try {
+        let inventory = await store.get(STORE_KEY, { type: 'json' });
+        if (!inventory) {
+          // Seed with default data on first access
+          inventory = DEFAULT_INVENTORY;
+          await store.setJSON(STORE_KEY, inventory);
+        }
+        return respond(inventory);
+      } catch (blobErr) {
+        console.warn('Blobs read failed, serving default inventory:', blobErr.message);
+        return respond(DEFAULT_INVENTORY);
       }
-      return respond(inventory);
     }
 
     // All write operations require authentication
