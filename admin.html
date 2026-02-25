@@ -209,6 +209,7 @@
         </div>
     </footer>
 
+    <script src="api.js"></script>
     <script>
         // Auth0 Configuration
         const AUTH0_CONFIG = {
@@ -227,17 +228,7 @@
         let auth0Client = null;
         let isAuthenticated = false;
 
-        // Sample inventory data
-        let inventoryData = [
-            { id: 1, name: 'CH Black Bugger', category: 'streamers', size: '4', qty: 10, price: 2.99 },
-            { id: 2, name: 'CH RubberLegs Black Bugger', category: 'streamers', size: '12', qty: 9, price: 2.50 },
-            { id: 3, name: 'BH Purple Bugger', category: 'streamers', size: '8', qty: 6, price: 2.25 },
-            { id: 4, name: 'BH Purple Bugger', category: 'streamers', size: '10', qty: 8, price: 2.25 },
-            { id: 5, name: 'Muddler Minnow', category: 'streamers', size: '8', qty: 9, price: 2.75 },
-            { id: 6, name: 'Zonker Pearl/Tan', category: 'streamers', size: '2', qty: 6, price: 4.50 },
-            { id: 7, name: 'Mickey Finn', category: 'streamers', size: '8', qty: 6, price: 1.25 },
-        ];
-
+        let inventoryData = [];
         let catalogData = [];
 
         // Auth0 Initialization
@@ -259,7 +250,7 @@
                 }
 
                 isAuthenticated = await auth0Client.isAuthenticated();
-                
+
                 if (isAuthenticated) {
                     await showAdminDashboard();
                 } else {
@@ -306,18 +297,27 @@
             const user = await auth0Client.getUser();
             document.getElementById('user-name').textContent = user.name || user.email;
             document.getElementById('user-avatar').src = user.picture || 'https://via.placeholder.com/40';
-            loadCatalog();
-            renderInventory();
+            await OPF_API.setToken(auth0Client);
+            await loadCatalog();
+            await loadInventory();
         }
 
-        // Data Management
+        // Data Management — loads from Netlify Blobs via API
         async function loadCatalog() {
             try {
-                const response = await fetch('flies.json');
-                catalogData = await response.json();
+                catalogData = await OPF_API.getCatalog();
                 renderCatalogAdmin();
             } catch (error) {
                 console.error('Error loading catalog:', error);
+            }
+        }
+
+        async function loadInventory() {
+            try {
+                inventoryData = await OPF_API.getInventory();
+                renderInventory();
+            } catch (error) {
+                console.error('Error loading inventory:', error);
             }
         }
 
@@ -328,43 +328,43 @@
 
             let filtered = inventoryData;
             if (searchTerm) {
-                filtered = filtered.filter(item => item.name.toLowerCase().includes(searchTerm));
+                filtered = filtered.filter(function(item) { return item.name.toLowerCase().includes(searchTerm); });
             }
             if (categoryFilter !== 'all') {
-                filtered = filtered.filter(item => item.category === categoryFilter);
+                filtered = filtered.filter(function(item) { return item.category === categoryFilter; });
             }
 
-            tbody.innerHTML = filtered.map(item => `
-                <tr>
-                    <td>${item.name}</td>
-                    <td><span class="card-tag">${item.category}</span></td>
-                    <td>${item.size}</td>
-                    <td>${item.qty}</td>
-                    <td>$${item.price.toFixed(2)}</td>
-                    <td>
-                        <button class="btn-icon" onclick="editInventoryItem(${item.id})" title="Edit">&#9998;</button>
-                        <button class="btn-icon btn-icon-danger" onclick="deleteInventoryItem(${item.id})" title="Delete">&#128465;</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = filtered.map(function(item) {
+                return '<tr>' +
+                    '<td>' + item.name + '</td>' +
+                    '<td><span class="card-tag">' + item.category + '</span></td>' +
+                    '<td>' + item.size + '</td>' +
+                    '<td>' + item.qty + '</td>' +
+                    '<td>$' + item.price.toFixed(2) + '</td>' +
+                    '<td>' +
+                        '<button class="btn-icon" onclick="editInventoryItem(' + item.id + ')" title="Edit">&#9998;</button>' +
+                        '<button class="btn-icon btn-icon-danger" onclick="deleteInventoryItem(' + item.id + ')" title="Delete">&#128465;</button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
         }
 
         function renderCatalogAdmin() {
             const grid = document.getElementById('catalog-admin-grid');
-            grid.innerHTML = catalogData.map((fly, index) => `
-                <div class="catalog-admin-card">
-                    <img src="${fly.image}" alt="${fly.name}" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg'">
-                    <div class="catalog-admin-card-body">
-                        <span class="card-tag">${fly.type}</span>
-                        <h4>${fly.name}</h4>
-                        <p>${fly.bestFor}</p>
-                        <div class="catalog-admin-actions">
-                            <button class="btn-icon" onclick="editCatalogItem(${index})" title="Edit">&#9998;</button>
-                            <button class="btn-icon btn-icon-danger" onclick="deleteCatalogItem(${index})" title="Delete">&#128465;</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            grid.innerHTML = catalogData.map(function(fly, index) {
+                return '<div class="catalog-admin-card">' +
+                    '<img src="' + fly.image + '" alt="' + fly.name + '" onerror="this.src=\'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg\'">' +
+                    '<div class="catalog-admin-card-body">' +
+                        '<span class="card-tag">' + fly.type + '</span>' +
+                        '<h4>' + fly.name + '</h4>' +
+                        '<p>' + fly.bestFor + '</p>' +
+                        '<div class="catalog-admin-actions">' +
+                            '<button class="btn-icon" onclick="editCatalogItem(' + index + ')" title="Edit">&#9998;</button>' +
+                            '<button class="btn-icon btn-icon-danger" onclick="deleteCatalogItem(' + index + ')" title="Delete">&#128465;</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
         }
 
         // CRUD Operations
@@ -375,48 +375,58 @@
             currentEditType = 'inventory';
             currentEditId = null;
             document.getElementById('modal-title').textContent = 'Add Inventory Item';
-            document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group"><label for="item-name">Name</label><input type="text" id="item-name" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="item-category">Category</label>
-                        <select id="item-category" required><option value="streamers">Streamers</option><option value="nymphs">Nymphs</option><option value="dryflies">Dry Flies</option></select>
-                    </div>
-                    <div class="form-group"><label for="item-size">Size</label><input type="text" id="item-size" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label for="item-qty">Quantity</label><input type="number" id="item-qty" min="0" required></div>
-                    <div class="form-group"><label for="item-price">Price ($)</label><input type="number" id="item-price" step="0.01" min="0" required></div>
-                </div>
-            `;
+            document.getElementById('modal-fields').innerHTML =
+                '<div class="form-group"><label for="item-name">Name</label><input type="text" id="item-name" required></div>' +
+                '<div class="form-row">' +
+                    '<div class="form-group"><label for="item-category">Category</label>' +
+                        '<select id="item-category" required><option value="streamers">Streamers</option><option value="nymphs">Nymphs</option><option value="dryflies">Dry Flies</option></select>' +
+                    '</div>' +
+                    '<div class="form-group"><label for="item-subcategory">Subcategory</label><input type="text" id="item-subcategory" placeholder="e.g., Woolly Buggers"></div>' +
+                '</div>' +
+                '<div class="form-row">' +
+                    '<div class="form-group"><label for="item-size">Size</label><input type="text" id="item-size" required></div>' +
+                    '<div class="form-group"><label for="item-qty">Quantity</label><input type="number" id="item-qty" min="0" required></div>' +
+                '</div>' +
+                '<div class="form-row">' +
+                    '<div class="form-group"><label for="item-price">Price ($)</label><input type="number" id="item-price" step="0.01" min="0" required></div>' +
+                    '<div class="form-group"><label for="item-startingqty">Starting Qty</label><input type="number" id="item-startingqty" min="0"></div>' +
+                '</div>';
             openModal();
         }
 
         function editInventoryItem(id) {
             currentEditType = 'inventory';
             currentEditId = id;
-            const item = inventoryData.find(i => i.id === id);
+            var item = inventoryData.find(function(i) { return i.id === id; });
             if (!item) return;
             document.getElementById('modal-title').textContent = 'Edit Inventory Item';
-            document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group"><label for="item-name">Name</label><input type="text" id="item-name" value="${item.name}" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="item-category">Category</label>
-                        <select id="item-category" required><option value="streamers" ${item.category === 'streamers' ? 'selected' : ''}>Streamers</option><option value="nymphs" ${item.category === 'nymphs' ? 'selected' : ''}>Nymphs</option><option value="dryflies" ${item.category === 'dryflies' ? 'selected' : ''}>Dry Flies</option></select>
-                    </div>
-                    <div class="form-group"><label for="item-size">Size</label><input type="text" id="item-size" value="${item.size}" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label for="item-qty">Quantity</label><input type="number" id="item-qty" value="${item.qty}" min="0" required></div>
-                    <div class="form-group"><label for="item-price">Price ($)</label><input type="number" id="item-price" value="${item.price}" step="0.01" min="0" required></div>
-                </div>
-            `;
+            document.getElementById('modal-fields').innerHTML =
+                '<div class="form-group"><label for="item-name">Name</label><input type="text" id="item-name" value="' + item.name + '" required></div>' +
+                '<div class="form-row">' +
+                    '<div class="form-group"><label for="item-category">Category</label>' +
+                        '<select id="item-category" required><option value="streamers"' + (item.category === 'streamers' ? ' selected' : '') + '>Streamers</option><option value="nymphs"' + (item.category === 'nymphs' ? ' selected' : '') + '>Nymphs</option><option value="dryflies"' + (item.category === 'dryflies' ? ' selected' : '') + '>Dry Flies</option></select>' +
+                    '</div>' +
+                    '<div class="form-group"><label for="item-subcategory">Subcategory</label><input type="text" id="item-subcategory" value="' + (item.subcategory || '') + '"></div>' +
+                '</div>' +
+                '<div class="form-row">' +
+                    '<div class="form-group"><label for="item-size">Size</label><input type="text" id="item-size" value="' + item.size + '" required></div>' +
+                    '<div class="form-group"><label for="item-qty">Quantity</label><input type="number" id="item-qty" value="' + item.qty + '" min="0" required></div>' +
+                '</div>' +
+                '<div class="form-row">' +
+                    '<div class="form-group"><label for="item-price">Price ($)</label><input type="number" id="item-price" value="' + item.price + '" step="0.01" min="0" required></div>' +
+                    '<div class="form-group"><label for="item-startingqty">Starting Qty</label><input type="number" id="item-startingqty" value="' + (item.startingQty || '') + '" min="0"></div>' +
+                '</div>';
             openModal();
         }
 
-        function deleteInventoryItem(id) {
-            if (confirm('Are you sure you want to delete this item?')) {
-                inventoryData = inventoryData.filter(i => i.id !== id);
+        async function deleteInventoryItem(id) {
+            if (!confirm('Are you sure you want to delete this item?')) return;
+            try {
+                var result = await OPF_API.deleteInventoryItem(id);
+                inventoryData = result.inventory;
                 renderInventory();
+            } catch (err) {
+                alert('Failed to delete item: ' + err.message);
             }
         }
 
@@ -424,84 +434,96 @@
             currentEditType = 'catalog';
             currentEditId = null;
             document.getElementById('modal-title').textContent = 'Add Fly Pattern';
-            document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group"><label for="fly-name">Name</label><input type="text" id="fly-name" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="fly-type">Type</label>
-                        <select id="fly-type" required><option value="Streamer">Streamer</option><option value="Nymph">Nymph</option><option value="Dry Fly">Dry Fly</option><option value="Material">Material</option></select>
-                    </div>
-                    <div class="form-group"><label for="fly-bestfor">Best For</label><input type="text" id="fly-bestfor" placeholder="e.g., trout, bass" required></div>
-                </div>
-                <div class="form-group"><label for="fly-description">Description</label><textarea id="fly-description" rows="3"></textarea></div>
-                <div class="form-group"><label for="fly-image">Image URL</label><input type="url" id="fly-image" placeholder="https://..."></div>
-                <div class="form-group"><label for="fly-recipe">Recipe</label><textarea id="fly-recipe" rows="5" placeholder="Hook: ..."></textarea></div>
-            `;
+            document.getElementById('modal-fields').innerHTML =
+                '<div class="form-group"><label for="fly-name">Name</label><input type="text" id="fly-name" required></div>' +
+                '<div class="form-row">' +
+                    '<div class="form-group"><label for="fly-type">Type</label>' +
+                        '<select id="fly-type" required><option value="Streamer">Streamer</option><option value="Nymph">Nymph</option><option value="Dry Fly">Dry Fly</option><option value="Material">Material</option></select>' +
+                    '</div>' +
+                    '<div class="form-group"><label for="fly-bestfor">Best For</label><input type="text" id="fly-bestfor" placeholder="e.g., trout, bass" required></div>' +
+                '</div>' +
+                '<div class="form-group"><label for="fly-description">Description</label><textarea id="fly-description" rows="3"></textarea></div>' +
+                '<div class="form-group"><label for="fly-image">Image URL</label><input type="url" id="fly-image" placeholder="https://..."></div>' +
+                '<div class="form-group"><label for="fly-recipe">Recipe</label><textarea id="fly-recipe" rows="5" placeholder="Hook: ..."></textarea></div>';
             openModal();
         }
 
         function editCatalogItem(index) {
             currentEditType = 'catalog';
             currentEditId = index;
-            const fly = catalogData[index];
+            var fly = catalogData[index];
             if (!fly) return;
             document.getElementById('modal-title').textContent = 'Edit Fly Pattern';
-            document.getElementById('modal-fields').innerHTML = `
-                <div class="form-group"><label for="fly-name">Name</label><input type="text" id="fly-name" value="${fly.name}" required></div>
-                <div class="form-row">
-                    <div class="form-group"><label for="fly-type">Type</label>
-                        <select id="fly-type" required><option value="Streamer" ${fly.type === 'Streamer' ? 'selected' : ''}>Streamer</option><option value="Nymph" ${fly.type === 'Nymph' ? 'selected' : ''}>Nymph</option><option value="Dry Fly" ${fly.type === 'Dry Fly' ? 'selected' : ''}>Dry Fly</option><option value="Material" ${fly.type === 'Material' ? 'selected' : ''}>Material</option></select>
-                    </div>
-                    <div class="form-group"><label for="fly-bestfor">Best For</label><input type="text" id="fly-bestfor" value="${fly.bestFor}" required></div>
-                </div>
-                <div class="form-group"><label for="fly-description">Description</label><textarea id="fly-description" rows="3">${fly.description || ''}</textarea></div>
-                <div class="form-group"><label for="fly-image">Image URL</label><input type="url" id="fly-image" value="${fly.image || ''}"></div>
-                <div class="form-group"><label for="fly-recipe">Recipe</label><textarea id="fly-recipe" rows="5">${fly.recipe || ''}</textarea></div>
-            `;
+            document.getElementById('modal-fields').innerHTML =
+                '<div class="form-group"><label for="fly-name">Name</label><input type="text" id="fly-name" value="' + fly.name + '" required></div>' +
+                '<div class="form-row">' +
+                    '<div class="form-group"><label for="fly-type">Type</label>' +
+                        '<select id="fly-type" required><option value="Streamer"' + (fly.type === 'Streamer' ? ' selected' : '') + '>Streamer</option><option value="Nymph"' + (fly.type === 'Nymph' ? ' selected' : '') + '>Nymph</option><option value="Dry Fly"' + (fly.type === 'Dry Fly' ? ' selected' : '') + '>Dry Fly</option><option value="Material"' + (fly.type === 'Material' ? ' selected' : '') + '>Material</option></select>' +
+                    '</div>' +
+                    '<div class="form-group"><label for="fly-bestfor">Best For</label><input type="text" id="fly-bestfor" value="' + fly.bestFor + '" required></div>' +
+                '</div>' +
+                '<div class="form-group"><label for="fly-description">Description</label><textarea id="fly-description" rows="3">' + (fly.description || '') + '</textarea></div>' +
+                '<div class="form-group"><label for="fly-image">Image URL</label><input type="url" id="fly-image" value="' + (fly.image || '') + '"></div>' +
+                '<div class="form-group"><label for="fly-recipe">Recipe</label><textarea id="fly-recipe" rows="5">' + (fly.recipe || '') + '</textarea></div>';
             openModal();
         }
 
-        function deleteCatalogItem(index) {
-            if (confirm('Are you sure you want to delete this fly pattern?')) {
-                catalogData.splice(index, 1);
+        async function deleteCatalogItem(index) {
+            if (!confirm('Are you sure you want to delete this fly pattern?')) return;
+            try {
+                var result = await OPF_API.deleteCatalogItem(index);
+                catalogData = result.catalog;
                 renderCatalogAdmin();
+            } catch (err) {
+                alert('Failed to delete fly pattern: ' + err.message);
             }
         }
 
-        function saveItem(event) {
+        async function saveItem(event) {
             event.preventDefault();
-            if (currentEditType === 'inventory') {
-                const item = {
-                    id: currentEditId || Date.now(),
-                    name: document.getElementById('item-name').value,
-                    category: document.getElementById('item-category').value,
-                    size: document.getElementById('item-size').value,
-                    qty: parseInt(document.getElementById('item-qty').value),
-                    price: parseFloat(document.getElementById('item-price').value)
-                };
-                if (currentEditId) {
-                    const index = inventoryData.findIndex(i => i.id === currentEditId);
-                    if (index !== -1) inventoryData[index] = item;
-                } else {
-                    inventoryData.push(item);
+            try {
+                if (currentEditType === 'inventory') {
+                    var item = {
+                        name: document.getElementById('item-name').value,
+                        category: document.getElementById('item-category').value,
+                        subcategory: document.getElementById('item-subcategory').value,
+                        size: document.getElementById('item-size').value,
+                        qty: parseInt(document.getElementById('item-qty').value),
+                        price: parseFloat(document.getElementById('item-price').value),
+                        startingQty: parseInt(document.getElementById('item-startingqty').value) || parseInt(document.getElementById('item-qty').value),
+                    };
+                    var result;
+                    if (currentEditId) {
+                        item.id = currentEditId;
+                        result = await OPF_API.updateInventoryItem(item);
+                    } else {
+                        result = await OPF_API.addInventoryItem(item);
+                    }
+                    inventoryData = result.inventory;
+                    renderInventory();
+                } else if (currentEditType === 'catalog') {
+                    var fly = {
+                        name: document.getElementById('fly-name').value,
+                        type: document.getElementById('fly-type').value,
+                        bestFor: document.getElementById('fly-bestfor').value,
+                        description: document.getElementById('fly-description').value,
+                        image: document.getElementById('fly-image').value,
+                        recipe: document.getElementById('fly-recipe').value,
+                    };
+                    var result;
+                    if (currentEditId !== null) {
+                        fly.index = currentEditId;
+                        result = await OPF_API.updateCatalogItem(fly);
+                    } else {
+                        result = await OPF_API.addCatalogItem(fly);
+                    }
+                    catalogData = result.catalog;
+                    renderCatalogAdmin();
                 }
-                renderInventory();
-            } else if (currentEditType === 'catalog') {
-                const fly = {
-                    name: document.getElementById('fly-name').value,
-                    type: document.getElementById('fly-type').value,
-                    bestFor: document.getElementById('fly-bestfor').value,
-                    description: document.getElementById('fly-description').value,
-                    image: document.getElementById('fly-image').value,
-                    recipe: document.getElementById('fly-recipe').value
-                };
-                if (currentEditId !== null) {
-                    catalogData[currentEditId] = fly;
-                } else {
-                    catalogData.push(fly);
-                }
-                renderCatalogAdmin();
+                closeModal();
+            } catch (err) {
+                alert('Failed to save: ' + err.message);
             }
-            closeModal();
         }
 
         // Export / Import
@@ -509,37 +531,42 @@
         function exportCatalog() { downloadJSON(catalogData, 'flies.json'); }
 
         function downloadJSON(data, filename) {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
+            var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
             a.href = url;
             a.download = filename;
             a.click();
             URL.revokeObjectURL(url);
         }
 
-        function handleImport(event) {
-            const file = event.target.files[0];
+        async function handleImport(event) {
+            var file = event.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
+            var reader = new FileReader();
+            reader.onload = async function(e) {
                 try {
-                    const data = JSON.parse(e.target.result);
+                    var data = JSON.parse(e.target.result);
                     if (Array.isArray(data) && data.length > 0) {
                         if (data[0].hasOwnProperty('type') && data[0].hasOwnProperty('bestFor')) {
-                            catalogData = data;
-                            renderCatalogAdmin();
+                            // Import catalog — replace all items one by one via API
+                            for (var i = 0; i < data.length; i++) {
+                                await OPF_API.addCatalogItem(data[i]);
+                            }
+                            await loadCatalog();
                             alert('Catalog data imported successfully!');
                         } else if (data[0].hasOwnProperty('category') && data[0].hasOwnProperty('qty')) {
-                            inventoryData = data;
-                            renderInventory();
+                            for (var i = 0; i < data.length; i++) {
+                                await OPF_API.addInventoryItem(data[i]);
+                            }
+                            await loadInventory();
                             alert('Inventory data imported successfully!');
                         } else {
                             alert('Unknown data format.');
                         }
                     }
                 } catch (error) {
-                    alert('Error parsing JSON file: ' + error.message);
+                    alert('Error importing data: ' + error.message);
                 }
             };
             reader.readAsText(file);
@@ -585,4 +612,8 @@
             });
 
             document.getElementById('admin-search').addEventListener('input', renderInventory);
-            document.getElementById('admin-c
+            document.getElementById('admin-category').addEventListener('change', renderInventory);
+        });
+    </script>
+</body>
+</html>

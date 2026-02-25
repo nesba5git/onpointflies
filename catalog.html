@@ -258,7 +258,7 @@
         var allFlies = [];
         var activeFilter = 'all';
 
-        fetch('flies.json')
+        fetch('/api/catalog')
             .then(function(r) { return r.json(); })
             .then(function(flies) {
                 allFlies = flies;

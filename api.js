@@ -87,6 +87,46 @@ var OPF_API = {
     });
   },
 
+  // Catalog (public read, authenticated write)
+  getCatalog: function () {
+    return this.request('catalog');
+  },
+  addCatalogItem: function (fly) {
+    return this.request('catalog', {
+      method: 'POST',
+      body: JSON.stringify(fly),
+    });
+  },
+  updateCatalogItem: function (data) {
+    return this.request('catalog', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  deleteCatalogItem: function (index) {
+    return this.request('catalog?index=' + index, { method: 'DELETE' });
+  },
+
+  // Inventory (public read, authenticated write)
+  getInventory: function () {
+    return this.request('inventory');
+  },
+  addInventoryItem: function (item) {
+    return this.request('inventory', {
+      method: 'POST',
+      body: JSON.stringify(item),
+    });
+  },
+  updateInventoryItem: function (item) {
+    return this.request('inventory', {
+      method: 'PUT',
+      body: JSON.stringify(item),
+    });
+  },
+  deleteInventoryItem: function (id) {
+    return this.request('inventory?id=' + id, { method: 'DELETE' });
+  },
+
   // Migrate localStorage data to database (one-time)
   migrateLocalData: async function () {
     try {
