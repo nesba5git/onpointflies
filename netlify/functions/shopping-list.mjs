@@ -1,7 +1,9 @@
-import { getShoppingListStore, getUserStore } from './lib/db.mjs';
+import { getShoppingListStore, getUserStore, initBlobs } from './lib/db.mjs';
 import { verifyAuth, respond } from './lib/auth.mjs';
 
 export const handler = async (event) => {
+  initBlobs(event);
+
   if (event.httpMethod === 'OPTIONS') {
     return respond({}, 204);
   }

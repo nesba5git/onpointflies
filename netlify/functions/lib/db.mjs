@@ -1,4 +1,10 @@
-import { getStore } from '@netlify/blobs';
+import { getStore, connectLambda } from '@netlify/blobs';
+
+export function initBlobs(event) {
+  if (event.blobs) {
+    connectLambda(event);
+  }
+}
 
 export function getUserStore() {
   return getStore({ name: 'users', consistency: 'strong' });
