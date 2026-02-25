@@ -1,4 +1,4 @@
-import { getShoppingListStore, getUserStore, initBlobsContext } from './lib/db.mjs';
+import { getShoppingListStore, getUserStore } from './lib/db.mjs';
 import { verifyAuth, respond } from './lib/auth.mjs';
 
 export const handler = async (event) => {
@@ -10,7 +10,6 @@ export const handler = async (event) => {
   if (!user) return respond({ error: 'Unauthorized' }, 401);
 
   try {
-    initBlobsContext(event);
     const userStore = getUserStore();
     const existingUser = await userStore.get(user.sub, { type: 'json' });
     if (!existingUser) return respond({ error: 'User not found. Call /api/user first.' }, 404);
