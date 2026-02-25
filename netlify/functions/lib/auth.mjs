@@ -44,8 +44,3 @@ export function respond(data, statusCode = 200) {
     body: JSON.stringify(data),
   };
 }
-
-export async function getUserId(sql, auth0Id) {
-  const rows = await sql`SELECT id FROM users WHERE auth0_id = ${auth0Id}`;
-  return rows.length > 0 ? rows[0].id : null;
-}

@@ -1,5 +1,5 @@
-import { initDb } from './lib/db.mjs';
-import { verifyAuth, respond, getUserId } from './lib/auth.mjs';
+import { getOrdersStore, getShoppingListStore, getUserStore } from './lib/db.mjs';
+import { verifyAuth, respond } from './lib/auth.mjs';
 
 export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -10,72 +10,61 @@ export const handler = async (event) => {
   if (!user) return respond({ error: 'Unauthorized' }, 401);
 
   try {
-    const sql = await initDb();
-    const userId = await getUserId(sql, user.sub);
-    if (!userId) return respond({ error: 'User not found. Call /api/user first.' }, 404);
+    const userStore = getUserStore();
+    const existingUser = await userStore.get(user.sub, { type: 'json' });
+    if (!existingUser) return respond({ error: 'User not found. Call /api/user first.' }, 404);
+
+    const ordersStore = getOrdersStore();
+    const orders = (await ordersStore.get(user.sub, { type: 'json' })) || [];
 
     if (event.httpMethod === 'GET') {
-      const orders = await sql`
-        SELECT * FROM orders WHERE user_id = ${userId} ORDER BY created_at DESC
-      `;
-
-      const result = [];
-      for (const order of orders) {
-        const items = await sql`
-          SELECT fly_name AS name, fly_type AS type, quantity, price
-          FROM order_items WHERE order_id = ${order.id}
-        `;
-        result.push({ ...order, items });
-      }
-
-      return respond(result);
+      return respond(orders);
     }
 
     if (event.httpMethod === 'POST') {
       const body = JSON.parse(event.body || '{}');
 
-      // Get current shopping list items
-      const listItems = await sql`
-        SELECT * FROM shopping_list_items WHERE user_id = ${userId}
-      `;
+      const listStore = getShoppingListStore();
+      const listItems = (await listStore.get(user.sub, { type: 'json' })) || [];
 
       if (listItems.length === 0) {
         return respond({ error: 'Shopping list is empty. Add items before placing an order.' }, 400);
       }
 
-      // Calculate totals
       let totalAmount = 0;
       let totalFlies = 0;
+      const orderItems = [];
+
       for (const item of listItems) {
-        totalAmount += parseFloat(item.price) * item.quantity;
+        const price = parseFloat(item.price) || 2.50;
+        totalAmount += price * item.quantity;
         totalFlies += item.quantity;
+        orderItems.push({
+          name: item.name,
+          type: item.type,
+          quantity: item.quantity,
+          price: price,
+        });
       }
 
-      // Create order
-      const order = await sql`
-        INSERT INTO orders (user_id, status, total_amount, total_flies, notes)
-        VALUES (${userId}, 'pending', ${totalAmount}, ${totalFlies}, ${body.notes || null})
-        RETURNING *
-      `;
+      const order = {
+        id: Date.now(),
+        status: 'pending',
+        total_amount: totalAmount,
+        total_flies: totalFlies,
+        notes: body.notes || null,
+        items: orderItems,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-      // Create order items
-      for (const item of listItems) {
-        await sql`
-          INSERT INTO order_items (order_id, fly_name, fly_type, quantity, price)
-          VALUES (${order[0].id}, ${item.fly_name}, ${item.fly_type}, ${item.quantity}, ${item.price})
-        `;
-      }
+      orders.unshift(order);
+      await ordersStore.setJSON(user.sub, orders);
 
       // Clear shopping list
-      await sql`DELETE FROM shopping_list_items WHERE user_id = ${userId}`;
+      await listStore.setJSON(user.sub, []);
 
-      // Return complete order
-      const items = await sql`
-        SELECT fly_name AS name, fly_type AS type, quantity, price
-        FROM order_items WHERE order_id = ${order[0].id}
-      `;
-
-      return respond({ ...order[0], items });
+      return respond(order);
     }
 
     return respond({ error: 'Method not allowed' }, 405);
