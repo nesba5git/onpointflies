@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact - On Point Flies</title>
+    <title>Contact Us - On Point Flies</title>
+    <meta name="description" content="Get in touch with On Point Flies for orders, custom fly requests, or questions about our products.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">On Point <span>Flies</span></a>
@@ -22,53 +25,119 @@
                 <li><a href="contact.html" class="active">Contact</a></li>
                 <li><a href="account.html">Account</a></li>
             </ul>
-            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
         </div>
     </nav>
-    <section class="page-hero page-hero-small">
-        <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/1619852/pexels-photo-1619852.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
+
+    <!-- Page Hero -->
+    <section class="page-hero">
+        <div class="hero-bg" style="background-image: url('https://images.pexels.com/photos/4828164/pexels-photo-4828164.jpeg?auto=compress&cs=tinysrgb&w=1920');"></div>
         <div class="hero-content">
             <span class="section-label">Get in Touch</span>
             <h1>Contact Us</h1>
-            <p>Questions, orders, or just want to talk flies?</p>
+            <p>Have a question, want to place an order, or need a custom tie? We'd love to hear from you.</p>
         </div>
     </section>
+
+    <!-- Contact Section -->
     <section class="section">
         <div class="container">
             <div class="contact-grid">
-                <div class="contact-info">
-                    <h2>Let's Connect</h2>
-                    <p>Whether you're looking to place an order or have a question, we're here to help.</p>
-                    <div class="contact-method"><h3>Email</h3><p>info@onpointflies.com</p></div>
-                    <div class="contact-method"><h3>Response Time</h3><p>Within 24 hours.</p></div>
+                <div class="contact-image">
+                    <img src="https://images.pexels.com/photos/24284799/pexels-photo-24284799.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fly fisherman casting in a scenic river setting">
                 </div>
-                <div class="contact-form-wrap">
-                    <form class="contact-form" name="contact" method="POST" data-netlify="true">
+                <div>
+                    <!-- Contact Info -->
+                    <div class="contact-info-cards">
+                        <div class="info-card">
+                            <div class="icon">&#9993;</div>
+                            <div>
+                                <h4>Email</h4>
+                                <p><a href="mailto:info@onpointflies.com">info@onpointflies.com</a></p>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="icon">&#9201;</div>
+                            <div>
+                                <h4>Response Time</h4>
+                                <p>We typically respond within 24 hours</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
                         <input type="hidden" name="form-name" value="contact">
-                        <div class="form-group"><label for="name">Name</label><input type="text" id="name" name="name" required></div>
-                        <div class="form-group"><label for="email">Email</label><input type="email" id="email" name="email" required></div>
-                        <div class="form-group"><label for="subject">Subject</label>
+                        <p style="display:none"><label>Don't fill this out: <input name="bot-field"></label></p>
+
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" required placeholder="John Smith">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
                             <select id="subject" name="subject">
+                                <option value="general">General Inquiry</option>
                                 <option value="order">Place an Order</option>
-                                <option value="custom">Custom Order Request</option>
-                                <option value="question">General Question</option>
+                                <option value="custom">Custom Fly Request</option>
                                 <option value="wholesale">Wholesale Inquiry</option>
+                                <option value="other">Other</option>
                             </select>
                         </div>
-                        <div class="form-group"><label for="message">Message</label><textarea id="message" name="message" rows="5" required></textarea></div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" required placeholder="Tell us what you're looking for..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Send Message</button>
                     </form>
                 </div>
             </div>
         </div>
     </section>
-    <footer class="footer"><div class="footer-bottom"><p>&copy; 2026 On Point Flies. All rights reserved.</p></div></footer>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 50); });
-    document.getElementById('navToggle').addEventListener('click', function() { document.getElementById('navLinks').classList.toggle('open'); });
-});
-</script>
-</body>
-</html>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>On Point <span>Flies</span></h3>
+                <p>Premium hand-tied flies for the passionate fly fisher. From classic patterns to custom creations, we tie flies that catch fish.</p>
+            </div>
+            <div>
+                <h4>Navigate</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="catalog.html">Catalog</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Orders</h4>
+                <ul class="footer-links">
+                    <li><a href="order.html">How to Order</a></li>
+                    <li><a href="order.html">Pricing</a></li>
+                    <li><a href="order.html">Shipping</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Get in Touch</h4>
+                <ul class="footer-links">
+                    <li><a href="mailto:info@onpointflies.com">info@onpointflies.com</a></li>
+                    <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const navbar = document.getElementById('navb
