@@ -1,4 +1,4 @@
-import { getUserStore } from './lib/db.mjs';
+import { getUserStore, initBlobsContext } from './lib/db.mjs';
 import { verifyAuth, respond } from './lib/auth.mjs';
 
 export const handler = async (event) => {
@@ -10,6 +10,7 @@ export const handler = async (event) => {
   if (!user) return respond({ error: 'Unauthorized' }, 401);
 
   try {
+    initBlobsContext(event);
     const store = getUserStore();
     const existing = await store.get(user.sub, { type: 'json' });
 
