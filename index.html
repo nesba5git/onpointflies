@@ -204,12 +204,6 @@
             navbar.classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        // Mobile nav toggle
-        const navToggle = document.getElementById('navToggle');
-        const navLinks = document.getElementById('navLinks');
-        navToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('open');
-        });
 
         // Scroll animations
         const observer = new IntersectionObserver((entries) => {

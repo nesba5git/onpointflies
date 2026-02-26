@@ -121,9 +121,6 @@
         // Navbar
         var navbar = document.getElementById('navbar');
         window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 50); });
-        var navToggle = document.getElementById('navToggle');
-        var navLinks = document.getElementById('navLinks');
-        navToggle.addEventListener('click', function() { navLinks.classList.toggle('open'); });
 
         // Tabs
         document.querySelectorAll('.tab-btn').forEach(function(btn) {
