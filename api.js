@@ -127,6 +127,33 @@ var OPF_API = {
     return this.request('inventory?id=' + id, { method: 'DELETE' });
   },
 
+  // File Uploads
+  uploadFile: function (file, target) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var base64 = reader.result.split(',')[1];
+        OPF_API.request('upload', {
+          method: 'POST',
+          body: JSON.stringify({
+            fileName: file.name,
+            contentType: file.type,
+            data: base64,
+            target: target || 'general',
+          }),
+        }).then(resolve).catch(reject);
+      };
+      reader.onerror = function () { reject(new Error('Failed to read file')); };
+      reader.readAsDataURL(file);
+    });
+  },
+  getUploadedFiles: function () {
+    return this.request('upload');
+  },
+  deleteUploadedFile: function (key) {
+    return this.request('upload?key=' + encodeURIComponent(key), { method: 'DELETE' });
+  },
+
   // Migrate localStorage data to database (one-time)
   migrateLocalData: async function () {
     try {
