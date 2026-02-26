@@ -348,7 +348,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initAuth0();
     var navbar = document.getElementById('navbar');
     window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 50); });
-    document.getElementById('navToggle').addEventListener('click', function() { document.getElementById('navLinks').classList.toggle('open'); });
     document.getElementById('login-btn').addEventListener('click', login);
     document.getElementById('signup-btn').addEventListener('click', signup);
     document.getElementById('logout-btn').addEventListener('click', logout);
