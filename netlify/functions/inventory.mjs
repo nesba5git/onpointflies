@@ -83,6 +83,7 @@ export const handler = async (event) => {
         price: parseFloat(body.price) || 0,
         sold: parseInt(body.sold) || 0,
         startingQty: parseInt(body.startingQty) || parseInt(body.qty) || 0,
+        image: body.image || '',
       });
       await store.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item added', inventory });
@@ -107,6 +108,7 @@ export const handler = async (event) => {
         price: body.price !== undefined ? parseFloat(body.price) : inventory[index].price,
         sold: body.sold !== undefined ? parseInt(body.sold) : inventory[index].sold,
         startingQty: body.startingQty !== undefined ? parseInt(body.startingQty) : inventory[index].startingQty,
+        image: body.image !== undefined ? body.image : (inventory[index].image || ''),
       };
       await store.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item updated', inventory });

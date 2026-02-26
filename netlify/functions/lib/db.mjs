@@ -37,3 +37,7 @@ export function getCatalogStore() {
 export function getInventoryStore() {
   return getStore({ name: 'inventory', consistency: 'eventual' });
 }
+
+export function getUploadsStore() {
+  return getStore({ name: 'uploads', consistency: 'eventual' });
+}
