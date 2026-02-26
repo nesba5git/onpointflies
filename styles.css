@@ -331,6 +331,20 @@ h3 { font-size: 1.25rem; }
 .inline-upload-zone:hover { border-color: var(--color-accent); background: #fdf8e8; }
 .upload-filename { display: block; font-size: 0.8rem; color: var(--color-primary-light); margin-top: 0.25rem; }
 
+/* Enhanced Modal Upload Zone */
+.modal-upload-zone { border: 2px dashed var(--color-border); border-radius: var(--radius-md); padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all var(--transition); background: var(--color-bg-alt); }
+.modal-upload-zone:hover { border-color: var(--color-accent); background: #fdf8e8; }
+.modal-upload-zone.drag-over { border-color: var(--color-accent); background: #fdf8e8; border-style: solid; }
+.modal-upload-zone.uploading { opacity: 0.7; pointer-events: none; }
+.modal-upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+.modal-upload-text { display: block; font-size: 0.9rem; font-weight: 500; color: var(--color-text); }
+.modal-upload-hint { display: block; font-size: 0.75rem; color: var(--color-text-light); margin-top: 0.25rem; }
+.btn-toggle-url { background: none; border: none; color: var(--color-text-light); font-size: 0.8rem; cursor: pointer; text-decoration: underline; padding: 0; font-family: var(--font-body); }
+.btn-toggle-url:hover { color: var(--color-accent); }
+.image-url-option { padding: 0.5rem 0; }
+.upload-filename.upload-success { color: #065f46; }
+.upload-filename.upload-error { color: #dc2626; }
+
 /* Table Thumbnail */
 .table-thumb { display: inline-block; width: 32px; height: 32px; object-fit: cover; border-radius: var(--radius-sm); vertical-align: middle; margin-right: 0.5rem; }
 

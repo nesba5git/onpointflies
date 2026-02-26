@@ -21,18 +21,14 @@ export const handler = async (event) => {
   try {
     initBlobsContext(event);
 
-    // All upload operations require authentication
-    const user = await verifyAuth(event);
-    if (!user) return respond({ error: 'Unauthorized' }, 401);
-
     const store = getUploadsStore();
 
-    // GET — list all uploads or get a specific file's metadata
+    // GET with a key — serve the file publicly (no auth required)
     if (event.httpMethod === 'GET') {
       const params = event.queryStringParameters || {};
 
       if (params.key) {
-        // Return the raw file
+        // Return the raw file — public access so images display on catalog/inventory
         const meta = await store.get('meta:' + params.key, { type: 'json' });
         if (!meta) return respond({ error: 'File not found' }, 404);
 
@@ -55,10 +51,17 @@ export const handler = async (event) => {
         };
       }
 
-      // List all file metadata
+      // List all files — requires authentication
+      const user = await verifyAuth(event);
+      if (!user) return respond({ error: 'Unauthorized' }, 401);
+
       const list = await store.get('file-index', { type: 'json' });
       return respond(list || []);
     }
+
+    // All write operations require authentication
+    const user = await verifyAuth(event);
+    if (!user) return respond({ error: 'Unauthorized' }, 401);
 
     // POST — upload a file
     if (event.httpMethod === 'POST') {
