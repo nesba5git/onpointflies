@@ -598,39 +598,73 @@
             return '<div class="form-group">' +
                 '<label>Image</label>' +
                 '<div class="image-upload-group">' +
-                    (currentUrl ? '<div class="image-preview-wrap"><img src="' + currentUrl + '" class="image-preview" id="' + fieldId + '-preview" onerror="this.parentElement.style.display=\'none\'"></div>' : '') +
+                    '<div class="image-preview-wrap" id="' + fieldId + '-preview-wrap" style="' + (currentUrl ? '' : 'display:none') + '">' +
+                        '<img src="' + (currentUrl || '') + '" class="image-preview" id="' + fieldId + '-preview" onerror="this.parentElement.style.display=\'none\'">' +
+                    '</div>' +
                     '<div class="image-upload-options">' +
                         '<div class="image-option">' +
-                            '<label for="' + fieldId + '-url">Image URL</label>' +
-                            '<input type="url" id="' + fieldId + '-url" value="' + (currentUrl || '') + '" placeholder="https://..." onchange="updateImagePreview(\'' + fieldId + '\')">' +
-                        '</div>' +
-                        '<div class="image-option-divider">or</div>' +
-                        '<div class="image-option">' +
                             '<label>Upload Image</label>' +
-                            '<div class="inline-upload-zone" onclick="document.getElementById(\'' + fieldId + '-file\').click()">' +
-                                '<span>&#128247; Choose file...</span>' +
+                            '<div class="modal-upload-zone" id="' + fieldId + '-dropzone" ' +
+                                'onclick="document.getElementById(\'' + fieldId + '-file\').click()" ' +
+                                'ondragover="event.preventDefault(); this.classList.add(\'drag-over\')" ' +
+                                'ondragleave="this.classList.remove(\'drag-over\')" ' +
+                                'ondrop="event.preventDefault(); this.classList.remove(\'drag-over\'); if(event.dataTransfer.files.length) { document.getElementById(\'' + fieldId + '-file\').files = event.dataTransfer.files; handleModalFileSelect(document.getElementById(\'' + fieldId + '-file\'), \'' + fieldId + '\', \'' + target + '\'); }">' +
+                                '<div class="modal-upload-icon">&#128247;</div>' +
+                                '<span class="modal-upload-text">Click or drag an image here</span>' +
+                                '<span class="modal-upload-hint">JPEG, PNG, GIF, WebP &mdash; max 5 MB</span>' +
                                 '<span id="' + fieldId + '-filename" class="upload-filename"></span>' +
                             '</div>' +
                             '<input type="file" id="' + fieldId + '-file" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" onchange="handleModalFileSelect(this, \'' + fieldId + '\', \'' + target + '\')">' +
                         '</div>' +
+                        '<div class="image-option-divider">' +
+                            '<button type="button" class="btn-toggle-url" onclick="toggleUrlInput(\'' + fieldId + '\')">' +
+                                'Or paste an image URL instead' +
+                            '</button>' +
+                        '</div>' +
+                        '<div class="image-option image-url-option" id="' + fieldId + '-url-wrap" style="display:none">' +
+                            '<label for="' + fieldId + '-url">Image URL</label>' +
+                            '<input type="url" id="' + fieldId + '-url" value="' + (currentUrl || '') + '" placeholder="https://..." onchange="updateImagePreview(\'' + fieldId + '\')">' +
+                        '</div>' +
                     '</div>' +
+                    '<input type="hidden" id="' + fieldId + '-url-hidden" value="' + (currentUrl || '') + '">' +
                 '</div>' +
             '</div>';
         }
 
+        function toggleUrlInput(fieldId) {
+            var wrap = document.getElementById(fieldId + '-url-wrap');
+            var isHidden = wrap.style.display === 'none';
+            wrap.style.display = isHidden ? '' : 'none';
+            if (isHidden) {
+                var urlInput = document.getElementById(fieldId + '-url');
+                var hiddenVal = document.getElementById(fieldId + '-url-hidden').value;
+                if (hiddenVal && !urlInput.value) urlInput.value = hiddenVal;
+                urlInput.focus();
+            }
+        }
+
         function updateImagePreview(fieldId) {
-            var url = document.getElementById(fieldId + '-url').value;
+            var urlInput = document.getElementById(fieldId + '-url');
+            var url = urlInput ? urlInput.value : '';
+            // Also update hidden field
+            var hidden = document.getElementById(fieldId + '-url-hidden');
+            if (hidden) hidden.value = url;
+            var previewWrap = document.getElementById(fieldId + '-preview-wrap');
             var existing = document.getElementById(fieldId + '-preview');
             if (existing) {
                 existing.src = url;
-                existing.parentElement.style.display = url ? '' : 'none';
+                if (previewWrap) previewWrap.style.display = url ? '' : 'none';
+            } else if (url && previewWrap) {
+                previewWrap.innerHTML = '<img src="' + url + '" class="image-preview" id="' + fieldId + '-preview" onerror="this.parentElement.style.display=\'none\'">';
+                previewWrap.style.display = '';
             } else if (url) {
-                var wrap = document.querySelector('.image-upload-group');
-                if (wrap) {
-                    var previewWrap = document.createElement('div');
-                    previewWrap.className = 'image-preview-wrap';
-                    previewWrap.innerHTML = '<img src="' + url + '" class="image-preview" id="' + fieldId + '-preview" onerror="this.parentElement.style.display=\'none\'">';
-                    wrap.insertBefore(previewWrap, wrap.firstChild);
+                var group = document.querySelector('.image-upload-group');
+                if (group) {
+                    var pw = document.createElement('div');
+                    pw.className = 'image-preview-wrap';
+                    pw.id = fieldId + '-preview-wrap';
+                    pw.innerHTML = '<img src="' + url + '" class="image-preview" id="' + fieldId + '-preview" onerror="this.parentElement.style.display=\'none\'">';
+                    group.insertBefore(pw, group.firstChild);
                 }
             }
         }
@@ -639,21 +673,31 @@
             var file = input.files[0];
             if (!file) return;
             var filenameSpan = document.getElementById(fieldId + '-filename');
+            var dropzone = document.getElementById(fieldId + '-dropzone');
             filenameSpan.textContent = file.name;
 
             try {
-                filenameSpan.textContent = 'Uploading...';
+                filenameSpan.textContent = 'Uploading ' + file.name + '...';
+                if (dropzone) dropzone.classList.add('uploading');
                 var result = await OPF_API.uploadFile(file, target);
                 if (result && result.file) {
                     var url = result.file.url;
-                    document.getElementById(fieldId + '-url').value = url;
+                    // Update the visible URL field if it exists
+                    var urlInput = document.getElementById(fieldId + '-url');
+                    if (urlInput) urlInput.value = url;
+                    // Always update the hidden field
+                    var hidden = document.getElementById(fieldId + '-url-hidden');
+                    if (hidden) hidden.value = url;
                     updateImagePreview(fieldId);
-                    filenameSpan.textContent = file.name + ' (uploaded)';
+                    filenameSpan.textContent = file.name + ' — uploaded successfully';
+                    filenameSpan.classList.add('upload-success');
                     uploadedFiles.push(result.file);
                 }
             } catch (err) {
-                filenameSpan.textContent = 'Upload failed';
-                alert('Failed to upload: ' + err.message);
+                filenameSpan.textContent = 'Upload failed — ' + err.message;
+                filenameSpan.classList.add('upload-error');
+            } finally {
+                if (dropzone) dropzone.classList.remove('uploading');
             }
         }
 
@@ -775,7 +819,9 @@
             event.preventDefault();
             try {
                 if (currentEditType === 'inventory') {
-                    var imageUrl = document.getElementById('item-image-url') ? document.getElementById('item-image-url').value : '';
+                    var imageUrlEl = document.getElementById('item-image-url');
+                    var imageHiddenEl = document.getElementById('item-image-url-hidden');
+                    var imageUrl = (imageUrlEl ? imageUrlEl.value : '') || (imageHiddenEl ? imageHiddenEl.value : '');
                     var item = {
                         name: document.getElementById('item-name').value,
                         category: document.getElementById('item-category').value,
@@ -801,7 +847,7 @@
                         type: document.getElementById('fly-type').value,
                         bestFor: document.getElementById('fly-bestfor').value,
                         description: document.getElementById('fly-description').value,
-                        image: document.getElementById('fly-image-url').value,
+                        image: (document.getElementById('fly-image-url') ? document.getElementById('fly-image-url').value : '') || (document.getElementById('fly-image-url-hidden') ? document.getElementById('fly-image-url-hidden').value : ''),
                         recipe: document.getElementById('fly-recipe').value,
                     };
                     var result;
