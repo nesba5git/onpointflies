@@ -5,6 +5,10 @@ var OPF_API = {
 
   setToken: async function (auth0Client) {
     try {
+      // Force a silent token refresh so the ID token is always current.
+      // getTokenSilently() refreshes both access and ID tokens; we then
+      // read the fresh ID token claims for our API calls.
+      try { await auth0Client.getTokenSilently(); } catch (_) { /* best-effort */ }
       var claims = await auth0Client.getIdTokenClaims();
       if (claims) this.token = claims.__raw;
     } catch (e) {
