@@ -62,6 +62,15 @@
                 <div id="auth-error" class="auth-error" style="display:none;"></div>
             </div>
 
+            <!-- Not Authorized Section (shown when user is not admin) -->
+            <div id="not-authorized-section" class="admin-auth-card" style="display:none;">
+                <div class="auth-icon">&#128683;</div>
+                <h2>Access Denied</h2>
+                <p>Your account does not have admin privileges. Only users with the <strong>admin</strong> role can manage inventory and catalog.</p>
+                <p style="margin-top:1rem;color:#666;">If you believe you should have admin access, please contact the site owner.</p>
+                <button id="not-auth-logout-btn" class="btn btn-outline-dark" style="margin-top:1.5rem;">Log Out</button>
+            </div>
+
             <!-- Admin Dashboard (shown when authenticated) -->
             <div id="admin-dashboard" style="display:none;">
                 
@@ -83,6 +92,7 @@
                     <button class="admin-tab" data-panel="catalog-panel">Catalog</button>
                     <button class="admin-tab" data-panel="uploads-panel">Uploads</button>
                     <button class="admin-tab" data-panel="export-panel">Export Data</button>
+                    <button class="admin-tab" data-panel="users-panel">Users</button>
                 </div>
 
                 <!-- Inventory Panel -->
@@ -205,6 +215,27 @@
                     </div>
                 </div>
 
+                <!-- Users Panel (admin role management) -->
+                <div id="users-panel" class="admin-panel">
+                    <div class="panel-header">
+                        <h3>User Management</h3>
+                        <p>Manage user roles. Admins can manage inventory, catalog, and uploads.</p>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="styled-table admin-table" id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
 
         </div>
@@ -283,11 +314,13 @@
 
         let auth0Client = null;
         let isAuthenticated = false;
+        let currentUserRole = null;
 
         let inventoryData = [];
         let catalogData = [];
         let uploadedFiles = [];
         let currentUploadFilter = 'all';
+        let usersData = [];
 
         // Auth0 Initialization
         async function initAuth0() {
@@ -351,11 +384,28 @@
 
         async function showAdminDashboard() {
             document.getElementById('auth-section').style.display = 'none';
+            await OPF_API.setToken(auth0Client);
+
+            // Sync user and check role
+            try {
+                var userData = await OPF_API.syncUser();
+                currentUserRole = userData.role || 'user';
+            } catch (err) {
+                console.error('Failed to sync user:', err);
+                currentUserRole = 'user';
+            }
+
+            if (currentUserRole !== 'admin') {
+                document.getElementById('not-authorized-section').style.display = 'block';
+                document.getElementById('admin-dashboard').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('not-authorized-section').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'block';
             const user = await auth0Client.getUser();
             document.getElementById('user-name').textContent = user.name || user.email;
             document.getElementById('user-avatar').src = user.picture || 'https://via.placeholder.com/40';
-            await OPF_API.setToken(auth0Client);
             await loadCatalog();
             await loadInventory();
             await loadUploads();
@@ -873,6 +923,49 @@
         function exportInventory() { downloadJSON(inventoryData, 'inventory.json'); }
         function exportCatalog() { downloadJSON(catalogData, 'flies.json'); }
 
+        // User Management
+        async function loadUsers() {
+            try {
+                usersData = await OPF_API.getUsers();
+                renderUsers();
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function renderUsers() {
+            var tbody = document.getElementById('users-tbody');
+            if (!usersData || usersData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">No users found.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = usersData.map(function(u) {
+                var roleTag = u.role === 'admin'
+                    ? '<span class="card-tag" style="background:#1a2e1a;color:#fff;">admin</span>'
+                    : '<span class="card-tag">user</span>';
+                var actionBtn = u.role === 'admin'
+                    ? '<button class="btn btn-outline-dark btn-sm" onclick="toggleUserRole(\'' + u.auth0_id + '\', \'user\')">Demote to User</button>'
+                    : '<button class="btn btn-primary btn-sm" onclick="toggleUserRole(\'' + u.auth0_id + '\', \'admin\')">Promote to Admin</button>';
+                return '<tr>' +
+                    '<td>' + (u.name || 'N/A') + '</td>' +
+                    '<td>' + (u.email || 'N/A') + '</td>' +
+                    '<td>' + roleTag + '</td>' +
+                    '<td>' + actionBtn + '</td>' +
+                '</tr>';
+            }).join('');
+        }
+
+        async function toggleUserRole(auth0_id, newRole) {
+            var action = newRole === 'admin' ? 'promote this user to admin' : 'demote this user to a regular user';
+            if (!confirm('Are you sure you want to ' + action + '?')) return;
+            try {
+                await OPF_API.updateUserRole(auth0_id, newRole);
+                await loadUsers();
+            } catch (err) {
+                alert('Failed to update role: ' + err.message);
+            }
+        }
+
         function downloadJSON(data, filename) {
             var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             var url = URL.createObjectURL(blob);
@@ -938,6 +1031,7 @@
 
             document.getElementById('login-btn').addEventListener('click', login);
             document.getElementById('logout-btn').addEventListener('click', logout);
+            document.getElementById('not-auth-logout-btn').addEventListener('click', logout);
 
             document.querySelectorAll('.admin-tab').forEach(function(tab) {
                 tab.addEventListener('click', function() {
@@ -945,6 +1039,10 @@
                     document.querySelectorAll('.admin-panel').forEach(function(p) { p.classList.remove('active'); });
                     tab.classList.add('active');
                     document.getElementById(tab.dataset.panel).classList.add('active');
+                    // Lazy-load users when Users tab is first opened
+                    if (tab.dataset.panel === 'users-panel' && usersData.length === 0) {
+                        loadUsers();
+                    }
                 });
             });
 

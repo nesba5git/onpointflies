@@ -1,5 +1,5 @@
 import { getInventoryStore, initBlobsContext } from './lib/db.mjs';
-import { verifyAuth, respond } from './lib/auth.mjs';
+import { verifyAdmin, respond } from './lib/auth.mjs';
 
 const STORE_KEY = 'all';
 
@@ -61,9 +61,9 @@ export const handler = async (event) => {
       return respond(inventory);
     }
 
-    // All write operations require authentication
-    const user = await verifyAuth(event);
-    if (!user) return respond({ error: 'Unauthorized' }, 401);
+    // All write operations require admin role
+    const user = await verifyAdmin(event);
+    if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
     let inventory = (await store.get(STORE_KEY, { type: 'json' })) || [];
 
