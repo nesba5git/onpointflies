@@ -66,12 +66,21 @@ export async function verifyAuth(event) {
 /**
  * Verify the request is authenticated AND the user has the 'admin' role.
  * Returns the user object (with role) if admin, null otherwise.
+ *
+ * Checks the ADMIN_EMAILS env var first (always available) and then falls
+ * back to the persisted role in Blobs. This order ensures admins are never
+ * locked out by a transient Blobs failure.
  */
 export async function verifyAdmin(event) {
   const user = await verifyAuth(event);
   if (!user) return null;
 
-  // Check role from the user store first (persisted role)
+  // 1. Env-based check — fast and always available
+  if (getRoleForEmail(user.email) === 'admin') {
+    return { ...user, role: 'admin' };
+  }
+
+  // 2. Persisted role in Blobs (assigned via the admin Users panel)
   try {
     const store = getUserStore();
     const stored = await store.get(user.sub, { type: 'json' });
@@ -79,12 +88,7 @@ export async function verifyAdmin(event) {
       return { ...user, role: 'admin' };
     }
   } catch (err) {
-    // Fall through to env-based check
-  }
-
-  // Fall back to env-based check
-  if (getRoleForEmail(user.email) === 'admin') {
-    return { ...user, role: 'admin' };
+    console.error('Blobs read error in verifyAdmin (non-fatal):', err.message);
   }
 
   return null;

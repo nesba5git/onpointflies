@@ -388,15 +388,24 @@
             document.getElementById('auth-section').style.display = 'none';
             await OPF_API.setToken(auth0Client);
 
-            // Sync user and check role
+            // Sync user and check role — retry once on failure (e.g. stale token)
             var syncError = null;
-            try {
-                var userData = await OPF_API.syncUser();
-                currentUserRole = userData.role || 'user';
-            } catch (err) {
-                console.error('Failed to sync user:', err);
-                syncError = err;
-                currentUserRole = 'user';
+            var userData = null;
+            for (var attempt = 0; attempt < 2; attempt++) {
+                try {
+                    userData = await OPF_API.syncUser();
+                    currentUserRole = userData.role || 'user';
+                    syncError = null;
+                    break;
+                } catch (err) {
+                    console.error('Sync attempt ' + (attempt + 1) + ' failed:', err);
+                    syncError = err;
+                    currentUserRole = 'user';
+                    // On first failure refresh the token and retry
+                    if (attempt === 0) {
+                        await OPF_API.setToken(auth0Client);
+                    }
+                }
             }
 
             if (currentUserRole !== 'admin') {
@@ -413,6 +422,10 @@
                 } catch (e) { /* ignore */ }
                 if (syncError) {
                     console.error('Admin check failed due to sync error — user may need to log out and back in.');
+                    var infoEl2 = document.getElementById('not-auth-user-info');
+                    if (infoEl2) {
+                        infoEl2.textContent += ' (Note: server sync failed — try logging out and back in)';
+                    }
                 }
                 return;
             }
