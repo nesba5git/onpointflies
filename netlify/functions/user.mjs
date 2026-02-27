@@ -1,5 +1,5 @@
 import { getUserStore, initBlobsContext } from './lib/db.mjs';
-import { verifyAuth, respond } from './lib/auth.mjs';
+import { verifyAuth, respond, getRoleForEmail } from './lib/auth.mjs';
 
 export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -14,12 +14,17 @@ export const handler = async (event) => {
     const store = getUserStore();
     const existing = await store.get(user.sub, { type: 'json' });
 
+    // Determine role: check ADMIN_EMAILS env var, or preserve existing role
+    const envRole = getRoleForEmail(user.email);
+    const role = envRole === 'admin' ? 'admin' : (existing?.role || 'user');
+
     if (existing) {
       const updated = {
         ...existing,
         email: user.email,
         name: user.name,
         picture: user.picture,
+        role,
         updated_at: new Date().toISOString(),
       };
       await store.setJSON(user.sub, updated);
@@ -31,6 +36,7 @@ export const handler = async (event) => {
       email: user.email,
       name: user.name,
       picture: user.picture,
+      role,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };

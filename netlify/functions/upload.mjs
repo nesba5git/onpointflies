@@ -1,5 +1,5 @@
 import { getUploadsStore, initBlobsContext } from './lib/db.mjs';
-import { verifyAuth, respond } from './lib/auth.mjs';
+import { verifyAdmin, respond } from './lib/auth.mjs';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -51,17 +51,17 @@ export const handler = async (event) => {
         };
       }
 
-      // List all files — requires authentication
-      const user = await verifyAuth(event);
-      if (!user) return respond({ error: 'Unauthorized' }, 401);
+      // List all files — requires admin role
+      const user = await verifyAdmin(event);
+      if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
       const list = await store.get('file-index', { type: 'json' });
       return respond(list || []);
     }
 
-    // All write operations require authentication
-    const user = await verifyAuth(event);
-    if (!user) return respond({ error: 'Unauthorized' }, 401);
+    // All write operations require admin role
+    const user = await verifyAdmin(event);
+    if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
     // POST — upload a file
     if (event.httpMethod === 'POST') {

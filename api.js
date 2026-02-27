@@ -154,6 +154,17 @@ var OPF_API = {
     return this.request('upload?key=' + encodeURIComponent(key), { method: 'DELETE' });
   },
 
+  // Roles (admin only)
+  getUsers: function () {
+    return this.request('roles');
+  },
+  updateUserRole: function (auth0_id, role) {
+    return this.request('roles', {
+      method: 'PUT',
+      body: JSON.stringify({ auth0_id: auth0_id, role: role }),
+    });
+  },
+
   // Migrate localStorage data to database (one-time)
   migrateLocalData: async function () {
     try {
