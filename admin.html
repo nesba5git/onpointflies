@@ -388,18 +388,44 @@
             document.getElementById('auth-section').style.display = 'none';
             await OPF_API.setToken(auth0Client);
 
+            // If we couldn't get a token at all, force re-login immediately
+            if (!OPF_API.token) {
+                console.warn('No auth token available — forcing re-login');
+                if (!sessionStorage.getItem('opf_reauth')) {
+                    sessionStorage.setItem('opf_reauth', '1');
+                    await auth0Client.loginWithRedirect({
+                        authorizationParams: {
+                            redirect_uri: AUTH0_CONFIG.redirectUri,
+                            scope: 'openid profile email',
+                            prompt: 'login'
+                        }
+                    });
+                    return;
+                }
+                sessionStorage.removeItem('opf_reauth');
+            }
+
             // Sync user and check role — retry once on failure (e.g. stale token)
             var syncError = null;
+            var syncErrorCode = null;
             var userData = null;
             for (var attempt = 0; attempt < 2; attempt++) {
                 try {
                     userData = await OPF_API.syncUser();
                     currentUserRole = userData.role || 'user';
                     syncError = null;
+                    syncErrorCode = null;
                     break;
                 } catch (err) {
                     console.error('Sync attempt ' + (attempt + 1) + ' failed:', err);
                     syncError = err;
+                    // Try to extract the errorCode from the error message
+                    try {
+                        var errMsg = err.message || '';
+                        // The server returns JSON with errorCode — but our request()
+                        // method wraps it in an Error. Check if it was parsed.
+                        syncErrorCode = err.errorCode || null;
+                    } catch (_) {}
                     currentUserRole = 'user';
                     // On first failure refresh the token and retry
                     if (attempt === 0) {
@@ -407,6 +433,23 @@
                     }
                 }
             }
+
+            // If sync failed (token expired/invalid), force a fresh login
+            // Use sessionStorage flag to prevent infinite redirect loops
+            if (syncError && !sessionStorage.getItem('opf_reauth')) {
+                console.warn('Server sync failed — forcing fresh login');
+                sessionStorage.setItem('opf_reauth', '1');
+                await auth0Client.loginWithRedirect({
+                    authorizationParams: {
+                        redirect_uri: AUTH0_CONFIG.redirectUri,
+                        scope: 'openid profile email',
+                        prompt: 'login'
+                    }
+                });
+                return;
+            }
+            // Clear the re-auth flag — we either succeeded or already retried
+            sessionStorage.removeItem('opf_reauth');
 
             if (currentUserRole !== 'admin') {
                 document.getElementById('not-authorized-section').style.display = 'block';
@@ -421,10 +464,10 @@
                     }
                 } catch (e) { /* ignore */ }
                 if (syncError) {
-                    console.error('Admin check failed due to sync error — user may need to log out and back in.');
+                    console.error('Admin check failed due to sync error after re-login.');
                     var infoEl2 = document.getElementById('not-auth-user-info');
                     if (infoEl2) {
-                        infoEl2.textContent += ' (Note: server sync failed — try logging out and back in)';
+                        infoEl2.textContent += ' (Error: ' + syncError.message + ' — please contact support)';
                     }
                 }
                 return;

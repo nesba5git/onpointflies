@@ -8,11 +8,23 @@ var OPF_API = {
       // Force a silent token refresh so the ID token is always current.
       // getTokenSilently() refreshes both access and ID tokens; we then
       // read the fresh ID token claims for our API calls.
-      try { await auth0Client.getTokenSilently(); } catch (_) { /* best-effort */ }
+      var refreshed = false;
+      try {
+        await auth0Client.getTokenSilently();
+        refreshed = true;
+      } catch (e) {
+        console.warn('Silent token refresh failed:', e.message || e);
+      }
       var claims = await auth0Client.getIdTokenClaims();
-      if (claims) this.token = claims.__raw;
+      if (claims && claims.__raw) {
+        this.token = claims.__raw;
+      } else {
+        console.warn('No ID token claims available (refreshed=' + refreshed + ')');
+        this.token = null;
+      }
     } catch (e) {
       console.error('Failed to get auth token:', e);
+      this.token = null;
     }
   },
 
@@ -28,7 +40,12 @@ var OPF_API = {
     });
 
     var data = await response.json();
-    if (!response.ok) throw new Error(data.error || 'Request failed');
+    if (!response.ok) {
+      var err = new Error(data.error || 'Request failed');
+      err.errorCode = data.errorCode || null;
+      err.status = response.status;
+      throw err;
+    }
     return data;
   },
 

@@ -1,13 +1,15 @@
 import { getUserStore, initBlobsContext } from './lib/db.mjs';
-import { verifyAuth, respond, getRoleForEmail } from './lib/auth.mjs';
+import { verifyAuthDetailed, respond, getRoleForEmail } from './lib/auth.mjs';
 
 export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return respond({}, 204);
   }
 
-  const user = await verifyAuth(event);
-  if (!user) return respond({ error: 'Unauthorized' }, 401);
+  const { user, error, errorCode } = await verifyAuthDetailed(event);
+  if (!user) {
+    return respond({ error: error || 'Unauthorized', errorCode: errorCode || 'auth_failed' }, 401);
+  }
 
   if (!user.email) {
     console.error('No email claim in token for user:', user.sub);
