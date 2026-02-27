@@ -14,6 +14,10 @@ export const handler = async (event) => {
     const store = getUserStore();
     const existing = await store.get(user.sub, { type: 'json' });
 
+    if (!user.email) {
+      console.error('No email claim in token for user:', user.sub);
+    }
+
     // Determine role: check ADMIN_EMAILS env var, or preserve existing role
     const envRole = getRoleForEmail(user.email);
     const role = envRole === 'admin' ? 'admin' : (existing?.role || 'user');
