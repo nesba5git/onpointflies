@@ -40,10 +40,21 @@ export async function verifyAuth(event) {
       issuer: `https://${AUTH0_DOMAIN}/`,
       audience: AUTH0_CLIENT_ID,
     });
+    // Auth0 typically puts email at payload.email, but some configurations
+    // use a namespaced claim (e.g. https://example.com/email). Check both.
+    let email = payload.email;
+    if (!email) {
+      for (const key of Object.keys(payload)) {
+        if (key.endsWith('/email') && payload[key]) {
+          email = payload[key];
+          break;
+        }
+      }
+    }
     return {
       sub: payload.sub,
-      email: payload.email,
-      name: payload.name,
+      email,
+      name: payload.name || payload.nickname,
       picture: payload.picture,
     };
   } catch (err) {
