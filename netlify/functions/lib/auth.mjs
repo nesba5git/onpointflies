@@ -1,11 +1,13 @@
-import { createRemoteJWKSet, jwtVerify } from 'jose';
+import { createRemoteJWKSet, jwtVerify, decodeJwt } from 'jose';
 import { getUserStore } from './db.mjs';
 
-const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN;
-const AUTH0_CLIENT_ID = process.env.AUTH0_CLIENT_ID;
-const JWKS = createRemoteJWKSet(
-  new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`)
-);
+const AUTH0_DOMAIN = (process.env.AUTH0_DOMAIN || '').trim();
+const AUTH0_CLIENT_ID = (process.env.AUTH0_CLIENT_ID || '').trim();
+const JWKS = AUTH0_DOMAIN
+  ? createRemoteJWKSet(
+      new URL(`https://${AUTH0_DOMAIN}/.well-known/jwks.json`)
+    )
+  : null;
 
 /**
  * Returns a list of admin email addresses from the ADMIN_EMAILS env var.
@@ -26,11 +28,39 @@ export function getRoleForEmail(email) {
   return admins.includes(email.toLowerCase()) ? 'admin' : 'user';
 }
 
+/**
+ * Extract the email from a JWT payload, checking both the standard `email`
+ * claim and any namespaced claim ending with `/email`.
+ */
+function extractEmail(payload) {
+  if (payload.email) return payload.email;
+  for (const key of Object.keys(payload)) {
+    if (key.endsWith('/email') && payload[key]) {
+      return payload[key];
+    }
+  }
+  return undefined;
+}
+
 export async function verifyAuth(event) {
+  const result = await verifyAuthDetailed(event);
+  return result.user || null;
+}
+
+/**
+ * Like verifyAuth but returns { user, error, errorCode } so callers can
+ * distinguish between "no token", "expired token", and "invalid token".
+ */
+export async function verifyAuthDetailed(event) {
   const authHeader =
     event.headers.authorization || event.headers.Authorization || '';
   if (!authHeader.startsWith('Bearer ')) {
-    return null;
+    return { user: null, error: 'No Bearer token provided', errorCode: 'no_token' };
+  }
+
+  if (!JWKS || !AUTH0_DOMAIN || !AUTH0_CLIENT_ID) {
+    console.error('Auth0 not configured — AUTH0_DOMAIN or AUTH0_CLIENT_ID missing');
+    return { user: null, error: 'Auth0 not configured on the server', errorCode: 'server_config' };
   }
 
   const token = authHeader.split(' ')[1];
@@ -40,26 +70,31 @@ export async function verifyAuth(event) {
       issuer: `https://${AUTH0_DOMAIN}/`,
       audience: AUTH0_CLIENT_ID,
     });
-    // Auth0 typically puts email at payload.email, but some configurations
-    // use a namespaced claim (e.g. https://example.com/email). Check both.
-    let email = payload.email;
-    if (!email) {
-      for (const key of Object.keys(payload)) {
-        if (key.endsWith('/email') && payload[key]) {
-          email = payload[key];
-          break;
-        }
-      }
-    }
+    const email = extractEmail(payload);
     return {
-      sub: payload.sub,
-      email,
-      name: payload.name || payload.nickname,
-      picture: payload.picture,
+      user: {
+        sub: payload.sub,
+        email,
+        name: payload.name || payload.nickname,
+        picture: payload.picture,
+      },
     };
   } catch (err) {
-    console.error('Token verification failed:', err.message);
-    return null;
+    const code = err?.code || '';
+    console.error('Token verification failed:', code, err.message);
+
+    // Try to decode (without verifying) to log which user is affected
+    let hint = '';
+    try {
+      const claims = decodeJwt(token);
+      hint = claims.email || extractEmail(claims) || claims.sub || '';
+    } catch { /* ignore decode errors */ }
+    if (hint) console.error('Token belonged to:', hint);
+
+    if (code === 'ERR_JWT_EXPIRED') {
+      return { user: null, error: 'Token has expired — please log in again', errorCode: 'token_expired' };
+    }
+    return { user: null, error: 'Token verification failed: ' + err.message, errorCode: 'token_invalid' };
   }
 }
 
