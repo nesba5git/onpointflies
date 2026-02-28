@@ -10,6 +10,39 @@ const JWKS = AUTH0_DOMAIN
   : null;
 
 /**
+ * Fetch the user's email from Auth0's /userinfo endpoint using the access
+ * token.  This is the OIDC-standard fallback when the email claim is not
+ * present in the ID token (common with some Auth0 connection types).
+ *
+ * @param {string} accessToken – opaque or JWT access token from Auth0
+ * @param {string} expectedSub – the `sub` from the verified ID token, used to
+ *   ensure the access token belongs to the same user (prevents token-swap
+ *   attacks).
+ */
+async function fetchEmailFromUserInfo(accessToken, expectedSub) {
+  if (!accessToken || !AUTH0_DOMAIN) return undefined;
+  try {
+    const resp = await fetch(`https://${AUTH0_DOMAIN}/userinfo`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!resp.ok) {
+      console.error('[auth] /userinfo returned', resp.status);
+      return undefined;
+    }
+    const data = await resp.json();
+    // Verify the access token belongs to the same user as the ID token
+    if (expectedSub && data.sub && data.sub !== expectedSub) {
+      console.error('[auth] /userinfo sub mismatch:', data.sub, '!=', expectedSub);
+      return undefined;
+    }
+    return data.email || undefined;
+  } catch (err) {
+    console.error('[auth] /userinfo fallback failed:', err.message);
+    return undefined;
+  }
+}
+
+/**
  * Returns a list of admin email addresses from the ADMIN_EMAILS env var.
  * Format: comma-separated, e.g. "alice@example.com,bob@example.com"
  */
@@ -42,7 +75,9 @@ function extractEmail(payload) {
     }
   }
   // Fallback: some Auth0 connections store the email as the name/nickname
+  // or in other standard OIDC claims like preferred_username
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (payload.preferred_username && emailRegex.test(payload.preferred_username)) return payload.preferred_username;
   if (payload.name && emailRegex.test(payload.name)) return payload.name;
   if (payload.nickname && emailRegex.test(payload.nickname)) return payload.nickname;
   return undefined;
@@ -75,8 +110,23 @@ export async function verifyAuthDetailed(event) {
     const { payload } = await jwtVerify(token, JWKS, {
       issuer: `https://${AUTH0_DOMAIN}/`,
       audience: AUTH0_CLIENT_ID,
+      clockTolerance: 60,   // tolerate up to 60 s of clock skew
     });
-    const email = extractEmail(payload);
+    let email = extractEmail(payload);
+
+    // If the email is still missing, try the Auth0 /userinfo endpoint as a
+    // fallback using the access token the client may have forwarded.
+    if (!email) {
+      const accessToken =
+        event.headers['x-access-token'] || event.headers['X-Access-Token'] || '';
+      if (accessToken) {
+        email = await fetchEmailFromUserInfo(accessToken, payload.sub);
+        if (email) {
+          console.log('[auth] Email recovered from /userinfo fallback:', email);
+        }
+      }
+    }
+
     if (!email) {
       console.error('[auth] JWT verified but NO email found in payload.');
       console.error('[auth] Payload claims:', Object.keys(payload).join(', '));
@@ -150,7 +200,7 @@ export function respond(data, statusCode = 200) {
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Access-Token',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     },
     body: JSON.stringify(data),

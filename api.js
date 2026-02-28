@@ -2,6 +2,7 @@
 // Communicates with Netlify Functions backend backed by Netlify Blobs
 var OPF_API = {
   token: null,
+  accessToken: null,
 
   setToken: async function (auth0Client) {
     try {
@@ -10,10 +11,12 @@ var OPF_API = {
       // read the fresh ID token claims for our API calls.
       var refreshed = false;
       try {
-        await auth0Client.getTokenSilently();
+        var at = await auth0Client.getTokenSilently();
+        this.accessToken = at || null;
         refreshed = true;
       } catch (e) {
         console.warn('Silent token refresh failed:', e.message || e);
+        this.accessToken = null;
       }
       var claims = await auth0Client.getIdTokenClaims();
       if (claims && claims.__raw) {
@@ -25,6 +28,7 @@ var OPF_API = {
     } catch (e) {
       console.error('Failed to get auth token:', e);
       this.token = null;
+      this.accessToken = null;
     }
   },
 
@@ -32,6 +36,7 @@ var OPF_API = {
     options = options || {};
     var headers = { 'Content-Type': 'application/json' };
     if (this.token) headers['Authorization'] = 'Bearer ' + this.token;
+    if (this.accessToken) headers['X-Access-Token'] = this.accessToken;
 
     var response = await fetch('/api/' + path, {
       method: options.method || 'GET',
