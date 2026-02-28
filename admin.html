@@ -478,10 +478,11 @@
                     }
                 }
                 if (syncError) {
-                    console.error('Admin check failed due to sync error after re-login.');
                     var infoEl2 = document.getElementById('not-auth-user-info');
                     if (infoEl2) {
-                        infoEl2.textContent += ' (Error: ' + syncError.message + ' — please contact support)';
+                        infoEl2.style.display = 'block';
+                        var errMsg = syncError.message || String(syncError);
+                        infoEl2.innerHTML += '<br><br><strong>Server error:</strong> ' + errMsg + '<br>The server could not verify your identity. Try logging out and back in. If the problem persists, check the Auth0 and Netlify configuration.';
                     }
                 }
                 return;
