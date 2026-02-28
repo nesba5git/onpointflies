@@ -463,6 +463,20 @@
                         infoEl.style.display = 'block';
                     }
                 } catch (e) { /* ignore */ }
+                // Show server-side diagnosis to help debug admin detection
+                if (userData && userData._diagnosis) {
+                    var d = userData._diagnosis;
+                    var diagEl = document.getElementById('not-auth-user-info');
+                    if (diagEl) {
+                        var hints = [];
+                        if (!d.emailInToken) hints.push('Email is MISSING from the Auth0 token — add an Auth0 Login Action to include it');
+                        if (!d.adminEmailsConfigured) hints.push('ADMIN_EMAILS env var is not configured on the server');
+                        if (d.emailInToken && d.adminEmailsConfigured && !d.emailMatchesAdminList) hints.push('Server email (' + (userData.email || 'none') + ') does not match ADMIN_EMAILS');
+                        if (hints.length) {
+                            diagEl.innerHTML += '<br><br><strong>Diagnosis:</strong><br>' + hints.join('<br>');
+                        }
+                    }
+                }
                 if (syncError) {
                     console.error('Admin check failed due to sync error after re-login.');
                     var infoEl2 = document.getElementById('not-auth-user-info');

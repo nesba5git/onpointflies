@@ -1,5 +1,5 @@
 import { getUserStore, initBlobsContext } from './lib/db.mjs';
-import { verifyAuthDetailed, respond, getRoleForEmail } from './lib/auth.mjs';
+import { verifyAuthDetailed, respond, getRoleForEmail, getAdminEmails } from './lib/auth.mjs';
 
 export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
@@ -13,11 +13,17 @@ export const handler = async (event) => {
 
   if (!user.email) {
     console.error('No email claim in token for user:', user.sub);
+    console.error('This usually means Auth0 is not including the email in the ID token.');
+    console.error('Fix: In Auth0 Dashboard → Actions → Flows → Login, add an Action that sets the email claim.');
   }
 
   // Determine role from ADMIN_EMAILS env var first — this must never be
   // blocked by a Blobs failure so it lives outside the try/catch.
+  const adminEmails = getAdminEmails();
   const envRole = getRoleForEmail(user.email);
+  console.log('[user] email from token:', user.email || '(missing)');
+  console.log('[user] ADMIN_EMAILS configured:', adminEmails.length > 0);
+  console.log('[user] envRole:', envRole);
 
   // Try to read/write the persistent user record in Blobs.  If Blobs is
   // unavailable we still return the env-based role so admins are never
@@ -34,12 +40,21 @@ export const handler = async (event) => {
 
   const role = envRole === 'admin' ? 'admin' : (existing?.role || 'user');
 
+  // Include diagnosis info so the frontend can explain why access was denied
+  const _diagnosis = {
+    emailInToken: !!user.email,
+    adminEmailsConfigured: adminEmails.length > 0,
+    emailMatchesAdminList: envRole === 'admin',
+    roleSource: envRole === 'admin' ? 'env' : (existing?.role === 'admin' ? 'blobs' : 'default'),
+  };
+
   const userRecord = {
     auth0_id: user.sub,
     email: user.email,
     name: user.name,
     picture: user.picture,
     role,
+    _diagnosis,
     ...(existing ? {} : { created_at: new Date().toISOString() }),
     updated_at: new Date().toISOString(),
   };
