@@ -20,9 +20,11 @@ export const handler = async (event) => {
   // Determine role from ADMIN_EMAILS env var first — this must never be
   // blocked by a Blobs failure so it lives outside the try/catch.
   const adminEmails = getAdminEmails();
-  const envRole = getRoleForEmail(user.email);
+  const envRole = getRoleForEmail(user.email, user.sub);
   console.log('[user] email from token:', user.email || '(missing)');
+  console.log('[user] sub:', user.sub || '(missing)');
   console.log('[user] ADMIN_EMAILS configured:', adminEmails.length > 0);
+  console.log('[user] ADMIN_EMAILS entries:', adminEmails.length);
   console.log('[user] envRole:', envRole);
 
   // Try to read/write the persistent user record in Blobs.  If Blobs is
@@ -43,8 +45,12 @@ export const handler = async (event) => {
   // Include diagnosis info so the frontend can explain why access was denied
   const _diagnosis = {
     emailInToken: !!user.email,
+    subInToken: !!user.sub,
+    sub: user.sub,
     adminEmailsConfigured: adminEmails.length > 0,
-    emailMatchesAdminList: envRole === 'admin',
+    adminEntriesCount: adminEmails.length,
+    emailMatchesAdminList: !!(user.email && adminEmails.includes(user.email.toLowerCase())),
+    subMatchesAdminList: !!(user.sub && adminEmails.includes(user.sub.toLowerCase())),
     roleSource: envRole === 'admin' ? 'env' : (existing?.role === 'admin' ? 'blobs' : 'default'),
   };
 

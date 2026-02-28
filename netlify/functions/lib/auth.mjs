@@ -43,22 +43,31 @@ async function fetchEmailFromUserInfo(accessToken, expectedSub) {
 }
 
 /**
- * Returns a list of admin email addresses from the ADMIN_EMAILS env var.
- * Format: comma-separated, e.g. "alice@example.com,bob@example.com"
+ * Parse the ADMIN_EMAILS env var into a list of admin identifiers.
+ * Accepts comma, semicolon, pipe, or newline as separators.
+ * Each entry is trimmed, lowercased, and stripped of non-printable chars.
+ * Entries can be email addresses OR Auth0 user IDs (sub values).
  */
 export function getAdminEmails() {
   const raw = process.env.ADMIN_EMAILS || '';
-  return raw.split(',').map(e => e.trim().toLowerCase()).filter(Boolean);
+  return raw
+    .split(/[,;\|\n]+/)
+    .map(e => e.replace(/[^\x20-\x7E]/g, '').trim().toLowerCase())
+    .filter(Boolean);
 }
 
 /**
- * Determine the role for a given email address.
- * If the email is listed in ADMIN_EMAILS, role is 'admin'; otherwise 'user'.
+ * Check whether a user (identified by email and/or Auth0 sub) is an admin.
+ * Matches against the ADMIN_EMAILS env var which can contain either email
+ * addresses or Auth0 user IDs (sub values like "auth0|abc123").
+ * Returns 'admin' or 'user'.
  */
-export function getRoleForEmail(email) {
-  if (!email) return 'user';
+export function getRoleForEmail(email, sub) {
   const admins = getAdminEmails();
-  return admins.includes(email.toLowerCase()) ? 'admin' : 'user';
+  if (!admins.length) return 'user';
+  if (email && admins.includes(email.toLowerCase())) return 'admin';
+  if (sub && admins.includes(sub.toLowerCase())) return 'admin';
+  return 'user';
 }
 
 /**
@@ -175,8 +184,8 @@ export async function verifyAdmin(event) {
   const user = await verifyAuth(event);
   if (!user) return null;
 
-  // 1. Env-based check — fast and always available
-  if (getRoleForEmail(user.email) === 'admin') {
+  // 1. Env-based check — fast and always available (checks both email and sub)
+  if (getRoleForEmail(user.email, user.sub) === 'admin') {
     return { ...user, role: 'admin' };
   }
 
