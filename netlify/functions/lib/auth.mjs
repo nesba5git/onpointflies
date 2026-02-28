@@ -31,6 +31,8 @@ export function getRoleForEmail(email) {
 /**
  * Extract the email from a JWT payload, checking both the standard `email`
  * claim and any namespaced claim ending with `/email`.
+ * Falls back to `name` or `nickname` if they look like email addresses
+ * (common with Auth0 database connections where username IS the email).
  */
 function extractEmail(payload) {
   if (payload.email) return payload.email;
@@ -39,6 +41,10 @@ function extractEmail(payload) {
       return payload[key];
     }
   }
+  // Fallback: some Auth0 connections store the email as the name/nickname
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (payload.name && emailRegex.test(payload.name)) return payload.name;
+  if (payload.nickname && emailRegex.test(payload.nickname)) return payload.nickname;
   return undefined;
 }
 
@@ -71,6 +77,15 @@ export async function verifyAuthDetailed(event) {
       audience: AUTH0_CLIENT_ID,
     });
     const email = extractEmail(payload);
+    if (!email) {
+      console.error('[auth] JWT verified but NO email found in payload.');
+      console.error('[auth] Payload claims:', Object.keys(payload).join(', '));
+      console.error('[auth] sub:', payload.sub);
+      console.error('[auth] To fix: In Auth0 Dashboard → Actions → Flows → Login,');
+      console.error('[auth] add an Action that sets a custom claim with the email.');
+    } else {
+      console.log('[auth] Email extracted from token:', email);
+    }
     return {
       user: {
         sub: payload.sub,
