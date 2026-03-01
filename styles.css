@@ -20,6 +20,11 @@
   --transition: 0.3s ease;
 }
 
+/* Inner page text visibility override */
+.inner-page {
+  --color-text-light: #444;
+}
+
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -76,7 +81,7 @@ h3 { font-size: 1.25rem; }
 .hero-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
 .hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(26,46,26,0.7), rgba(26,46,26,0.85)); }
 .hero-content { position: relative; z-index: 1; max-width: 800px; padding: 0 1.5rem; }
-.hero h1, .hero p { color: #fff; }
+.hero h1, .hero p, .page-hero h1, .page-hero p { color: #fff; }
 .hero h1 span { color: var(--color-accent); }
 .hero-logo { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; margin: 0 auto 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border: 3px solid rgba(255,255,255,0.3); }
 .hero-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap; }
