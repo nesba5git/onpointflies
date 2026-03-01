@@ -20,6 +20,11 @@
   --transition: 0.3s ease;
 }
 
+/* Inner page text visibility override */
+.inner-page {
+  --color-text-light: #444;
+}
+
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
