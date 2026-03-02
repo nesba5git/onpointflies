@@ -192,7 +192,7 @@ export const handler = async (event) => {
         id: Date.now(),
         orderNumber,
         status: 'pending',
-        paymentStatus: body.paymentMethod === 'paypal' ? 'pending' : 'awaiting',
+        paymentStatus: body.paypalOrderId ? 'paid' : (body.paymentMethod === 'paypal' ? 'pending' : 'awaiting'),
         paymentMethod: body.paymentMethod,
         paypalOrderId: body.paypalOrderId || null,
 
