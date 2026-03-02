@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1a2e1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Shopping Cart - On Point Flies</title>
+    <meta name="description" content="Review your shopping cart and proceed to checkout at On Point Flies. Hand-tied fly fishing flies.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="mobile-detect.js"></script>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <script src="api.js"></script>
+</head>
+<body class="inner-page">
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo"><img src="logo.jpeg" alt="On Point Flies logo" class="nav-logo-img">On Point <span>Flies</span></a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
+                <li><a href="inventory.html">Inventory</a></li>
+                <li><a href="order.html">Order</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="cart.html" class="active">&#128722; Cart <span class="cart-badge" id="nav-cart-badge" style="display:none;">0</span></a></li>
+                <li><a href="account.html" id="account-link">Account</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <section class="page-hero page-hero-small">
+        <div class="hero-bg" style="background-image: url('https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=1920&q=80&fit=crop&auto=format');"></div>
+        <div class="hero-content">
+            <span class="section-label">Your Cart</span>
+            <h1>Shopping Cart</h1>
+            <p>Review your items, adjust quantities, and proceed to checkout.</p>
+        </div>
+    </section>
+
+    <!-- Cart Section -->
+    <section class="section">
+        <div class="container">
+
+            <!-- Loading State -->
+            <div id="cart-loading" class="cart-loading-state">
+                <div class="cart-loading-spinner"></div>
+                <p>Loading your cart...</p>
+            </div>
+
+            <!-- Empty Cart State -->
+            <div id="cart-empty" class="empty-state" style="display:none;">
+                <span class="empty-icon">&#128722;</span>
+                <h4>Your cart is empty</h4>
+                <p>Looks like you haven't added any flies yet. Browse our catalog to find the perfect flies for your next trip.</p>
+                <a href="catalog.html" class="btn btn-primary" style="margin-top:1.25rem;">Browse Catalog</a>
+                <a href="inventory.html" class="btn btn-outline-dark" style="margin-top:0.75rem;">Check Inventory</a>
+            </div>
+
+            <!-- Cart Content -->
+            <div id="cart-content" style="display:none;">
+                <div class="cart-layout">
+
+                    <!-- Left: Cart Items -->
+                    <div class="cart-items-section">
+
+                        <!-- Cart Header -->
+                        <div class="cart-header">
+                            <h3 id="cart-items-heading">Cart Items (0)</h3>
+                            <button class="btn btn-sm btn-outline-dark" onclick="clearCart()">Clear Cart</button>
+                        </div>
+
+                        <!-- Cart Notifications -->
+                        <div id="cart-notifications" class="cart-notifications" style="display:none;"></div>
+
+                        <!-- Cart Items List -->
+                        <div id="cart-items" class="cart-items-list"></div>
+
+                        <!-- Save for Later Section -->
+                        <div id="saved-section" class="cart-saved-section" style="display:none;">
+                            <div class="cart-saved-header">
+                                <h3>Saved for Later (<span id="saved-count">0</span>)</h3>
+                            </div>
+                            <div id="saved-items" class="cart-items-list"></div>
+                        </div>
+
+                        <!-- Recently Viewed / Suggestions -->
+                        <div class="cart-suggestions" id="cart-suggestions" style="display:none;">
+                            <h3>You Might Also Like</h3>
+                            <div id="suggestions-grid" class="suggestions-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Cart Summary Sidebar -->
+                    <div class="cart-summary">
+                        <div class="cart-summary-card">
+                            <h3>Order Summary</h3>
+
+                            <!-- Coupon Code -->
+                            <div class="coupon-section">
+                                <div class="coupon-input-wrap">
+                                    <input type="text" id="coupon-input" placeholder="Promo code" class="coupon-input">
+                                    <button class="btn btn-sm btn-dark" id="coupon-apply-btn" onclick="applyCoupon()">Apply</button>
+                                </div>
+                                <div id="coupon-message" class="coupon-message" style="display:none;"></div>
+                            </div>
+
+                            <!-- Summary Lines -->
+                            <div class="summary-lines">
+                                <div class="summary-line">
+                                    <span>Subtotal (<span id="summary-count">0</span> flies)</span>
+                                    <span id="summary-subtotal">$0.00</span>
+                                </div>
+                                <div class="summary-line" id="discount-line" style="display:none;">
+                                    <span>Discount</span>
+                                    <span id="summary-discount" class="discount-amount">-$0.00</span>
+                                </div>
+                                <div class="summary-line">
+                                    <span>Estimated Shipping <a href="order.html" class="summary-link">(details)</a></span>
+                                    <span id="summary-shipping">Calculated at checkout</span>
+                                </div>
+                                <div class="summary-line">
+                                    <span>Estimated Tax</span>
+                                    <span id="summary-tax">Calculated at checkout</span>
+                                </div>
+                                <div class="summary-line summary-total">
+                                    <span>Estimated Total</span>
+                                    <span id="summary-total">$0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Checkout Button -->
+                            <button class="btn btn-primary btn-block" id="checkout-btn" onclick="proceedToCheckout()">Proceed to Checkout</button>
+                            <a href="catalog.html" class="btn btn-outline-dark btn-block" style="margin-top:0.5rem;">Continue Shopping</a>
+
+                            <!-- Trust Badges -->
+                            <div class="cart-trust">
+                                <div class="trust-item">&#128274; Secure Checkout</div>
+                                <div class="trust-item">&#128666; Free shipping over $50</div>
+                                <div class="trust-item">&#9989; Quality guarantee</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Prompt (for guests) -->
+            <div id="cart-login-prompt" class="cart-login-prompt" style="display:none;">
+                <p>&#128100; <a href="account.html">Log in</a> to save your cart across devices, use coupons, and access exclusive features.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3><img src="logo.jpeg" alt="On Point Flies logo" class="footer-logo-img">On Point <span>Flies</span></h3>
+                <p>Premium hand-tied flies for the passionate fly fisher. From classic patterns to custom creations, we tie flies that catch fish.</p>
+            </div>
+            <div>
+                <h4>Navigate</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="catalog.html">Catalog</a></li>
+                    <li><a href="inventory.html">Inventory</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Orders</h4>
+                <ul class="footer-links">
+                    <li><a href="order.html">How to Order</a></li>
+                    <li><a href="order.html">Pricing</a></li>
+                    <li><a href="order.html">Shipping</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Get in Touch</h4>
+                <ul class="footer-links">
+                    <li><a href="mailto:info@onpointflies.com">info@onpointflies.com</a></li>
+                    <li style="margin-top:0.5rem;"><a href="contact.html">Send us a message &rarr;</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 On Point Flies. All rights reserved.</p>
+        </div>
+    </footer>
+
+<script>
+// ============================
+// Auth0 Configuration
+// ============================
+var AUTH0_CONFIG = {
+    domain: '',
+    clientId: '',
+    redirectUri: window.location.origin + '/cart.html'
+};
+
+var auth0Client = null;
+var isAuthenticated = false;
+var appliedCoupon = null;
+var cartItems = [];
+var savedItems = [];
+
+async function loadAuth0Config() {
+    var resp = await fetch('/api/auth-config');
+    var config = await resp.json();
+    AUTH0_CONFIG.domain = config.domain;
+    AUTH0_CONFIG.clientId = config.clientId;
+}
+
+// ============================
+// Toast notifications
+// ============================
+function showToast(message, type) {
+    type = type || 'success';
+    var toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast ' + type + ' show';
+    setTimeout(function() { toast.className = 'toast'; }, 3000);
+}
+
+// ============================
+// Auth0 Initialization
+// ============================
+async function initAuth0() {
+    try {
+        await loadAuth0Config();
+        auth0Client = await auth0.createAuth0Client({
+            domain: AUTH0_CONFIG.domain,
+            clientId: AUTH0_CONFIG.clientId,
+            cacheLocation: 'localstorage',
+            authorizationParams: { redirect_uri: AUTH0_CONFIG.redirectUri }
+        });
+
+        // Handle redirect callback
+        if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+            await auth0Client.handleRedirectCallback();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        isAuthenticated = await auth0Client.isAuthenticated();
+        updateAccountLink();
+
+        if (isAuthenticated) {
+            await OPF_API.setToken(auth0Client);
+            try { await OPF_API.syncUser(); } catch(e) { console.error('User sync:', e); }
+            await OPF_API.migrateLocalData();
+            document.getElementById('cart-login-prompt').style.display = 'none';
+        } else {
+            document.getElementById('cart-login-prompt').style.display = 'block';
+        }
+
+        loadCart();
+    } catch (err) {
+        console.error('Auth0 error:', err);
+        // Still load cart even if auth fails
+        loadCart();
+    }
+}
+
+function updateAccountLink() {
+    var link = document.getElementById('account-link');
+    if (isAuthenticated) {
+        link.innerHTML = '&#128100; My Account';
+    }
+}
+
+// ============================
+// Cart Loading
+// ============================
+async function loadCart() {
+    var loading = document.getElementById('cart-loading');
+    var empty = document.getElementById('cart-empty');
+    var content = document.getElementById('cart-content');
+
+    loading.style.display = 'flex';
+    empty.style.display = 'none';
+    content.style.display = 'none';
+
+    try {
+        cartItems = [];
+        savedItems = [];
+
+        if (isAuthenticated) {
+            var cartData = await OPF_API.getCart(true);
+            cartItems = cartData.items || [];
+            savedItems = cartData.savedItems || [];
+
+            // Show notifications (price changes, stock issues)
+            if (cartData.notifications && cartData.notifications.length > 0) {
+                showNotifications(cartData.notifications);
+            } else {
+                document.getElementById('cart-notifications').style.display = 'none';
+            }
+        } else {
+            cartItems = OPF_GUEST_CART.getItems();
+        }
+
+        loading.style.display = 'none';
+
+        if (cartItems.length === 0 && savedItems.length === 0) {
+            empty.style.display = 'block';
+            content.style.display = 'none';
+            updateCartBadge(0);
+            return;
+        }
+
+        empty.style.display = 'none';
+        content.style.display = 'block';
+
+        renderCartItems(cartItems);
+        renderSavedItems(savedItems);
+        updateSummary(cartItems);
+        updateCartBadge(cartItems.reduce(function(s, i) { return s + i.quantity; }, 0));
+        loadSuggestions();
+
+    } catch (err) {
+        loading.style.display = 'none';
+        empty.style.display = 'block';
+        console.error('Load cart error:', err);
+    }
+}
+
+// ============================
+// Render Cart Items
+// ============================
+function renderCartItems(items) {
+    var container = document.getElementById('cart-items');
+    var heading = document.getElementById('cart-items-heading');
+    var count = items.reduce(function(s, i) { return s + i.quantity; }, 0);
+    heading.textContent = 'Cart Items (' + count + ')';
+
+    if (items.length === 0) {
+        container.innerHTML = '<div class="cart-items-empty"><p>No items in your cart.</p></div>';
+        return;
+    }
+
+    var html = '';
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var unitPrice = parseFloat(item.price) || 2.50;
+        var itemTotal = unitPrice * item.quantity;
+
+        // Variant/size labels
+        var variantHtml = '';
+        if (item.variant) {
+            variantHtml += '<span class="cart-item-variant">Variant: ' + item.variant + '</span>';
+        }
+        if (item.size) {
+            variantHtml += '<span class="cart-item-variant">Size: ' + item.size + '</span>';
+        }
+
+        // Pre-order badge
+        var preorderHtml = item.isPreorder ? '<span class="cart-item-preorder">Pre-order</span>' : '';
+
+        // Gift message
+        var giftMessage = item.giftMessage || '';
+        var giftHtml = '<div class="cart-item-gift">' +
+            '<details' + (giftMessage ? ' open' : '') + '>' +
+                '<summary class="cart-gift-toggle">&#127873; Add gift message</summary>' +
+                '<div class="cart-gift-input-wrap">' +
+                    '<textarea class="cart-gift-textarea" id="gift-msg-' + item.id + '" placeholder="Enter a gift message (optional)..." maxlength="200" rows="2">' + giftMessage + '</textarea>' +
+                    '<button class="btn btn-sm btn-dark cart-gift-save" onclick="saveGiftMessage(\'' + item.id + '\')">Save</button>' +
+                '</div>' +
+            '</details>' +
+        '</div>';
+
+        // Escape item id for onclick handlers
+        var safeId = item.id.replace(/'/g, "\\'");
+
+        html += '<div class="cart-item" data-item-id="' + item.id + '">' +
+            '<div class="cart-item-image">' +
+                '<img src="' + (item.image || 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg') + '" alt="' + item.name + '" loading="lazy" onerror="this.src=\'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg\'">' +
+            '</div>' +
+            '<div class="cart-item-details">' +
+                '<div class="cart-item-name-row">' +
+                    '<h4>' + item.name + '</h4>' +
+                    '<button class="cart-action-btn cart-action-remove" onclick="removeItem(\'' + safeId + '\')" title="Remove item">&times;</button>' +
+                '</div>' +
+                '<span class="card-tag">' + (item.type || 'Fly') + '</span>' +
+                variantHtml +
+                preorderHtml +
+                '<div class="cart-item-price-mobile">$' + unitPrice.toFixed(2) + ' each</div>' +
+                '<div class="cart-item-controls">' +
+                    '<div class="cart-item-qty">' +
+                        '<button onclick="updateQuantity(\'' + safeId + '\', -1)" aria-label="Decrease quantity">-</button>' +
+                        '<span class="cart-qty-value" id="qty-' + item.id + '">' + item.quantity + '</span>' +
+                        '<button onclick="updateQuantity(\'' + safeId + '\', 1)" aria-label="Increase quantity">+</button>' +
+                    '</div>' +
+                    '<div class="cart-item-line-total">$' + itemTotal.toFixed(2) + '</div>' +
+                '</div>' +
+                '<div class="cart-item-bottom-actions">' +
+                    (isAuthenticated ? '<button class="cart-text-btn" onclick="saveItemForLater(\'' + safeId + '\')">&#128278; Save for Later</button>' : '') +
+                '</div>' +
+                giftHtml +
+            '</div>' +
+        '</div>';
+    }
+    container.innerHTML = html;
+}
+
+// ============================
+// Render Saved for Later Items
+// ============================
+function renderSavedItems(items) {
+    var section = document.getElementById('saved-section');
+    var container = document.getElementById('saved-items');
+    var countEl = document.getElementById('saved-count');
+
+    if (!items || items.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    countEl.textContent = items.length;
+
+    var html = '';
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var safeId = item.id.replace(/'/g, "\\'");
+
+        html += '<div class="cart-item cart-item-saved" data-item-id="' + item.id + '">' +
+            '<div class="cart-item-image">' +
+                '<img src="' + (item.image || 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg') + '" alt="' + item.name + '" loading="lazy" onerror="this.src=\'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg\'">' +
+            '</div>' +
+            '<div class="cart-item-details">' +
+                '<div class="cart-item-name-row">' +
+                    '<h4>' + item.name + '</h4>' +
+                    '<button class="cart-action-btn cart-action-remove" onclick="removeSavedItem(\'' + safeId + '\')" title="Remove item">&times;</button>' +
+                '</div>' +
+                '<span class="card-tag">' + (item.type || 'Fly') + '</span>' +
+                '<div class="cart-item-price-mobile">$' + (parseFloat(item.price) || 2.50).toFixed(2) + '</div>' +
+                '<div class="cart-item-bottom-actions">' +
+                    '<button class="cart-text-btn cart-text-btn-primary" onclick="moveBackToCart(\'' + safeId + '\')">&#128722; Move to Cart</button>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }
+    container.innerHTML = html;
+}
+
+// ============================
+// Update Order Summary
+// ============================
+function updateSummary(items) {
+    var count = items.reduce(function(s, i) { return s + i.quantity; }, 0);
+    var subtotal = items.reduce(function(s, i) { return s + (parseFloat(i.price) || 2.50) * i.quantity; }, 0);
+
+    document.getElementById('summary-count').textContent = count;
+    document.getElementById('summary-subtotal').textContent = '$' + subtotal.toFixed(2);
+
+    var total = subtotal;
+
+    // Apply discount
+    if (appliedCoupon && appliedCoupon.discount) {
+        total -= appliedCoupon.discount;
+        if (total < 0) total = 0;
+        document.getElementById('discount-line').style.display = 'flex';
+        document.getElementById('summary-discount').textContent = '-$' + appliedCoupon.discount.toFixed(2);
+    } else {
+        document.getElementById('discount-line').style.display = 'none';
+    }
+
+    document.getElementById('summary-total').textContent = '$' + total.toFixed(2);
+
+    // Update shipping estimate display
+    if (subtotal >= 50) {
+        document.getElementById('summary-shipping').textContent = 'FREE';
+        document.getElementById('summary-shipping').style.color = '#065f46';
+    } else {
+        document.getElementById('summary-shipping').textContent = 'Calculated at checkout';
+        document.getElementById('summary-shipping').style.color = '';
+    }
+}
+
+// ============================
+// Cart Notifications
+// ============================
+function showNotifications(notifications) {
+    var container = document.getElementById('cart-notifications');
+    if (!notifications || notifications.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'block';
+    var html = '';
+    for (var i = 0; i < notifications.length; i++) {
+        var n = notifications[i];
+        var cls = n.type === 'out_of_stock' ? 'notification-error' : 'notification-warning';
+        html += '<div class="cart-notification ' + cls + '">' + n.message + '</div>';
+    }
+    container.innerHTML = html;
+}
+
+// ============================
+// Quantity Updates (Optimistic UI)
+// ============================
+async function updateQuantity(itemId, delta) {
+    // Optimistic UI: update the displayed quantity immediately
+    var qtyEl = document.getElementById('qty-' + itemId);
+    var currentDisplayQty = qtyEl ? parseInt(qtyEl.textContent) : 1;
+    var optimisticQty = Math.max(1, currentDisplayQty + delta);
+    if (qtyEl) qtyEl.textContent = optimisticQty;
+
+    try {
+        if (isAuthenticated) {
+            var cartData = await OPF_API.getCart();
+            var item = cartData.items.find(function(i) { return i.id === itemId; });
+            if (!item) return;
+            var newQty = Math.max(1, item.quantity + delta);
+            await OPF_API.updateCartItem(itemId, { quantity: newQty });
+        } else {
+            var items = OPF_GUEST_CART.getItems();
+            var item = items.find(function(i) { return i.id === itemId; });
+            if (!item) return;
+            OPF_GUEST_CART.updateQuantity(itemId, Math.max(1, item.quantity + delta));
+        }
+        loadCart();
+    } catch (err) {
+        showToast('Failed to update quantity', 'error');
+        loadCart(); // Revert optimistic update
+    }
+}
+
+// ============================
+// Remove Item
+// ============================
+async function removeItem(itemId) {
+    // Optimistic UI: fade out the item
+    var el = document.querySelector('[data-item-id="' + itemId + '"]');
+    if (el) { el.style.opacity = '0.4'; el.style.pointerEvents = 'none'; }
+
+    try {
+        if (isAuthenticated) {
+            await OPF_API.removeCartItem(itemId);
+        } else {
+            OPF_GUEST_CART.removeItem(itemId);
+        }
+        showToast('Item removed');
+        loadCart();
+    } catch (err) {
+        showToast('Failed to remove item', 'error');
+        if (el) { el.style.opacity = '1'; el.style.pointerEvents = ''; }
+    }
+}
+
+// ============================
+// Save for Later
+// ============================
+async function saveItemForLater(itemId) {
+    if (!isAuthenticated) {
+        showToast('Please log in to save items for later', 'info');
+        return;
+    }
+
+    var el = document.querySelector('[data-item-id="' + itemId + '"]');
+    if (el) { el.style.opacity = '0.4'; el.style.pointerEvents = 'none'; }
+
+    try {
+        await OPF_API.saveForLater(itemId);
+        showToast('Saved for later');
+        loadCart();
+    } catch (err) {
+        showToast('Failed to save item', 'error');
+        if (el) { el.style.opacity = '1'; el.style.pointerEvents = ''; }
+    }
+}
+
+// ============================
+// Move Back to Cart
+// ============================
+async function moveBackToCart(itemId) {
+    var el = document.querySelector('.cart-item-saved[data-item-id="' + itemId + '"]');
+    if (el) { el.style.opacity = '0.4'; el.style.pointerEvents = 'none'; }
+
+    try {
+        await OPF_API.moveToCart(itemId);
+        showToast('Moved to cart');
+        loadCart();
+    } catch (err) {
+        showToast('Failed to move item', 'error');
+        if (el) { el.style.opacity = '1'; el.style.pointerEvents = ''; }
+    }
+}
+
+// ============================
+// Remove Saved Item
+// ============================
+async function removeSavedItem(itemId) {
+    try {
+        await OPF_API.removeSavedItem(itemId);
+        showToast('Saved item removed');
+        loadCart();
+    } catch (err) {
+        showToast('Failed to remove item', 'error');
+    }
+}
+
+// ============================
+// Clear Cart
+// ============================
+async function clearCart() {
+    if (!confirm('Clear your entire cart?')) return;
+    try {
+        if (isAuthenticated) {
+            await OPF_API.clearCart();
+        } else {
+            OPF_GUEST_CART.clear();
+        }
+        showToast('Cart cleared');
+        appliedCoupon = null;
+        loadCart();
+    } catch (err) {
+        showToast('Failed to clear cart', 'error');
+    }
+}
+
+// ============================
+// Gift Message
+// ============================
+async function saveGiftMessage(itemId) {
+    var textarea = document.getElementById('gift-msg-' + itemId);
+    if (!textarea) return;
+    var message = textarea.value.trim();
+
+    try {
+        if (isAuthenticated) {
+            await OPF_API.updateCartItem(itemId, { giftMessage: message });
+        } else {
+            // For guest carts, store gift message locally
+            var items = OPF_GUEST_CART.getItems();
+            var idx = items.findIndex(function(i) { return i.id === itemId; });
+            if (idx > -1) {
+                items[idx].giftMessage = message;
+                localStorage.setItem('opf_guest_cart', JSON.stringify(items));
+            }
+        }
+        showToast(message ? 'Gift message saved' : 'Gift message removed');
+    } catch (err) {
+        showToast('Failed to save gift message', 'error');
+    }
+}
+
+// ============================
+// Coupon Code
+// ============================
+async function applyCoupon() {
+    var code = document.getElementById('coupon-input').value.trim();
+    var msgEl = document.getElementById('coupon-message');
+    var applyBtn = document.getElementById('coupon-apply-btn');
+
+    if (!code) {
+        msgEl.style.display = 'none';
+        return;
+    }
+
+    if (!isAuthenticated) {
+        msgEl.style.display = 'block';
+        msgEl.className = 'coupon-message error';
+        msgEl.textContent = 'Please log in to use coupon codes';
+        return;
+    }
+
+    // Loading state
+    applyBtn.textContent = '...';
+    applyBtn.disabled = true;
+
+    try {
+        var items = cartItems;
+        var subtotal = items.reduce(function(s, i) { return s + (parseFloat(i.price) || 2.50) * i.quantity; }, 0);
+
+        var result = await OPF_API.validateCoupon(code, subtotal);
+        msgEl.style.display = 'block';
+
+        if (result.valid) {
+            appliedCoupon = result;
+            msgEl.className = 'coupon-message success';
+            msgEl.textContent = result.description + ' (-$' + result.discount.toFixed(2) + ')';
+            updateSummary(items);
+            showToast('Coupon applied!');
+        } else {
+            appliedCoupon = null;
+            msgEl.className = 'coupon-message error';
+            msgEl.textContent = result.message || 'Invalid coupon code';
+            document.getElementById('discount-line').style.display = 'none';
+            updateSummary(items);
+        }
+    } catch (err) {
+        msgEl.style.display = 'block';
+        msgEl.className = 'coupon-message error';
+        msgEl.textContent = 'Failed to validate coupon';
+    } finally {
+        applyBtn.textContent = 'Apply';
+        applyBtn.disabled = false;
+    }
+}
+
+// ============================
+// Proceed to Checkout
+// ============================
+function proceedToCheckout() {
+    if (!isAuthenticated) {
+        showToast('Please log in to proceed to checkout', 'info');
+        setTimeout(function() {
+            window.location.href = 'account.html';
+        }, 1500);
+        return;
+    }
+
+    if (cartItems.length === 0) {
+        showToast('Your cart is empty', 'info');
+        return;
+    }
+
+    // Store coupon code if applied
+    if (appliedCoupon && appliedCoupon.code) {
+        sessionStorage.setItem('opf_coupon', appliedCoupon.code);
+    }
+
+    window.location.href = 'checkout.html';
+}
+
+// ============================
+// Related Products / Suggestions
+// ============================
+async function loadSuggestions() {
+    try {
+        var catalog = await fetch('/api/catalog').then(function(r) { return r.json(); });
+        if (catalog.length > 0) {
+            // Filter out items already in cart
+            var cartNames = cartItems.map(function(i) { return i.name; });
+            var available = catalog.filter(function(f) { return cartNames.indexOf(f.name) === -1; });
+            if (available.length === 0) available = catalog;
+
+            // Random selection
+            var shuffled = available.sort(function() { return 0.5 - Math.random(); });
+            var suggestions = shuffled.slice(0, 4);
+            var grid = document.getElementById('suggestions-grid');
+            var html = '';
+            for (var i = 0; i < suggestions.length; i++) {
+                var fly = suggestions[i];
+                var flyData = encodeURIComponent(JSON.stringify(fly));
+                html += '<div class="suggestion-card">' +
+                    '<img src="' + fly.image + '" alt="' + fly.name + '" loading="lazy" onerror="this.src=\'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg\'">' +
+                    '<div class="suggestion-info">' +
+                        '<h4>' + fly.name + '</h4>' +
+                        '<span class="card-tag">' + fly.type + '</span>' +
+                        '<div class="suggestion-price">$' + (parseFloat(fly.price) || 2.50).toFixed(2) + '</div>' +
+                        '<button class="btn btn-sm btn-dark" onclick="quickAddToCart(JSON.parse(decodeURIComponent(\'' + flyData + '\')))">+ Add to Cart</button>' +
+                    '</div>' +
+                '</div>';
+            }
+            grid.innerHTML = html;
+            document.getElementById('cart-suggestions').style.display = 'block';
+        }
+    } catch (e) {
+        // Silently ignore suggestion loading errors
+    }
+}
+
+// ============================
+// Quick Add to Cart (from suggestions)
+// ============================
+async function quickAddToCart(fly) {
+    try {
+        if (isAuthenticated) {
+            await OPF_API.addToCart(fly);
+        } else {
+            OPF_GUEST_CART.addItem(fly);
+        }
+        showToast('Added to cart!');
+        loadCart();
+    } catch (err) {
+        showToast('Failed to add item', 'error');
+    }
+}
+
+// ============================
+// Cart Badge
+// ============================
+function updateCartBadge(count) {
+    var badge = document.getElementById('nav-cart-badge');
+    if (count > 0) {
+        badge.style.display = 'inline-flex';
+        badge.textContent = count;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// ============================
+// Initialize
+// ============================
+document.addEventListener('DOMContentLoaded', function() {
+    initAuth0();
+
+    // Navbar scroll effect
+    var navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', function() {
+        navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Allow Enter key on coupon input
+    var couponInput = document.getElementById('coupon-input');
+    if (couponInput) {
+        couponInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') { applyCoupon(); }
+        });
+    }
+});
+</script>
+</body>
+</html>

@@ -44,7 +44,17 @@ var OPF_API = {
       body: options.body || undefined,
     });
 
-    var data = await response.json();
+    var data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      if (!response.ok) {
+        var parseErr = new Error('Request failed (status ' + response.status + ')');
+        parseErr.status = response.status;
+        throw parseErr;
+      }
+      throw new Error('Invalid response from server');
+    }
     if (!response.ok) {
       var err = new Error(data.error || 'Request failed');
       err.errorCode = data.errorCode || null;
@@ -102,15 +112,150 @@ var OPF_API = {
     return this.request('shopping-list?all=true', { method: 'DELETE' });
   },
 
+  // Cart
+  getCart: function (validate) {
+    return this.request('cart' + (validate ? '?validate=true' : ''));
+  },
+  addToCart: function (item) {
+    return this.request('cart', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'add', ...item }),
+    });
+  },
+  updateCartItem: function (itemId, updates) {
+    return this.request('cart', {
+      method: 'PUT',
+      body: JSON.stringify({ itemId: itemId, ...updates }),
+    });
+  },
+  removeCartItem: function (itemId) {
+    return this.request('cart?itemId=' + encodeURIComponent(itemId), { method: 'DELETE' });
+  },
+  removeSavedItem: function (itemId) {
+    return this.request('cart?itemId=' + encodeURIComponent(itemId) + '&from=saved', { method: 'DELETE' });
+  },
+  clearCart: function () {
+    return this.request('cart?all=true', { method: 'DELETE' });
+  },
+  saveForLater: function (itemId) {
+    return this.request('cart', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'save-for-later', itemId: itemId }),
+    });
+  },
+  moveToCart: function (itemId) {
+    return this.request('cart', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'move-to-cart', itemId: itemId }),
+    });
+  },
+  mergeGuestCart: function (items) {
+    return this.request('cart', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'merge', items: items }),
+    });
+  },
+
+  // Checkout
+  getCheckoutPreview: function (state, shippingMethod, coupon) {
+    var params = [];
+    if (state) params.push('state=' + encodeURIComponent(state));
+    if (shippingMethod) params.push('shipping=' + encodeURIComponent(shippingMethod));
+    if (coupon) params.push('coupon=' + encodeURIComponent(coupon));
+    var qs = params.length > 0 ? '?' + params.join('&') : '';
+    return this.request('checkout' + qs);
+  },
+  getShippingMethods: function () {
+    return this.request('checkout?info=shipping');
+  },
+  getTaxRate: function (state) {
+    return this.request('checkout?info=tax&state=' + encodeURIComponent(state));
+  },
+  placeCheckoutOrder: function (orderData) {
+    return this.request('checkout', {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    });
+  },
+
+  // Coupons
+  validateCoupon: function (code, subtotal) {
+    return this.request('coupons', {
+      method: 'POST',
+      body: JSON.stringify({ code: code, subtotal: subtotal }),
+    });
+  },
+
+  // Address Book
+  getAddresses: function () {
+    return this.request('addresses');
+  },
+  addAddress: function (address) {
+    return this.request('addresses', {
+      method: 'POST',
+      body: JSON.stringify(address),
+    });
+  },
+  updateAddress: function (address) {
+    return this.request('addresses', {
+      method: 'PUT',
+      body: JSON.stringify(address),
+    });
+  },
+  removeAddress: function (id) {
+    return this.request('addresses?id=' + id, { method: 'DELETE' });
+  },
+
   // Orders
   getOrders: function () {
     return this.request('orders');
+  },
+  getOrder: function (orderId) {
+    return this.request('orders?orderId=' + encodeURIComponent(orderId));
   },
   placeOrder: function (notes) {
     return this.request('orders', {
       method: 'POST',
       body: JSON.stringify({ notes: notes || '' }),
     });
+  },
+  reorder: function (orderId) {
+    return this.request('orders', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'reorder', orderId: orderId }),
+    });
+  },
+
+  // Admin Orders
+  getAdminOrders: function (status) {
+    var params = '?admin=true';
+    if (status) params += '&status=' + encodeURIComponent(status);
+    return this.request('orders' + params);
+  },
+  updateOrderStatus: function (orderId, status, trackingNumber, adminNotes) {
+    return this.request('orders?admin=true', {
+      method: 'PUT',
+      body: JSON.stringify({
+        orderId: orderId,
+        status: status,
+        trackingNumber: trackingNumber || undefined,
+        adminNotes: adminNotes || undefined,
+      }),
+    });
+  },
+
+  // Admin Coupons
+  getAdminCoupons: function () {
+    return this.request('coupons');
+  },
+  saveCoupon: function (coupon) {
+    return this.request('coupons', {
+      method: 'PUT',
+      body: JSON.stringify(coupon),
+    });
+  },
+  deleteCoupon: function (code) {
+    return this.request('coupons?code=' + encodeURIComponent(code), { method: 'DELETE' });
   },
 
   // Catalog (public read, authenticated write)
@@ -219,8 +364,77 @@ var OPF_API = {
         }
         localStorage.removeItem('opf_shopping_list');
       }
+
+      // Merge guest cart into user cart
+      var guestCart = localStorage.getItem('opf_guest_cart');
+      if (guestCart) {
+        var guestItems = JSON.parse(guestCart);
+        if (guestItems && guestItems.length > 0) {
+          try {
+            await this.mergeGuestCart(guestItems);
+          } catch (e) {
+            console.error('Guest cart merge error:', e);
+          }
+        }
+        localStorage.removeItem('opf_guest_cart');
+      }
     } catch (e) {
       console.error('Migration error:', e);
     }
   },
+};
+
+// Guest Cart (localStorage-based for non-authenticated users)
+var OPF_GUEST_CART = {
+  getItems: function () {
+    try {
+      return JSON.parse(localStorage.getItem('opf_guest_cart') || '[]');
+    } catch (e) { return []; }
+  },
+  addItem: function (item) {
+    var items = this.getItems();
+    var existIdx = items.findIndex(function(i) { return i.name === item.name; });
+    if (existIdx > -1) {
+      items[existIdx].quantity = (items[existIdx].quantity || 1) + (item.quantity || 1);
+    } else {
+      items.push({
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+        name: item.name,
+        type: item.type,
+        bestFor: item.bestFor,
+        description: item.description,
+        image: item.image,
+        price: parseFloat(item.price) || 2.50,
+        quantity: item.quantity || 1,
+        variant: item.variant || null,
+        size: item.size || null
+      });
+    }
+    localStorage.setItem('opf_guest_cart', JSON.stringify(items));
+    return items;
+  },
+  updateQuantity: function (itemId, quantity) {
+    var items = this.getItems();
+    var idx = items.findIndex(function(i) { return i.id === itemId; });
+    if (idx > -1) {
+      items[idx].quantity = Math.max(1, quantity);
+      localStorage.setItem('opf_guest_cart', JSON.stringify(items));
+    }
+    return items;
+  },
+  removeItem: function (itemId) {
+    var items = this.getItems().filter(function(i) { return i.id !== itemId; });
+    localStorage.setItem('opf_guest_cart', JSON.stringify(items));
+    return items;
+  },
+  clear: function () {
+    localStorage.setItem('opf_guest_cart', '[]');
+    return [];
+  },
+  getCount: function () {
+    return this.getItems().reduce(function(sum, i) { return sum + (i.quantity || 1); }, 0);
+  },
+  getSubtotal: function () {
+    return this.getItems().reduce(function(sum, i) { return sum + ((parseFloat(i.price) || 2.50) * (i.quantity || 1)); }, 0);
+  }
 };

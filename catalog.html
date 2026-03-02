@@ -29,6 +29,7 @@
                 <li><a href="inventory.html">Inventory</a></li>
                 <li><a href="order.html">Order</a></li>
                 <li><a href="contact.html">Contact</a></li>
+                <li><a href="cart.html" class="cart-nav-link" id="cart-link">Cart<span class="cart-badge" id="cart-badge" style="display:none;">0</span></a></li>
                 <li><a href="account.html" id="account-link">Account</a></li>
             </ul>
             <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
@@ -177,6 +178,7 @@
                     } catch(e) { console.error('Load favorites:', e); }
                     // Re-render with favorites state
                     renderFlies(allFlies);
+                    updateCartBadge();
                 }
             } catch (error) {
                 console.error('Auth0 error:', error);
@@ -230,24 +232,42 @@
             }
         }
 
-        // Shopping List Management (Database-backed)
+        // Shopping List / Cart Management (Database-backed)
         async function addToList(fly) {
-            if (!isAuthenticated) {
-                showToast('Please log in to use shopping lists', 'info');
-                setTimeout(function() { window.location.href = 'account.html'; }, 1500);
-                return;
-            }
-
-            try {
-                var result = await OPF_API.addToShoppingList(fly);
-                if (result.quantity) {
-                    showToast('Added another ' + fly.name + ' (' + result.quantity + ' total)');
-                } else {
-                    showToast('Added to shopping list!');
+            // Also add to shopping list for backward compat
+            if (isAuthenticated) {
+                try {
+                    // Add to new cart system
+                    var result = await OPF_API.addToCart(fly);
+                    showToast('Added to cart!');
+                    updateCartBadge();
+                    // Also add to legacy shopping list
+                    try { await OPF_API.addToShoppingList(fly); } catch(e) { /* ok */ }
+                } catch (err) {
+                    showToast('Failed to add to cart', 'error');
+                    console.error('Cart error:', err);
                 }
-            } catch (err) {
-                showToast('Failed to add to list', 'error');
-                console.error('Shopping list error:', err);
+            } else {
+                // Guest cart via localStorage
+                OPF_GUEST_CART.addItem(fly);
+                showToast('Added to cart!');
+                updateCartBadge();
+            }
+        }
+
+        function updateCartBadge() {
+            var badge = document.getElementById('cart-badge');
+            if (!badge) return;
+            if (isAuthenticated) {
+                OPF_API.getCart().then(function(cart) {
+                    var count = cart.itemCount || 0;
+                    badge.textContent = count;
+                    badge.style.display = count > 0 ? 'flex' : 'none';
+                }).catch(function() {});
+            } else {
+                var count = OPF_GUEST_CART.getCount();
+                badge.textContent = count;
+                badge.style.display = count > 0 ? 'flex' : 'none';
             }
         }
 
@@ -264,6 +284,8 @@
                 allFlies = flies;
                 renderFlies(flies);
                 initAuth0();
+                // Initialize guest cart badge
+                updateCartBadge();
             })
             .catch(function(err) { console.error('Error loading catalog:', err); });
 
@@ -282,8 +304,8 @@
                 filtered = filtered.filter(function(f) {
                     return f.name.toLowerCase().includes(query) ||
                         f.type.toLowerCase().includes(query) ||
-                        f.bestFor.toLowerCase().includes(query) ||
-                        f.description.toLowerCase().includes(query);
+                        (f.bestFor || '').toLowerCase().includes(query) ||
+                        (f.description || '').toLowerCase().includes(query);
                 });
             }
 
@@ -321,7 +343,7 @@
                         '<p>' + fly.description + '</p>' +
                         recipePreview +
                         '<button class="btn btn-sm btn-dark add-to-list-btn" onclick="addToList(JSON.parse(decodeURIComponent(\'' + flyData + '\')))">' +
-                            '+ Add to List' +
+                            '+ Add to Cart' +
                         '</button>' +
                     '</div>';
                 grid.appendChild(card);

@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1a2e1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Checkout - On Point Flies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="mobile-detect.js"></script>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <script src="api.js"></script>
+</head>
+<body class="inner-page">
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo"><img src="logo.jpeg" alt="On Point Flies logo" class="nav-logo-img">On Point <span>Flies</span></a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="catalog.html">Catalog</a></li>
+                <li><a href="inventory.html">Inventory</a></li>
+                <li><a href="order.html">Order</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="cart.html">Cart <span class="cart-badge" id="nav-cart-badge" style="display:none;">0</span></a></li>
+                <li><a href="account.html" id="account-link">Account</a></li>
+            </ul>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <section class="page-hero page-hero-small">
+        <div class="hero-bg" style="background-image: url('https://images.unsplash.com/photo-1556189250-72ba954cfc2b?w=1920&q=80&fit=crop&auto=format');"></div>
+        <div class="hero-content">
+            <span class="section-label">Secure Checkout</span>
+            <h1>Checkout</h1>
+            <p>Complete your order in just a few steps.</p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <!-- Loading State -->
+            <div id="checkout-loading" class="loading-state">Loading checkout...</div>
+
+            <!-- Checkout Content -->
+            <div id="checkout-content" style="display:none;">
+
+                <!-- Progress Indicator -->
+                <div class="checkout-progress">
+                    <div class="progress-step active" data-step="1">
+                        <div class="progress-step-number">1</div>
+                        <div class="progress-step-label">Shipping</div>
+                    </div>
+                    <div class="progress-connector"></div>
+                    <div class="progress-step" data-step="2">
+                        <div class="progress-step-number">2</div>
+                        <div class="progress-step-label">Method</div>
+                    </div>
+                    <div class="progress-connector"></div>
+                    <div class="progress-step" data-step="3">
+                        <div class="progress-step-number">3</div>
+                        <div class="progress-step-label">Payment</div>
+                    </div>
+                    <div class="progress-connector"></div>
+                    <div class="progress-step" data-step="4">
+                        <div class="progress-step-number">4</div>
+                        <div class="progress-step-label">Review</div>
+                    </div>
+                </div>
+
+                <div class="checkout-layout">
+                    <!-- Main Content Area -->
+                    <div class="checkout-main">
+
+                        <!-- Step 1: Shipping Address -->
+                        <div class="checkout-step active" id="step-1">
+                            <h2 class="checkout-step-title">Shipping Address</h2>
+
+                            <div class="form-group" id="saved-addresses-group" style="display:none;">
+                                <label for="saved-addresses">Saved Addresses</label>
+                                <select id="saved-addresses" class="checkout-select" onchange="fillSavedAddress()">
+                                    <option value="">-- Enter a new address --</option>
+                                </select>
+                            </div>
+
+                            <form id="shipping-form" class="checkout-form" onsubmit="return false;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="ship-first-name">First Name <span class="required">*</span></label>
+                                        <input type="text" id="ship-first-name" required autocomplete="given-name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ship-last-name">Last Name <span class="required">*</span></label>
+                                        <input type="text" id="ship-last-name" required autocomplete="family-name">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="ship-street">Street Address <span class="required">*</span></label>
+                                    <input type="text" id="ship-street" required autocomplete="address-line1" placeholder="123 Main St">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ship-apt">Apt / Suite / Unit</label>
+                                    <input type="text" id="ship-apt" autocomplete="address-line2" placeholder="Apt 4B">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="ship-city">City <span class="required">*</span></label>
+                                        <input type="text" id="ship-city" required autocomplete="address-level2">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ship-state">State <span class="required">*</span></label>
+                                        <select id="ship-state" required autocomplete="address-level1" class="checkout-select">
+                                            <option value="">Select State</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="ship-zip">ZIP Code <span class="required">*</span></label>
+                                        <input type="text" id="ship-zip" required autocomplete="postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10" placeholder="12345">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="ship-phone">Phone <span class="required">*</span></label>
+                                        <input type="tel" id="ship-phone" required autocomplete="tel" placeholder="(555) 123-4567">
+                                    </div>
+                                </div>
+
+                                <div class="checkout-checkbox-group">
+                                    <label class="checkout-checkbox">
+                                        <input type="checkbox" id="save-address-check">
+                                        <span>Save this address for future orders</span>
+                                    </label>
+                                </div>
+
+                                <div class="checkout-checkbox-group">
+                                    <label class="checkout-checkbox">
+                                        <input type="checkbox" id="billing-same-check" checked onchange="toggleBillingForm()">
+                                        <span>Billing address is the same as shipping</span>
+                                    </label>
+                                </div>
+
+                                <!-- Billing Address (hidden by default) -->
+                                <div id="billing-form-section" style="display:none;">
+                                    <h3 class="checkout-subsection-title">Billing Address</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="bill-first-name">First Name <span class="required">*</span></label>
+                                            <input type="text" id="bill-first-name" autocomplete="billing given-name">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bill-last-name">Last Name <span class="required">*</span></label>
+                                            <input type="text" id="bill-last-name" autocomplete="billing family-name">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bill-street">Street Address <span class="required">*</span></label>
+                                        <input type="text" id="bill-street" autocomplete="billing address-line1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="bill-apt">Apt / Suite / Unit</label>
+                                        <input type="text" id="bill-apt" autocomplete="billing address-line2">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="bill-city">City <span class="required">*</span></label>
+                                            <input type="text" id="bill-city" autocomplete="billing address-level2">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bill-state">State <span class="required">*</span></label>
+                                            <select id="bill-state" autocomplete="billing address-level1" class="checkout-select">
+                                                <option value="">Select State</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="bill-zip">ZIP Code <span class="required">*</span></label>
+                                            <input type="text" id="bill-zip" autocomplete="billing postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bill-phone">Phone</label>
+                                            <input type="tel" id="bill-phone" autocomplete="billing tel">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="checkout-step-actions">
+                                <a href="cart.html" class="btn btn-outline-dark">Back to Cart</a>
+                                <button class="btn btn-primary" onclick="goToStep(2)">Continue to Shipping Method</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Shipping Method -->
+                        <div class="checkout-step" id="step-2">
+                            <h2 class="checkout-step-title">Shipping Method</h2>
+
+                            <div id="shipping-methods-loading" class="loading-state">Loading shipping options...</div>
+                            <div id="shipping-methods-list" class="shipping-methods-list"></div>
+                            <div id="shipping-methods-error" class="checkout-error-msg" style="display:none;">
+                                Failed to load shipping methods. Please try again.
+                            </div>
+
+                            <div class="checkout-step-actions">
+                                <button class="btn btn-outline-dark" onclick="goToStep(1)">Back to Shipping Address</button>
+                                <button class="btn btn-primary" onclick="goToStep(3)">Continue to Payment</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Payment -->
+                        <div class="checkout-step" id="step-3">
+                            <h2 class="checkout-step-title">Payment</h2>
+
+                            <div class="checkout-payment-info">
+                                <div class="payment-note">
+                                    <span class="payment-note-icon">&#128179;</span>
+                                    <p>PayPal is our only payment method at this time. You will be redirected to PayPal to complete your payment securely.</p>
+                                </div>
+
+                                <div class="paypal-button-area" id="paypal-button-area">
+                                    <button class="btn-paypal" id="paypal-btn" onclick="authorizePaypal()">
+                                        <svg class="paypal-logo" viewBox="0 0 100 32" width="100" height="32" xmlns="http://www.w3.org/2000/svg">
+                                            <text x="0" y="24" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#fff">Pay</text>
+                                            <text x="38" y="24" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#a8d8ff">Pal</text>
+                                        </svg>
+                                        <span>Pay with PayPal</span>
+                                    </button>
+                                    <div class="paypal-smart-buttons" id="paypal-smart-buttons">
+                                        <!-- PayPal Smart Payment Buttons would render here when PayPal SDK is integrated -->
+                                    </div>
+                                </div>
+
+                                <div id="payment-authorized" class="payment-authorized" style="display:none;">
+                                    <span class="payment-authorized-icon">&#9989;</span>
+                                    <div>
+                                        <strong>PayPal payment authorized</strong>
+                                        <p>Your payment has been pre-authorized. It will be captured when you place the order.</p>
+                                    </div>
+                                </div>
+
+                                <div id="payment-error" class="checkout-error-msg" style="display:none;"></div>
+                            </div>
+
+                            <div class="checkout-step-actions">
+                                <button class="btn btn-outline-dark" onclick="goToStep(2)">Back to Shipping Method</button>
+                                <button class="btn btn-primary" onclick="goToStep(4)" id="continue-to-review-btn">Continue to Review</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Review & Place Order -->
+                        <div class="checkout-step" id="step-4">
+                            <h2 class="checkout-step-title">Review &amp; Place Order</h2>
+
+                            <!-- Review: Items -->
+                            <div class="review-section">
+                                <div class="review-section-header">
+                                    <h3>Order Items</h3>
+                                    <a href="cart.html" class="review-edit-link">Edit Cart</a>
+                                </div>
+                                <div id="review-items" class="review-items"></div>
+                            </div>
+
+                            <!-- Review: Shipping Address -->
+                            <div class="review-section">
+                                <div class="review-section-header">
+                                    <h3>Shipping Address</h3>
+                                    <button class="review-edit-link" onclick="goToStep(1)">Edit</button>
+                                </div>
+                                <div id="review-shipping-address" class="review-detail"></div>
+                            </div>
+
+                            <!-- Review: Shipping Method -->
+                            <div class="review-section">
+                                <div class="review-section-header">
+                                    <h3>Shipping Method</h3>
+                                    <button class="review-edit-link" onclick="goToStep(2)">Edit</button>
+                                </div>
+                                <div id="review-shipping-method" class="review-detail"></div>
+                            </div>
+
+                            <!-- Review: Payment -->
+                            <div class="review-section">
+                                <div class="review-section-header">
+                                    <h3>Payment Method</h3>
+                                    <button class="review-edit-link" onclick="goToStep(3)">Edit</button>
+                                </div>
+                                <div id="review-payment" class="review-detail"></div>
+                            </div>
+
+                            <!-- Review: Order Totals -->
+                            <div class="review-section">
+                                <h3>Order Total</h3>
+                                <div class="review-totals">
+                                    <div class="review-total-line">
+                                        <span>Subtotal</span>
+                                        <span id="review-subtotal">$0.00</span>
+                                    </div>
+                                    <div class="review-total-line" id="review-discount-line" style="display:none;">
+                                        <span>Discount <span id="review-coupon-code"></span></span>
+                                        <span id="review-discount" class="discount-amount">-$0.00</span>
+                                    </div>
+                                    <div class="review-total-line">
+                                        <span>Shipping</span>
+                                        <span id="review-shipping-cost">$0.00</span>
+                                    </div>
+                                    <div class="review-total-line">
+                                        <span>Tax</span>
+                                        <span id="review-tax">$0.00</span>
+                                    </div>
+                                    <div class="review-total-line review-total-final">
+                                        <span>Total</span>
+                                        <span id="review-total">$0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Notes -->
+                            <div class="review-section">
+                                <h3>Order Notes</h3>
+                                <textarea id="order-notes" class="checkout-textarea" rows="3" placeholder="Add any special instructions for your order (optional)..."></textarea>
+                            </div>
+
+                            <!-- Gift Message -->
+                            <div class="review-section">
+                                <div class="checkout-checkbox-group">
+                                    <label class="checkout-checkbox">
+                                        <input type="checkbox" id="gift-message-check" onchange="toggleGiftMessage()">
+                                        <span>This order is a gift - add a gift message</span>
+                                    </label>
+                                </div>
+                                <div id="gift-message-section" style="display:none;">
+                                    <textarea id="gift-message" class="checkout-textarea" rows="3" placeholder="Enter your gift message..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Terms & Conditions -->
+                            <div class="review-section">
+                                <div class="checkout-checkbox-group">
+                                    <label class="checkout-checkbox">
+                                        <input type="checkbox" id="terms-check">
+                                        <span>I agree to the <a href="#" onclick="return false;">Terms &amp; Conditions</a> and <a href="#" onclick="return false;">Privacy Policy</a> <span class="required">*</span></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="place-order-error" class="checkout-error-msg" style="display:none;"></div>
+
+                            <div class="checkout-step-actions">
+                                <button class="btn btn-outline-dark" onclick="goToStep(3)">Back to Payment</button>
+                                <button class="btn btn-primary btn-place-order" id="place-order-btn" onclick="placeOrder()">
+                                    <span id="place-order-text">Place Order</span>
+                                    <span id="place-order-spinner" class="btn-spinner" style="display:none;"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Order Confirmation -->
+                        <div class="checkout-step" id="step-confirmation" style="display:none;">
+                            <div class="order-confirmation">
+                                <div class="confirmation-icon">&#9989;</div>
+                                <h2>Order Placed Successfully!</h2>
+                                <p class="confirmation-message">Thank you for your order. We'll start tying your flies right away.</p>
+                                <div class="confirmation-order-number">
+                                    <span>Order Number</span>
+                                    <strong id="confirmation-order-id"></strong>
+                                </div>
+                                <p class="confirmation-email">A confirmation email has been sent to your account email address.</p>
+                                <div class="confirmation-actions">
+                                    <a href="account.html" class="btn btn-primary">View Order History</a>
+                                    <a href="catalog.html" class="btn btn-outline-dark">Continue Shopping</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary Sidebar -->
+                    <div class="checkout-sidebar" id="checkout-sidebar">
+                        <div class="checkout-sidebar-card">
+                            <div class="sidebar-header">
+                                <h3>Order Summary</h3>
+                                <a href="cart.html" class="sidebar-edit-link">Edit Cart</a>
+                            </div>
+
+                            <div id="sidebar-items" class="sidebar-items"></div>
+
+                            <div class="sidebar-totals">
+                                <div class="sidebar-total-line">
+                                    <span>Subtotal</span>
+                                    <span id="sidebar-subtotal">$0.00</span>
+                                </div>
+                                <div class="sidebar-total-line" id="sidebar-discount-line" style="display:none;">
+                                    <span>Discount</span>
+                                    <span id="sidebar-discount" class="discount-amount">-$0.00</span>
+                                </div>
+                                <div class="sidebar-total-line">
+                                    <span>Shipping</span>
+                                    <span id="sidebar-shipping">--</span>
+                                </div>
+                                <div class="sidebar-total-line">
+                                    <span>Tax</span>
+                                    <span id="sidebar-tax">--</span>
+                                </div>
+                                <div class="sidebar-total-line sidebar-total-final">
+                                    <span>Total</span>
+                                    <span id="sidebar-total">$0.00</span>
+                                </div>
+                            </div>
+
+                            <div class="cart-trust">
+                                <div class="trust-item">&#128274; Secure Checkout</div>
+                                <div class="trust-item">&#128666; Free shipping over $50</div>
+                                <div class="trust-item">&#9989; Quality guarantee</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="toast" class="toast"></div>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand"><h3><img src="logo.jpeg" alt="On Point Flies logo" class="footer-logo-img">On Point <span>Flies</span></h3><p>Premium hand-tied flies for the passionate fly fisher.</p></div>
+            <div><h4>Navigate</h4><ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="catalog.html">Catalog</a></li></ul></div>
+            <div><h4>Orders</h4><ul class="footer-links"><li><a href="order.html">How to Order</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 On Point Flies. All rights reserved.</p></div>
+    </footer>
+
+<script>
+var AUTH0_CONFIG = { domain: '', clientId: '', redirectUri: window.location.origin + '/checkout.html' };
+var auth0Client = null;
+var isAuthenticated = false;
+
+var checkoutData = {
+    items: [],
+    shippingAddress: null,
+    billingAddress: null,
+    billingSameAsShipping: true,
+    shippingMethod: null,
+    shippingMethods: [],
+    paymentAuthorized: false,
+    couponCode: null,
+    subtotal: 0,
+    discount: 0,
+    shippingCost: 0,
+    tax: 0,
+    total: 0,
+    orderNotes: '',
+    giftMessage: ''
+};
+
+var currentStep = 1;
+var savedAddresses = [];
+var isSubmitting = false;
+
+var US_STATES = [
+    { code: 'AL', name: 'Alabama' }, { code: 'AK', name: 'Alaska' }, { code: 'AZ', name: 'Arizona' },
+    { code: 'AR', name: 'Arkansas' }, { code: 'CA', name: 'California' }, { code: 'CO', name: 'Colorado' },
+    { code: 'CT', name: 'Connecticut' }, { code: 'DE', name: 'Delaware' }, { code: 'FL', name: 'Florida' },
+    { code: 'GA', name: 'Georgia' }, { code: 'HI', name: 'Hawaii' }, { code: 'ID', name: 'Idaho' },
+    { code: 'IL', name: 'Illinois' }, { code: 'IN', name: 'Indiana' }, { code: 'IA', name: 'Iowa' },
+    { code: 'KS', name: 'Kansas' }, { code: 'KY', name: 'Kentucky' }, { code: 'LA', name: 'Louisiana' },
+    { code: 'ME', name: 'Maine' }, { code: 'MD', name: 'Maryland' }, { code: 'MA', name: 'Massachusetts' },
+    { code: 'MI', name: 'Michigan' }, { code: 'MN', name: 'Minnesota' }, { code: 'MS', name: 'Mississippi' },
+    { code: 'MO', name: 'Missouri' }, { code: 'MT', name: 'Montana' }, { code: 'NE', name: 'Nebraska' },
+    { code: 'NV', name: 'Nevada' }, { code: 'NH', name: 'New Hampshire' }, { code: 'NJ', name: 'New Jersey' },
+    { code: 'NM', name: 'New Mexico' }, { code: 'NY', name: 'New York' }, { code: 'NC', name: 'North Carolina' },
+    { code: 'ND', name: 'North Dakota' }, { code: 'OH', name: 'Ohio' }, { code: 'OK', name: 'Oklahoma' },
+    { code: 'OR', name: 'Oregon' }, { code: 'PA', name: 'Pennsylvania' }, { code: 'RI', name: 'Rhode Island' },
+    { code: 'SC', name: 'South Carolina' }, { code: 'SD', name: 'South Dakota' }, { code: 'TN', name: 'Tennessee' },
+    { code: 'TX', name: 'Texas' }, { code: 'UT', name: 'Utah' }, { code: 'VT', name: 'Vermont' },
+    { code: 'VA', name: 'Virginia' }, { code: 'WA', name: 'Washington' }, { code: 'WV', name: 'West Virginia' },
+    { code: 'WI', name: 'Wisconsin' }, { code: 'WY', name: 'Wyoming' }, { code: 'DC', name: 'District of Columbia' }
+];
+
+async function loadAuth0Config() {
+    var resp = await fetch('/api/auth-config');
+    var config = await resp.json();
+    AUTH0_CONFIG.domain = config.domain;
+    AUTH0_CONFIG.clientId = config.clientId;
+}
+
+function showToast(message, type) {
+    type = type || 'success';
+    var toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast ' + type + ' show';
+    setTimeout(function() { toast.className = 'toast'; }, 3000);
+}
+
+async function initAuth0() {
+    try {
+        await loadAuth0Config();
+        auth0Client = await auth0.createAuth0Client({
+            domain: AUTH0_CONFIG.domain,
+            clientId: AUTH0_CONFIG.clientId,
+            cacheLocation: 'localstorage',
+            authorizationParams: { redirect_uri: AUTH0_CONFIG.redirectUri }
+        });
+
+        if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+            await auth0Client.handleRedirectCallback();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        isAuthenticated = await auth0Client.isAuthenticated();
+
+        if (!isAuthenticated) {
+            window.location.href = 'account.html';
+            return;
+        }
+
+        await OPF_API.setToken(auth0Client);
+        try { await OPF_API.syncUser(); } catch(e) { console.error('User sync:', e); }
+        await OPF_API.migrateLocalData();
+
+        initCheckout();
+    } catch (err) {
+        console.error('Auth0 error:', err);
+        showToast('Authentication error. Please try again.', 'error');
+        setTimeout(function() { window.location.href = 'account.html'; }, 2000);
+    }
+}
+
+function populateStateDropdowns() {
+    var shipState = document.getElementById('ship-state');
+    var billState = document.getElementById('bill-state');
+    for (var i = 0; i < US_STATES.length; i++) {
+        var opt1 = document.createElement('option');
+        opt1.value = US_STATES[i].code;
+        opt1.textContent = US_STATES[i].name;
+        shipState.appendChild(opt1);
+
+        var opt2 = document.createElement('option');
+        opt2.value = US_STATES[i].code;
+        opt2.textContent = US_STATES[i].name;
+        billState.appendChild(opt2);
+    }
+}
+
+async function initCheckout() {
+    populateStateDropdowns();
+
+    // Retrieve coupon code from cart page if available
+    var savedCoupon = sessionStorage.getItem('opf_coupon') || null;
+
+    try {
+        var preview = await OPF_API.getCheckoutPreview(null, null, savedCoupon);
+        if (!preview.items || preview.items.length === 0) {
+            window.location.href = 'cart.html';
+            return;
+        }
+
+        checkoutData.items = preview.items;
+        checkoutData.subtotal = preview.subtotal || 0;
+        checkoutData.discount = preview.discount || 0;
+        checkoutData.couponCode = (preview.coupon && preview.coupon.code) ? preview.coupon.code : savedCoupon;
+        checkoutData.tax = preview.tax || 0;
+        checkoutData.total = preview.total || checkoutData.subtotal;
+
+        document.getElementById('checkout-loading').style.display = 'none';
+        document.getElementById('checkout-content').style.display = 'block';
+
+        renderSidebarItems();
+        updateSidebarTotals();
+        updateCartBadge();
+
+        loadSavedAddresses();
+    } catch (err) {
+        console.error('Checkout init error:', err);
+        document.getElementById('checkout-loading').textContent = 'Failed to load checkout. Redirecting to cart...';
+        setTimeout(function() { window.location.href = 'cart.html'; }, 2000);
+    }
+}
+
+async function loadSavedAddresses() {
+    try {
+        var result = await OPF_API.getAddresses();
+        savedAddresses = result.addresses || result || [];
+        if (savedAddresses.length > 0) {
+            var select = document.getElementById('saved-addresses');
+            for (var i = 0; i < savedAddresses.length; i++) {
+                var addr = savedAddresses[i];
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = (addr.firstName || '') + ' ' + (addr.lastName || '') + ' - ' + (addr.street || '') + ', ' + (addr.city || '') + ', ' + (addr.state || '');
+                select.appendChild(opt);
+            }
+            document.getElementById('saved-addresses-group').style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Load addresses error:', e);
+    }
+}
+
+function fillSavedAddress() {
+    var select = document.getElementById('saved-addresses');
+    var idx = select.value;
+    if (idx === '') return;
+
+    var addr = savedAddresses[parseInt(idx)];
+    if (!addr) return;
+
+    document.getElementById('ship-first-name').value = addr.firstName || '';
+    document.getElementById('ship-last-name').value = addr.lastName || '';
+    document.getElementById('ship-street').value = addr.street || '';
+    document.getElementById('ship-apt').value = addr.street2 || addr.apt || '';
+    document.getElementById('ship-city').value = addr.city || '';
+    document.getElementById('ship-state').value = addr.state || '';
+    document.getElementById('ship-zip').value = addr.zip || '';
+    document.getElementById('ship-phone').value = addr.phone || '';
+}
+
+function toggleBillingForm() {
+    var checked = document.getElementById('billing-same-check').checked;
+    var billingSection = document.getElementById('billing-form-section');
+    billingSection.style.display = checked ? 'none' : 'block';
+    checkoutData.billingSameAsShipping = checked;
+}
+
+function toggleGiftMessage() {
+    var checked = document.getElementById('gift-message-check').checked;
+    document.getElementById('gift-message-section').style.display = checked ? 'block' : 'none';
+}
+
+function getShippingAddressData() {
+    return {
+        firstName: document.getElementById('ship-first-name').value.trim(),
+        lastName: document.getElementById('ship-last-name').value.trim(),
+        street: document.getElementById('ship-street').value.trim(),
+        apt: document.getElementById('ship-apt').value.trim(),
+        city: document.getElementById('ship-city').value.trim(),
+        state: document.getElementById('ship-state').value,
+        zip: document.getElementById('ship-zip').value.trim(),
+        phone: document.getElementById('ship-phone').value.trim()
+    };
+}
+
+function getBillingAddressData() {
+    if (checkoutData.billingSameAsShipping) {
+        return getShippingAddressData();
+    }
+    return {
+        firstName: document.getElementById('bill-first-name').value.trim(),
+        lastName: document.getElementById('bill-last-name').value.trim(),
+        street: document.getElementById('bill-street').value.trim(),
+        apt: document.getElementById('bill-apt').value.trim(),
+        city: document.getElementById('bill-city').value.trim(),
+        state: document.getElementById('bill-state').value,
+        zip: document.getElementById('bill-zip').value.trim(),
+        phone: document.getElementById('bill-phone').value.trim()
+    };
+}
+
+function validateShippingAddress() {
+    var addr = getShippingAddressData();
+    if (!addr.firstName) { showToast('Please enter your first name', 'error'); return false; }
+    if (!addr.lastName) { showToast('Please enter your last name', 'error'); return false; }
+    if (!addr.street) { showToast('Please enter your street address', 'error'); return false; }
+    if (!addr.city) { showToast('Please enter your city', 'error'); return false; }
+    if (!addr.state) { showToast('Please select your state', 'error'); return false; }
+    if (!addr.zip) { showToast('Please enter your ZIP code', 'error'); return false; }
+    if (!/^[0-9]{5}(-[0-9]{4})?$/.test(addr.zip)) { showToast('Please enter a valid ZIP code', 'error'); return false; }
+    if (!addr.phone) { showToast('Please enter your phone number', 'error'); return false; }
+
+    if (!checkoutData.billingSameAsShipping) {
+        var billing = getBillingAddressData();
+        if (!billing.firstName) { showToast('Please enter billing first name', 'error'); return false; }
+        if (!billing.lastName) { showToast('Please enter billing last name', 'error'); return false; }
+        if (!billing.street) { showToast('Please enter billing street address', 'error'); return false; }
+        if (!billing.city) { showToast('Please enter billing city', 'error'); return false; }
+        if (!billing.state) { showToast('Please select billing state', 'error'); return false; }
+        if (!billing.zip) { showToast('Please enter billing ZIP code', 'error'); return false; }
+        if (!/^[0-9]{5}(-[0-9]{4})?$/.test(billing.zip)) { showToast('Please enter a valid billing ZIP code', 'error'); return false; }
+    }
+
+    return true;
+}
+
+function validateShippingMethod() {
+    if (!checkoutData.shippingMethod) {
+        showToast('Please select a shipping method', 'error');
+        return false;
+    }
+    return true;
+}
+
+function validatePayment() {
+    if (!checkoutData.paymentAuthorized) {
+        showToast('Please authorize payment via PayPal', 'error');
+        return false;
+    }
+    return true;
+}
+
+async function goToStep(step) {
+    // Validate current step before moving forward
+    if (step > currentStep) {
+        if (currentStep === 1 && !validateShippingAddress()) return;
+        if (currentStep === 2 && !validateShippingMethod()) return;
+        if (currentStep === 3 && !validatePayment()) return;
+    }
+
+    // Save data from current step
+    if (currentStep === 1) {
+        checkoutData.shippingAddress = getShippingAddressData();
+        checkoutData.billingAddress = getBillingAddressData();
+
+        if (document.getElementById('save-address-check').checked) {
+            try {
+                await OPF_API.addAddress(checkoutData.shippingAddress);
+            } catch (e) {
+                console.error('Save address error:', e);
+            }
+        }
+    }
+
+    // Load step-specific data
+    if (step === 2 && checkoutData.shippingMethods.length === 0) {
+        loadShippingMethods();
+    }
+
+    if (step === 4) {
+        populateReviewStep();
+    }
+
+    // Update totals when shipping address state changes
+    if (step >= 2 && checkoutData.shippingAddress) {
+        updateCheckoutTotals();
+    }
+
+    // Switch steps
+    currentStep = step;
+    var steps = document.querySelectorAll('.checkout-step');
+    for (var i = 0; i < steps.length; i++) {
+        steps[i].classList.remove('active');
+    }
+    document.getElementById('step-' + step).classList.add('active');
+
+    // Update progress indicator
+    var progressSteps = document.querySelectorAll('.progress-step');
+    for (var i = 0; i < progressSteps.length; i++) {
+        var stepNum = parseInt(progressSteps[i].getAttribute('data-step'));
+        progressSteps[i].classList.remove('active', 'completed');
+        if (stepNum === step) {
+            progressSteps[i].classList.add('active');
+        } else if (stepNum < step) {
+            progressSteps[i].classList.add('completed');
+        }
+    }
+
+    // Scroll to top of checkout area
+    document.getElementById('checkout-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function loadShippingMethods() {
+    var loadingEl = document.getElementById('shipping-methods-loading');
+    var listEl = document.getElementById('shipping-methods-list');
+    var errorEl = document.getElementById('shipping-methods-error');
+
+    loadingEl.style.display = 'block';
+    listEl.innerHTML = '';
+    errorEl.style.display = 'none';
+
+    try {
+        var result = await OPF_API.getShippingMethods();
+        var methods = result.methods || result || [];
+
+        // Provide fallback shipping methods if API returns empty
+        if (!methods || methods.length === 0) {
+            methods = [
+                { id: 'standard', name: 'Standard Shipping', description: '5-7 business days', price: 4.99, freeOver: 50 },
+                { id: 'priority', name: 'Priority Shipping', description: '2-3 business days', price: 9.99 },
+                { id: 'express', name: 'Express Shipping', description: '1-2 business days', price: 14.99 },
+                { id: 'pickup', name: 'In-Store Pickup', description: 'Pick up at our location', price: 0 }
+            ];
+        }
+
+        checkoutData.shippingMethods = methods;
+        loadingEl.style.display = 'none';
+
+        var html = '';
+        for (var i = 0; i < methods.length; i++) {
+            var m = methods[i];
+            var price = parseFloat(m.baseRate !== undefined ? m.baseRate : m.price) || 0;
+            var isFree = m.id === 'pickup' || price === 0;
+            var freeThreshold = m.freeThreshold || m.freeOver || null;
+            var freeShipping = freeThreshold && checkoutData.subtotal >= freeThreshold;
+            var displayPrice = isFree ? 'FREE' : (freeShipping ? '<span class="shipping-original-price">$' + price.toFixed(2) + '</span> FREE' : '$' + price.toFixed(2));
+            var estimatedDate = getEstimatedDelivery(m);
+            var checked = (checkoutData.shippingMethod && checkoutData.shippingMethod.id === m.id) ? ' checked' : '';
+
+            html += '<label class="shipping-method-option' + (checked ? ' selected' : '') + '" for="shipping-' + m.id + '">' +
+                '<input type="radio" name="shipping-method" id="shipping-' + m.id + '" value="' + m.id + '"' + checked + ' onchange="selectShippingMethod(\'' + m.id + '\')">' +
+                '<div class="shipping-method-info">' +
+                    '<div class="shipping-method-name">' + m.name + '</div>' +
+                    '<div class="shipping-method-desc">' + (m.description || '') + '</div>' +
+                    '<div class="shipping-method-delivery">Estimated delivery: ' + estimatedDate + '</div>' +
+                '</div>' +
+                '<div class="shipping-method-price">' + displayPrice + '</div>' +
+            '</label>';
+        }
+        listEl.innerHTML = html;
+    } catch (err) {
+        console.error('Load shipping methods error:', err);
+        loadingEl.style.display = 'none';
+        errorEl.style.display = 'block';
+    }
+}
+
+function getEstimatedDelivery(method) {
+    var now = new Date();
+    var minDays = 5;
+    var maxDays = 7;
+
+    if (method.id === 'standard') { minDays = 5; maxDays = 7; }
+    else if (method.id === 'priority') { minDays = 2; maxDays = 3; }
+    else if (method.id === 'express') { minDays = 1; maxDays = 2; }
+    else if (method.id === 'pickup') { return 'Available same day'; }
+
+    var minDate = new Date(now);
+    minDate.setDate(minDate.getDate() + minDays);
+    var maxDate = new Date(now);
+    maxDate.setDate(maxDate.getDate() + maxDays);
+
+    var opts = { month: 'short', day: 'numeric' };
+    return minDate.toLocaleDateString('en-US', opts) + ' - ' + maxDate.toLocaleDateString('en-US', opts);
+}
+
+function selectShippingMethod(methodId) {
+    var method = checkoutData.shippingMethods.find(function(m) { return m.id === methodId; });
+    if (!method) return;
+
+    checkoutData.shippingMethod = method;
+
+    // Update selected styling
+    var options = document.querySelectorAll('.shipping-method-option');
+    for (var i = 0; i < options.length; i++) {
+        options[i].classList.remove('selected');
+    }
+    var selected = document.querySelector('#shipping-' + methodId);
+    if (selected && selected.closest) {
+        selected.closest('.shipping-method-option').classList.add('selected');
+    }
+
+    updateCheckoutTotals();
+}
+
+async function updateCheckoutTotals() {
+    var state = checkoutData.shippingAddress ? checkoutData.shippingAddress.state : null;
+    var methodId = checkoutData.shippingMethod ? checkoutData.shippingMethod.id : null;
+
+    try {
+        var preview = await OPF_API.getCheckoutPreview(state, methodId, checkoutData.couponCode);
+        checkoutData.subtotal = preview.subtotal || checkoutData.subtotal;
+        checkoutData.discount = preview.discount || 0;
+        checkoutData.shippingCost = preview.shipping !== undefined ? preview.shipping : (checkoutData.shippingMethod ? calculateShippingCost() : 0);
+        checkoutData.tax = preview.tax || 0;
+        checkoutData.total = preview.total || (checkoutData.subtotal - checkoutData.discount + checkoutData.shippingCost + checkoutData.tax);
+    } catch (e) {
+        // Calculate locally as a fallback
+        checkoutData.shippingCost = calculateShippingCost();
+        checkoutData.total = checkoutData.subtotal - checkoutData.discount + checkoutData.shippingCost + checkoutData.tax;
+    }
+
+    updateSidebarTotals();
+}
+
+function calculateShippingCost() {
+    if (!checkoutData.shippingMethod) return 0;
+    var method = checkoutData.shippingMethod;
+    var price = parseFloat(method.baseRate !== undefined ? method.baseRate : method.price) || 0;
+    var freeThreshold = method.freeThreshold || method.freeOver || null;
+    if (freeThreshold && checkoutData.subtotal >= freeThreshold) return 0;
+    if (method.id === 'pickup') return 0;
+    return price;
+}
+
+function authorizePaypal() {
+    // Simulate PayPal authorization
+    // In production, this would open the PayPal flow via PayPal SDK
+    var btn = document.getElementById('paypal-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span>Connecting to PayPal...</span>';
+
+    setTimeout(function() {
+        checkoutData.paymentAuthorized = true;
+        document.getElementById('paypal-button-area').style.display = 'none';
+        document.getElementById('payment-authorized').style.display = 'flex';
+        document.getElementById('payment-error').style.display = 'none';
+        showToast('PayPal payment authorized');
+    }, 1500);
+}
+
+function populateReviewStep() {
+    // Render review items
+    var itemsHtml = '';
+    for (var i = 0; i < checkoutData.items.length; i++) {
+        var item = checkoutData.items[i];
+        var lineTotal = (parseFloat(item.price) || 2.50) * item.quantity;
+        itemsHtml += '<div class="review-item">' +
+            '<img src="' + (item.image || 'https://via.placeholder.com/60') + '" alt="' + item.name + '" class="review-item-image">' +
+            '<div class="review-item-info">' +
+                '<div class="review-item-name">' + item.name + '</div>' +
+                '<div class="review-item-meta">Qty: ' + item.quantity + '</div>' +
+            '</div>' +
+            '<div class="review-item-price">$' + lineTotal.toFixed(2) + '</div>' +
+        '</div>';
+    }
+    document.getElementById('review-items').innerHTML = itemsHtml;
+
+    // Shipping address
+    var addr = checkoutData.shippingAddress;
+    if (addr) {
+        var stateName = getStateName(addr.state);
+        document.getElementById('review-shipping-address').innerHTML =
+            '<p>' + addr.firstName + ' ' + addr.lastName + '</p>' +
+            '<p>' + addr.street + (addr.apt ? ', ' + addr.apt : '') + '</p>' +
+            '<p>' + addr.city + ', ' + stateName + ' ' + addr.zip + '</p>' +
+            '<p>' + addr.phone + '</p>';
+    }
+
+    // Shipping method
+    var method = checkoutData.shippingMethod;
+    if (method) {
+        var cost = checkoutData.shippingCost;
+        document.getElementById('review-shipping-method').innerHTML =
+            '<p><strong>' + method.name + '</strong></p>' +
+            '<p>' + (method.description || '') + ' &mdash; ' + (cost === 0 ? 'FREE' : '$' + cost.toFixed(2)) + '</p>';
+    }
+
+    // Payment
+    document.getElementById('review-payment').innerHTML =
+        '<p><strong>PayPal</strong></p>' +
+        '<p>Payment has been pre-authorized via PayPal.</p>';
+
+    // Totals
+    document.getElementById('review-subtotal').textContent = '$' + checkoutData.subtotal.toFixed(2);
+    document.getElementById('review-shipping-cost').textContent = checkoutData.shippingCost === 0 ? 'FREE' : '$' + checkoutData.shippingCost.toFixed(2);
+    document.getElementById('review-tax').textContent = '$' + checkoutData.tax.toFixed(2);
+    document.getElementById('review-total').textContent = '$' + checkoutData.total.toFixed(2);
+
+    if (checkoutData.discount > 0) {
+        document.getElementById('review-discount-line').style.display = 'flex';
+        document.getElementById('review-discount').textContent = '-$' + checkoutData.discount.toFixed(2);
+        if (checkoutData.couponCode) {
+            document.getElementById('review-coupon-code').textContent = '(' + checkoutData.couponCode + ')';
+        }
+    } else {
+        document.getElementById('review-discount-line').style.display = 'none';
+    }
+}
+
+function getStateName(code) {
+    var state = US_STATES.find(function(s) { return s.code === code; });
+    return state ? state.name : code;
+}
+
+async function placeOrder() {
+    if (isSubmitting) return;
+
+    // Validate terms
+    if (!document.getElementById('terms-check').checked) {
+        showToast('Please agree to the Terms & Conditions', 'error');
+        return;
+    }
+
+    isSubmitting = true;
+    var placeBtn = document.getElementById('place-order-btn');
+    var btnText = document.getElementById('place-order-text');
+    var btnSpinner = document.getElementById('place-order-spinner');
+    var errorEl = document.getElementById('place-order-error');
+
+    placeBtn.disabled = true;
+    btnText.textContent = 'Placing Order...';
+    btnSpinner.style.display = 'inline-block';
+    errorEl.style.display = 'none';
+
+    var orderNotes = document.getElementById('order-notes').value.trim();
+    var giftMessage = '';
+    if (document.getElementById('gift-message-check').checked) {
+        giftMessage = document.getElementById('gift-message').value.trim();
+    }
+
+    var orderData = {
+        shippingAddress: checkoutData.shippingAddress,
+        billingAddress: checkoutData.billingAddress,
+        shippingMethod: checkoutData.shippingMethod ? checkoutData.shippingMethod.id : 'standard',
+        paymentMethod: 'paypal',
+        couponCode: checkoutData.couponCode || null,
+        notes: orderNotes,
+        giftMessage: giftMessage,
+        termsAccepted: true,
+        saveAddress: document.getElementById('save-address-check').checked,
+        subtotal: checkoutData.subtotal,
+        discount: checkoutData.discount,
+        shippingCost: checkoutData.shippingCost,
+        tax: checkoutData.tax,
+        total: checkoutData.total
+    };
+
+    try {
+        var result = await OPF_API.placeCheckoutOrder(orderData);
+
+        // Show confirmation
+        var steps = document.querySelectorAll('.checkout-step');
+        for (var i = 0; i < steps.length; i++) {
+            steps[i].classList.remove('active');
+        }
+
+        var confirmationStep = document.getElementById('step-confirmation');
+        confirmationStep.style.display = 'block';
+        confirmationStep.classList.add('active');
+
+        document.getElementById('confirmation-order-id').textContent = result.orderNumber || result.orderId || result.id || 'OPF-' + Date.now();
+
+        // Hide sidebar on confirmation
+        document.getElementById('checkout-sidebar').style.display = 'none';
+
+        // Hide progress bar
+        document.querySelector('.checkout-progress').style.display = 'none';
+
+        // Clear cart
+        try {
+            await OPF_API.clearCart();
+        } catch (e) {
+            console.error('Clear cart error:', e);
+        }
+
+        updateCartBadge(0);
+        showToast('Order placed successfully!');
+
+        // Scroll to top
+        document.getElementById('checkout-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (err) {
+        console.error('Place order error:', err);
+        errorEl.style.display = 'block';
+        errorEl.textContent = err.message || 'Failed to place order. Please try again.';
+        showToast('Failed to place order', 'error');
+    } finally {
+        isSubmitting = false;
+        placeBtn.disabled = false;
+        btnText.textContent = 'Place Order';
+        btnSpinner.style.display = 'none';
+    }
+}
+
+function renderSidebarItems() {
+    var container = document.getElementById('sidebar-items');
+    var html = '';
+    for (var i = 0; i < checkoutData.items.length; i++) {
+        var item = checkoutData.items[i];
+        var lineTotal = (parseFloat(item.price) || 2.50) * item.quantity;
+        html += '<div class="sidebar-item">' +
+            '<img src="' + (item.image || 'https://via.placeholder.com/48') + '" alt="' + item.name + '" class="sidebar-item-image">' +
+            '<div class="sidebar-item-info">' +
+                '<div class="sidebar-item-name">' + item.name + '</div>' +
+                '<div class="sidebar-item-qty">Qty: ' + item.quantity + '</div>' +
+            '</div>' +
+            '<div class="sidebar-item-price">$' + lineTotal.toFixed(2) + '</div>' +
+        '</div>';
+    }
+    container.innerHTML = html;
+}
+
+function updateSidebarTotals() {
+    document.getElementById('sidebar-subtotal').textContent = '$' + checkoutData.subtotal.toFixed(2);
+
+    if (checkoutData.discount > 0) {
+        document.getElementById('sidebar-discount-line').style.display = 'flex';
+        document.getElementById('sidebar-discount').textContent = '-$' + checkoutData.discount.toFixed(2);
+    } else {
+        document.getElementById('sidebar-discount-line').style.display = 'none';
+    }
+
+    document.getElementById('sidebar-shipping').textContent = checkoutData.shippingMethod
+        ? (checkoutData.shippingCost === 0 ? 'FREE' : '$' + checkoutData.shippingCost.toFixed(2))
+        : '--';
+
+    document.getElementById('sidebar-tax').textContent = checkoutData.tax > 0 ? '$' + checkoutData.tax.toFixed(2) : '--';
+
+    document.getElementById('sidebar-total').textContent = '$' + checkoutData.total.toFixed(2);
+}
+
+function updateCartBadge(count) {
+    var badge = document.getElementById('nav-cart-badge');
+    if (count !== undefined) {
+        if (count > 0) {
+            badge.style.display = 'inline-flex';
+            badge.textContent = count;
+        } else {
+            badge.style.display = 'none';
+        }
+        return;
+    }
+    var totalQty = checkoutData.items.reduce(function(s, i) { return s + i.quantity; }, 0);
+    if (totalQty > 0) {
+        badge.style.display = 'inline-flex';
+        badge.textContent = totalQty;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initAuth0();
+
+    var navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 50); });
+});
+</script>
+</body>
+</html>

@@ -27,6 +27,7 @@
                 <li><a href="inventory.html">Inventory</a></li>
                 <li><a href="order.html">Order</a></li>
                 <li><a href="contact.html">Contact</a></li>
+                <li><a href="cart.html" class="cart-nav-link" id="cart-link">Cart<span class="cart-badge" id="cart-badge" style="display:none;">0</span></a></li>
                 <li><a href="account.html">Account</a></li>
             </ul>
             <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
@@ -180,7 +181,7 @@
                 <ul class="footer-links">
                     <li><a href="order.html">How to Order</a></li>
                     <li><a href="order.html">Pricing</a></li>
-                    <li><a href="order.html">Shipping</a></li>
+                    <li><a href="cart.html">Shopping Cart</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
             </div>
@@ -198,15 +199,34 @@
     </footer>
 
     <script>
+        // Update cart badge from guest cart
+        (function() {
+            try {
+                var items = JSON.parse(localStorage.getItem('opf_guest_cart') || '[]');
+                var count = items.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
+                var badge = document.getElementById('cart-badge');
+                if (badge && count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
+            } catch(e) {}
+        })();
+
         // Navbar scroll effect
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
             navbar.classList.toggle('scrolled', window.scrollY > 50);
         });
 
-
         // Scroll animations
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('vis
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
