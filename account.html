@@ -140,15 +140,32 @@ async function initAuth0() {
             // Migrate any old localStorage data
             await OPF_API.migrateLocalData();
             showDashboard();
+            // Update cart badge
+            try {
+                var cart = await OPF_API.getCart();
+                var count = cart.itemCount || 0;
+                var badge = document.getElementById('cart-badge');
+                if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+                localStorage.setItem('opf_cart_count', count);
+            } catch(e) { console.error('Cart badge error:', e); }
         } else {
             showLogin();
+            // Show cart badge from localStorage
+            try {
+                var savedCount = parseInt(localStorage.getItem('opf_cart_count') || '0');
+                var guestItems = JSON.parse(localStorage.getItem('opf_guest_cart') || '[]');
+                var guestCount = guestItems.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
+                var count = Math.max(savedCount, guestCount);
+                var badge = document.getElementById('cart-badge');
+                if (badge && count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
+            } catch(e) {}
         }
     } catch (err) { console.error('Auth0 error:', err); }
 }
 
 async function login() { if (!auth0Client) { alert('Loading, please wait...'); return; } await auth0Client.loginWithRedirect(); }
 async function signup() { if (!auth0Client) { alert('Loading, please wait...'); return; } await auth0Client.loginWithRedirect({ authorizationParams: { screen_hint: 'signup' } }); }
-async function logout() { localStorage.removeItem('opf_favorites'); localStorage.removeItem('opf_shopping_list'); await auth0Client.logout({ logoutParams: { returnTo: window.location.origin } }); }
+async function logout() { localStorage.removeItem('opf_favorites'); localStorage.removeItem('opf_shopping_list'); localStorage.removeItem('opf_cart_count'); await auth0Client.logout({ logoutParams: { returnTo: window.location.origin } }); }
 
 function showLogin() { document.getElementById('auth-section').style.display = 'block'; document.getElementById('account-dashboard').style.display = 'none'; }
 function showDashboard() {
