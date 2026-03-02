@@ -16,7 +16,7 @@
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <script src="mobile-detect.js"></script>
 </head>
-<body>
+<body class="inner-page">
 
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
@@ -95,6 +95,8 @@
                 <div class="admin-tabs">
                     <button class="admin-tab active" data-panel="inventory-panel">Inventory</button>
                     <button class="admin-tab" data-panel="catalog-panel">Catalog</button>
+                    <button class="admin-tab" data-panel="orders-admin-panel">Orders</button>
+                    <button class="admin-tab" data-panel="coupons-admin-panel">Coupons</button>
                     <button class="admin-tab" data-panel="uploads-panel">Uploads</button>
                     <button class="admin-tab" data-panel="export-panel">Export Data</button>
                     <button class="admin-tab" data-panel="users-panel">Users</button>
@@ -141,6 +143,105 @@
                         <button class="btn btn-primary btn-sm" onclick="addCatalogItem()">+ Add Fly Pattern</button>
                     </div>
                     <div class="catalog-admin-grid" id="catalog-admin-grid"></div>
+                </div>
+
+                <!-- Orders Admin Panel -->
+                <div id="orders-admin-panel" class="admin-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Order Management</h3>
+                            <p>View and manage customer orders</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-filters">
+                        <select id="orders-status-filter" class="admin-select" onchange="loadAdminOrders()">
+                            <option value="">All Orders</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="processing">Processing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="refunded">Refunded</option>
+                        </select>
+                    </div>
+
+                    <div id="orders-admin-loading" class="loading-state">Loading orders...</div>
+                    <div id="orders-admin-list"></div>
+                    <div id="orders-admin-empty" class="empty-state" style="display:none;">
+                        <span class="empty-icon">&#128230;</span>
+                        <h4>No orders found</h4>
+                        <p>Orders will appear here when customers place them.</p>
+                    </div>
+                </div>
+
+                <!-- Coupons Admin Panel -->
+                <div id="coupons-admin-panel" class="admin-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Coupon Management</h3>
+                            <p>Create and manage promotional codes</p>
+                        </div>
+                        <button class="btn btn-primary btn-sm" onclick="showCouponModal()">+ Create Coupon</button>
+                    </div>
+
+                    <div id="coupons-admin-loading" class="loading-state">Loading coupons...</div>
+                    <div id="coupons-admin-list"></div>
+                    <div id="coupons-admin-empty" class="empty-state" style="display:none;">
+                        <span class="empty-icon">&#127991;</span>
+                        <h4>No coupons yet</h4>
+                        <p>Create promotional codes to offer discounts to your customers.</p>
+                    </div>
+
+                    <!-- Coupon Modal -->
+                    <div id="coupon-modal" style="display:none;" class="modal">
+                        <div class="modal-overlay" onclick="closeCouponModal()"></div>
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 id="coupon-modal-title">Create Coupon</h3>
+                                <button class="modal-close" onclick="closeCouponModal()">&times;</button>
+                            </div>
+                            <div id="coupon-modal-fields" style="padding:1.5rem;">
+                                <div class="form-group">
+                                    <label>Coupon Code</label>
+                                    <input type="text" id="coupon-code" placeholder="e.g. SAVE10" style="text-transform:uppercase;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Discount Type</label>
+                                    <select id="coupon-type">
+                                        <option value="percentage">Percentage Off</option>
+                                        <option value="fixed">Fixed Amount Off</option>
+                                        <option value="free_shipping">Free Shipping</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Value</label>
+                                    <input type="number" id="coupon-value" placeholder="e.g. 10 for 10% or $10" step="0.01" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description (shown to customers)</label>
+                                    <input type="text" id="coupon-description" placeholder="e.g. Save 10% on your order!">
+                                </div>
+                                <div class="form-group">
+                                    <label>Minimum Order Amount (optional)</label>
+                                    <input type="number" id="coupon-min-order" placeholder="e.g. 25.00" step="0.01" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Max Uses (optional, 0 = unlimited)</label>
+                                    <input type="number" id="coupon-max-uses" placeholder="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Expiration Date (optional)</label>
+                                    <input type="date" id="coupon-expires">
+                                </div>
+                            </div>
+                            <div class="modal-actions">
+                                <button class="btn btn-outline-dark" onclick="closeCouponModal()">Cancel</button>
+                                <button class="btn btn-primary" onclick="saveCoupon()">Save Coupon</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Uploads Panel -->
@@ -735,11 +836,11 @@
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
 
-        function showToast(message) {
+        function showToast(message, type) {
             var existing = document.querySelector('.toast');
             if (existing) existing.remove();
             var toast = document.createElement('div');
-            toast.className = 'toast';
+            toast.className = 'toast' + (type ? ' ' + type : '');
             toast.textContent = message;
             document.body.appendChild(toast);
             setTimeout(function() { toast.classList.add('show'); }, 10);
@@ -1111,6 +1212,227 @@
             event.target.value = '';
         }
 
+        // ---- Admin Orders Management ----
+        async function loadAdminOrders() {
+            var container = document.getElementById('orders-admin-list');
+            var loading = document.getElementById('orders-admin-loading');
+            var empty = document.getElementById('orders-admin-empty');
+            loading.style.display = 'block';
+            container.style.display = 'none';
+            empty.style.display = 'none';
+
+            try {
+                var statusFilter = document.getElementById('orders-status-filter').value;
+                var orders = await OPF_API.getAdminOrders(statusFilter || undefined);
+                loading.style.display = 'none';
+
+                if (!orders || orders.length === 0) {
+                    empty.style.display = 'block';
+                    return;
+                }
+                container.style.display = 'block';
+
+                var html = '';
+                for (var i = 0; i < orders.length; i++) {
+                    var order = orders[i];
+                    var date = new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    var statusClass = 'status-' + (order.status || 'pending');
+                    var total = parseFloat(order.total_amount || 0).toFixed(2);
+                    var orderId = order.orderNumber || order.id;
+
+                    html += '<div class="order-card" style="margin-bottom:1rem;">';
+                    html += '<div class="order-header">';
+                    html += '<div class="order-meta"><span class="order-date">' + date + '</span><span class="order-id">Order #' + orderId + '</span>';
+                    if (order.customerEmail) html += '<span style="font-size:0.8rem;color:var(--color-text-light);">' + order.customerEmail + '</span>';
+                    html += '</div>';
+                    html += '<div class="order-summary">';
+                    html += '<select class="admin-select" style="min-width:120px;padding:0.4rem;font-size:0.8rem;" onchange="updateOrderStatus(\'' + (order.id || order.orderNumber) + '\', this.value)">';
+                    var statuses = ['pending', 'confirmed', 'processing', 'shipped', 'completed', 'cancelled', 'refunded'];
+                    for (var s = 0; s < statuses.length; s++) {
+                        html += '<option value="' + statuses[s] + '"' + (order.status === statuses[s] ? ' selected' : '') + '>' + statuses[s].charAt(0).toUpperCase() + statuses[s].slice(1) + '</option>';
+                    }
+                    html += '</select>';
+                    html += '<span class="order-total">$' + total + '</span>';
+                    html += '</div></div>';
+
+                    if (order.shippingAddress) {
+                        var addr = order.shippingAddress;
+                        html += '<div class="order-notes"><strong>Ship to:</strong> ' + (addr.firstName || '') + ' ' + (addr.lastName || '') + ', ' + (addr.street || '') + ', ' + (addr.city || '') + ', ' + (addr.state || '') + ' ' + (addr.zip || '') + '</div>';
+                    }
+                    if (order.notes) {
+                        html += '<div class="order-notes"><strong>Notes:</strong> ' + order.notes + '</div>';
+                    }
+
+                    if (order.items && order.items.length > 0) {
+                        html += '<div class="order-items"><table class="order-items-table"><thead><tr><th>Fly</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead><tbody>';
+                        for (var j = 0; j < order.items.length; j++) {
+                            var item = order.items[j];
+                            html += '<tr><td>' + item.name + '</td><td>' + item.quantity + '</td><td>$' + parseFloat(item.price).toFixed(2) + '</td><td>$' + (parseFloat(item.price) * item.quantity).toFixed(2) + '</td></tr>';
+                        }
+                        html += '</tbody></table></div>';
+                    }
+
+                    // Summary line
+                    html += '<div style="padding:0.75rem 1.5rem;font-size:0.85rem;color:var(--color-text-light);display:flex;gap:1.5rem;flex-wrap:wrap;">';
+                    if (order.discount) html += '<span>Discount: -$' + parseFloat(order.discount).toFixed(2) + '</span>';
+                    if (order.shipping) html += '<span>Shipping: $' + parseFloat(order.shipping).toFixed(2) + '</span>';
+                    if (order.tax) html += '<span>Tax: $' + parseFloat(order.tax).toFixed(2) + '</span>';
+                    html += '<span style="font-weight:600;color:var(--color-primary-dark);">Total: $' + total + '</span>';
+                    html += '</div>';
+
+                    html += '</div>';
+                }
+                container.innerHTML = html;
+            } catch (err) {
+                loading.style.display = 'none';
+                empty.style.display = 'block';
+                console.error('Load admin orders error:', err);
+            }
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                await OPF_API.updateOrderStatus(orderId, newStatus);
+                showToast('Order status updated to ' + newStatus);
+            } catch (err) {
+                showToast('Failed to update order status', 'error');
+                console.error('Update order status error:', err);
+                loadAdminOrders();
+            }
+        }
+
+        // ---- Admin Coupons Management ----
+        async function loadAdminCoupons() {
+            var container = document.getElementById('coupons-admin-list');
+            var loading = document.getElementById('coupons-admin-loading');
+            var empty = document.getElementById('coupons-admin-empty');
+            loading.style.display = 'block';
+            container.style.display = 'none';
+            empty.style.display = 'none';
+
+            try {
+                var coupons = await OPF_API.getAdminCoupons();
+                loading.style.display = 'none';
+
+                if (!coupons || coupons.length === 0) {
+                    empty.style.display = 'block';
+                    return;
+                }
+                container.style.display = 'block';
+
+                var html = '<div class="table-wrap"><table class="styled-table"><thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Used</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+                for (var i = 0; i < coupons.length; i++) {
+                    var c = coupons[i];
+                    var typeLabel = c.type === 'percentage' ? c.value + '%' : c.type === 'fixed' ? '$' + c.value : 'Free Ship';
+                    var statusLabel = c.active ? '<span class="card-tag" style="background:#d1fae5;color:#065f46;">Active</span>' : '<span class="card-tag" style="background:#fef2f2;color:#dc2626;">Inactive</span>';
+                    var usageLabel = c.maxUses ? (c.usedCount || 0) + '/' + c.maxUses : (c.usedCount || 0) + '/&infin;';
+                    html += '<tr>';
+                    html += '<td><strong>' + c.code + '</strong></td>';
+                    html += '<td>' + c.type + '</td>';
+                    html += '<td>' + typeLabel + '</td>';
+                    html += '<td>' + (c.minOrder ? '$' + c.minOrder : '-') + '</td>';
+                    html += '<td>' + usageLabel + '</td>';
+                    html += '<td>' + statusLabel + '</td>';
+                    html += '<td><button class="btn-icon" onclick="editCoupon(\'' + c.code + '\')" title="Edit">&#9998;</button><button class="btn-icon btn-icon-danger" onclick="deleteCouponAdmin(\'' + c.code + '\')" title="Delete">&#128465;</button></td>';
+                    html += '</tr>';
+                }
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } catch (err) {
+                loading.style.display = 'none';
+                empty.style.display = 'block';
+                console.error('Load admin coupons error:', err);
+            }
+        }
+
+        var editingCouponCode = null;
+
+        function showCouponModal(coupon) {
+            editingCouponCode = null;
+            document.getElementById('coupon-modal-title').textContent = 'Create Coupon';
+            document.getElementById('coupon-code').value = '';
+            document.getElementById('coupon-type').value = 'percentage';
+            document.getElementById('coupon-value').value = '';
+            document.getElementById('coupon-description').value = '';
+            document.getElementById('coupon-min-order').value = '';
+            document.getElementById('coupon-max-uses').value = '';
+            document.getElementById('coupon-expires').value = '';
+
+            if (coupon) {
+                editingCouponCode = coupon.code;
+                document.getElementById('coupon-modal-title').textContent = 'Edit Coupon';
+                document.getElementById('coupon-code').value = coupon.code;
+                document.getElementById('coupon-type').value = coupon.type;
+                document.getElementById('coupon-value').value = coupon.value;
+                document.getElementById('coupon-description').value = coupon.description || '';
+                document.getElementById('coupon-min-order').value = coupon.minOrder || '';
+                document.getElementById('coupon-max-uses').value = coupon.maxUses || '';
+                document.getElementById('coupon-expires').value = coupon.expiresAt ? coupon.expiresAt.split('T')[0] : '';
+            }
+
+            document.getElementById('coupon-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCouponModal() {
+            document.getElementById('coupon-modal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        async function editCoupon(code) {
+            try {
+                var coupons = await OPF_API.getAdminCoupons();
+                var coupon = coupons.find(function(c) { return c.code === code; });
+                if (coupon) showCouponModal(coupon);
+            } catch (err) {
+                showToast('Failed to load coupon', 'error');
+            }
+        }
+
+        async function saveCoupon() {
+            var code = document.getElementById('coupon-code').value.trim();
+            var type = document.getElementById('coupon-type').value;
+            var value = document.getElementById('coupon-value').value;
+            var description = document.getElementById('coupon-description').value.trim();
+            var minOrder = document.getElementById('coupon-min-order').value;
+            var maxUses = document.getElementById('coupon-max-uses').value;
+            var expires = document.getElementById('coupon-expires').value;
+
+            if (!code || !value) {
+                alert('Code and value are required');
+                return;
+            }
+
+            try {
+                await OPF_API.saveCoupon({
+                    code: code,
+                    type: type,
+                    value: parseFloat(value),
+                    description: description,
+                    minOrder: minOrder ? parseFloat(minOrder) : null,
+                    maxUses: maxUses ? parseInt(maxUses) : null,
+                    expiresAt: expires ? new Date(expires).toISOString() : null,
+                    active: true
+                });
+                closeCouponModal();
+                showToast(editingCouponCode ? 'Coupon updated!' : 'Coupon created!');
+                loadAdminCoupons();
+            } catch (err) {
+                showToast('Failed to save coupon: ' + err.message, 'error');
+            }
+        }
+
+        async function deleteCouponAdmin(code) {
+            if (!confirm('Delete coupon ' + code + '?')) return;
+            try {
+                await OPF_API.deleteCoupon(code);
+                showToast('Coupon deleted');
+                loadAdminCoupons();
+            } catch (err) {
+                showToast('Failed to delete coupon', 'error');
+            }
+        }
+
         // UI Helpers
         function openModal() {
             document.getElementById('edit-modal').style.display = 'flex';
@@ -1145,6 +1467,14 @@
                     // Lazy-load users when Users tab is first opened
                     if (tab.dataset.panel === 'users-panel' && usersData.length === 0) {
                         loadUsers();
+                    }
+                    // Lazy-load orders when Orders tab is first opened
+                    if (tab.dataset.panel === 'orders-admin-panel') {
+                        loadAdminOrders();
+                    }
+                    // Lazy-load coupons when Coupons tab is first opened
+                    if (tab.dataset.panel === 'coupons-admin-panel') {
+                        loadAdminCoupons();
                     }
                 });
             });

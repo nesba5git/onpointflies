@@ -41,3 +41,27 @@ export function getInventoryStore() {
 export function getUploadsStore() {
   return getStore({ name: 'uploads', consistency: 'eventual' });
 }
+
+export function getCartStore() {
+  return getStore({ name: 'cart', consistency: 'eventual' });
+}
+
+export function getSaveForLaterStore() {
+  return getStore({ name: 'save-for-later', consistency: 'eventual' });
+}
+
+export function getCouponsStore() {
+  return getStore({ name: 'coupons', consistency: 'eventual' });
+}
+
+export function getAddressBookStore() {
+  return getStore({ name: 'address-book', consistency: 'eventual' });
+}
+
+export function getAllOrdersStore() {
+  return getStore({ name: 'all-orders', consistency: 'eventual' });
+}
+
+export function getRecentlyViewedStore() {
+  return getStore({ name: 'recently-viewed', consistency: 'eventual' });
+}
