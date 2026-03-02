@@ -260,6 +260,42 @@ export const handler = async (event) => {
       // Clear cart
       await cartStore.setJSON(user.sub, { items: [], updated_at: new Date().toISOString() });
 
+      // Reduce inventory for ordered items
+      try {
+        const invStore = getInventoryStore();
+        const inventory = (await invStore.get('all', { type: 'json' })) || [];
+        let inventoryChanged = false;
+
+        for (const orderItem of cart.items) {
+          // Try to find matching inventory item by inventoryId first, then by name+size
+          let invItem = null;
+          if (orderItem.inventoryId) {
+            invItem = inventory.find(i => i.id === parseInt(orderItem.inventoryId) || i.id === orderItem.inventoryId);
+          }
+          if (!invItem && orderItem.name) {
+            if (orderItem.size) {
+              invItem = inventory.find(i => i.name === orderItem.name && i.size === orderItem.size);
+            }
+            if (!invItem) {
+              invItem = inventory.find(i => i.name === orderItem.name);
+            }
+          }
+          if (invItem) {
+            const reduceBy = orderItem.quantity || 1;
+            invItem.qty = Math.max(0, invItem.qty - reduceBy);
+            invItem.sold = (invItem.sold || 0) + reduceBy;
+            inventoryChanged = true;
+          }
+        }
+
+        if (inventoryChanged) {
+          await invStore.setJSON('all', inventory);
+        }
+      } catch (invErr) {
+        console.error('Inventory reduction error:', invErr);
+        // Don't fail the order if inventory update fails
+      }
+
       return respond(order);
     }
 

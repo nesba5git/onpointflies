@@ -1171,6 +1171,7 @@ function updateCartBadge(count) {
         } else {
             badge.style.display = 'none';
         }
+        localStorage.setItem('opf_cart_count', count || 0);
         return;
     }
     var totalQty = checkoutData.items.reduce(function(s, i) { return s + i.quantity; }, 0);
@@ -1180,6 +1181,7 @@ function updateCartBadge(count) {
     } else {
         badge.style.display = 'none';
     }
+    localStorage.setItem('opf_cart_count', totalQty || 0);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
