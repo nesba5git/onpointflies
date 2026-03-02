@@ -223,23 +223,18 @@
                                 </div>
 
                                 <div class="paypal-button-area" id="paypal-button-area">
-                                    <button class="btn-paypal" id="paypal-btn" onclick="authorizePaypal()">
-                                        <svg class="paypal-logo" viewBox="0 0 100 32" width="100" height="32" xmlns="http://www.w3.org/2000/svg">
-                                            <text x="0" y="24" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#fff">Pay</text>
-                                            <text x="38" y="24" font-family="Inter, sans-serif" font-size="20" font-weight="700" fill="#a8d8ff">Pal</text>
-                                        </svg>
-                                        <span>Pay with PayPal</span>
-                                    </button>
-                                    <div class="paypal-smart-buttons" id="paypal-smart-buttons">
-                                        <!-- PayPal Smart Payment Buttons would render here when PayPal SDK is integrated -->
+                                    <div id="paypal-loading" style="text-align:center; padding:16px; color:#666;">Loading PayPal...</div>
+                                    <div id="paypal-smart-buttons"></div>
+                                    <div id="paypal-config-error" class="checkout-error-msg" style="display:none;">
+                                        PayPal is not configured yet. Please contact the site administrator.
                                     </div>
                                 </div>
 
                                 <div id="payment-authorized" class="payment-authorized" style="display:none;">
                                     <span class="payment-authorized-icon">&#9989;</span>
                                     <div>
-                                        <strong>PayPal payment authorized</strong>
-                                        <p>Your payment has been pre-authorized. It will be captured when you place the order.</p>
+                                        <strong>PayPal payment completed</strong>
+                                        <p>Your payment has been processed via PayPal. Your order will be confirmed when you place it below.</p>
                                     </div>
                                 </div>
 
@@ -574,6 +569,7 @@ async function initCheckout() {
         updateCartBadge();
 
         loadSavedAddresses();
+        loadPayPalSDK();
     } catch (err) {
         console.error('Checkout init error:', err);
         document.getElementById('checkout-loading').textContent = 'Failed to load checkout. Redirecting to cart...';
@@ -884,20 +880,94 @@ function calculateShippingCost() {
     return price;
 }
 
-function authorizePaypal() {
-    // Simulate PayPal authorization
-    // In production, this would open the PayPal flow via PayPal SDK
-    var btn = document.getElementById('paypal-btn');
-    btn.disabled = true;
-    btn.innerHTML = '<span>Connecting to PayPal...</span>';
+var paypalOrderId = null;
 
-    setTimeout(function() {
-        checkoutData.paymentAuthorized = true;
-        document.getElementById('paypal-button-area').style.display = 'none';
-        document.getElementById('payment-authorized').style.display = 'flex';
-        document.getElementById('payment-error').style.display = 'none';
-        showToast('PayPal payment authorized');
-    }, 1500);
+async function loadPayPalSDK() {
+    var loadingEl = document.getElementById('paypal-loading');
+    var errorEl = document.getElementById('paypal-config-error');
+    var buttonsEl = document.getElementById('paypal-smart-buttons');
+
+    try {
+        var configResp = await fetch('/api/paypal');
+        if (!configResp.ok) {
+            throw new Error('PayPal not configured');
+        }
+        var config = await configResp.json();
+
+        if (!config.clientId) {
+            throw new Error('PayPal client ID missing');
+        }
+
+        // Load PayPal JS SDK dynamically
+        await new Promise(function(resolve, reject) {
+            var script = document.createElement('script');
+            script.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(config.clientId) + '&currency=USD&intent=capture';
+            script.onload = resolve;
+            script.onerror = function() { reject(new Error('Failed to load PayPal SDK')); };
+            document.head.appendChild(script);
+        });
+
+        loadingEl.style.display = 'none';
+
+        // Render PayPal Smart Buttons
+        paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'rect',
+                label: 'paypal',
+                height: 45
+            },
+            createOrder: function(data, actions) {
+                var total = checkoutData.total;
+                if (!total || total <= 0) {
+                    showToast('Order total is not calculated yet', 'error');
+                    return Promise.reject(new Error('Invalid total'));
+                }
+
+                return OPF_API.request('paypal', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'create', total: total })
+                }).then(function(result) {
+                    if (result.id) {
+                        return result.id;
+                    }
+                    throw new Error(result.error || 'Failed to create PayPal order');
+                });
+            },
+            onApprove: function(data, actions) {
+                return OPF_API.request('paypal', {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'capture', orderId: data.orderID })
+                }).then(function(result) {
+                    if (result.status === 'COMPLETED') {
+                        paypalOrderId = data.orderID;
+                        checkoutData.paymentAuthorized = true;
+                        document.getElementById('paypal-button-area').style.display = 'none';
+                        document.getElementById('payment-authorized').style.display = 'flex';
+                        document.getElementById('payment-error').style.display = 'none';
+                        showToast('PayPal payment completed successfully');
+                    } else {
+                        throw new Error('Payment was not completed. Status: ' + result.status);
+                    }
+                });
+            },
+            onCancel: function() {
+                showToast('PayPal payment was cancelled', 'error');
+            },
+            onError: function(err) {
+                console.error('PayPal error:', err);
+                document.getElementById('payment-error').style.display = 'block';
+                document.getElementById('payment-error').textContent = 'PayPal encountered an error. Please try again.';
+                showToast('PayPal payment error. Please try again.', 'error');
+            }
+        }).render('#paypal-smart-buttons');
+
+    } catch (err) {
+        console.error('PayPal SDK load error:', err);
+        loadingEl.style.display = 'none';
+        errorEl.style.display = 'block';
+    }
 }
 
 function populateReviewStep() {
@@ -940,7 +1010,7 @@ function populateReviewStep() {
     // Payment
     document.getElementById('review-payment').innerHTML =
         '<p><strong>PayPal</strong></p>' +
-        '<p>Payment has been pre-authorized via PayPal.</p>';
+        '<p>Payment completed via PayPal.</p>';
 
     // Totals
     document.getElementById('review-subtotal').textContent = '$' + checkoutData.subtotal.toFixed(2);
@@ -995,6 +1065,7 @@ async function placeOrder() {
         billingAddress: checkoutData.billingAddress,
         shippingMethod: checkoutData.shippingMethod ? checkoutData.shippingMethod.id : 'standard',
         paymentMethod: 'paypal',
+        paypalOrderId: paypalOrderId || null,
         couponCode: checkoutData.couponCode || null,
         notes: orderNotes,
         giftMessage: giftMessage,
