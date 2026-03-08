@@ -31,11 +31,11 @@ export function getOrdersStore() {
 }
 
 export function getCatalogStore() {
-  return getStore({ name: 'catalog', consistency: 'eventual' });
+  return getStore({ name: 'catalog', consistency: 'strong' });
 }
 
 export function getInventoryStore() {
-  return getStore({ name: 'inventory', consistency: 'eventual' });
+  return getStore({ name: 'inventory', consistency: 'strong' });
 }
 
 export function getUploadsStore() {
