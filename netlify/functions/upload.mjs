@@ -32,11 +32,10 @@ export const handler = async (event) => {
         const meta = await store.get('meta:' + params.key, { type: 'json' });
         if (!meta) return respond({ error: 'File not found' }, 404);
 
-        const data = await store.get('file:' + params.key);
-        if (!data) return respond({ error: 'File not found' }, 404);
+        const arrayBuf = await store.get('file:' + params.key, { type: 'arrayBuffer' });
+        if (!arrayBuf) return respond({ error: 'File not found' }, 404);
 
         // Return as base64 encoded body
-        const arrayBuf = await data.arrayBuffer();
         const base64 = Buffer.from(arrayBuf).toString('base64');
 
         return {
