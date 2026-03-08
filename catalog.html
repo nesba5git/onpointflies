@@ -321,7 +321,7 @@
                     type: type,
                     bestFor: catalogMatch ? catalogMatch.bestFor : getAutoBestFor(type),
                     description: catalogMatch ? catalogMatch.description : getAutoDescription(name, first.subcategory),
-                    image: (catalogMatch && catalogMatch.image) ? catalogMatch.image : getFlyImage(name, first.category),
+                    image: (catalogMatch && catalogMatch.image) ? catalogMatch.image : (first.image || getFlyImage(name, first.category)),
                     recipe: catalogMatch ? catalogMatch.recipe : '',
                     subcategory: first.subcategory || '',
                     sizes: items.map(function(inv) {
