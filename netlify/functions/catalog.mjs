@@ -1,4 +1,4 @@
-import { getCatalogStore, initBlobsContext } from './lib/db.mjs';
+import { getCatalogStore, getCatalogStoreStrong, initBlobsContext } from './lib/db.mjs';
 import { verifyAdmin, respond } from './lib/auth.mjs';
 
 const STORE_KEY = 'all';
@@ -111,7 +111,16 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    let catalog = (await store.get(STORE_KEY, { type: 'json' })) || [];
+    // Use strong consistency for reads during write operations to prevent
+    // stale data from overwriting recent changes (e.g. adding two products
+    // in quick succession). Falls back to eventual if strong isn't available.
+    let catalog;
+    try {
+      const strongStore = getCatalogStoreStrong();
+      catalog = (await strongStore.get(STORE_KEY, { type: 'json' })) || [];
+    } catch {
+      catalog = (await store.get(STORE_KEY, { type: 'json' })) || [];
+    }
 
     if (event.httpMethod === 'POST') {
       const body = JSON.parse(event.body);
