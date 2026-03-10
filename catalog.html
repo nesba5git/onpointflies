@@ -198,6 +198,17 @@
             dryfly: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Standard_Adams_Dry_Fly.jpg/600px-Standard_Adams_Dry_Fly.jpg'
         };
 
+        // HTML escape utility to prevent XSS and broken rendering
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function getFlyImage(name, category) {
             var n = name.toLowerCase();
 
@@ -755,34 +766,34 @@
                 // Sizes line
                 var sizesHtml = '';
                 if (fly.sizes && fly.sizes.length > 0) {
-                    var sizeLabels = fly.sizes.map(function(s) { return s.size; });
+                    var sizeLabels = fly.sizes.map(function(s) { return escapeHTML(s.size); });
                     sizesHtml = '<div class="card-sizes">Sizes: ' + sizeLabels.join(', ') + '</div>';
                 }
 
                 // Recipe
                 var hasRecipe = fly.recipe && fly.recipe.trim().length > 0;
                 var recipePreview = hasRecipe
-                    ? '<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;">' + fly.recipe + '</pre></details>'
+                    ? '<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;">' + escapeHTML(fly.recipe) + '</pre></details>'
                     : '';
 
                 card.innerHTML =
                     '<div class="card-image" onclick="openModal(' + realIndex + ')" title="Click for details">' +
-                        '<img src="' + fly.image + '" alt="' + fly.name + '" loading="lazy" onerror="this.src=\'' + DEFAULT_IMAGES.streamer + '\'">' +
+                        '<img src="' + escapeHTML(fly.image) + '" alt="' + escapeHTML(fly.name) + '" loading="lazy" onerror="this.src=\'' + DEFAULT_IMAGES.streamer + '\'">' +
                         '<button class="favorite-btn ' + (isFav ? 'active' : '') + '" onclick="event.stopPropagation();toggleFavorite(JSON.parse(decodeURIComponent(\'' + favFlyData + '\')))" title="' + (isFav ? 'Remove from favorites' : 'Add to favorites') + '">' +
                             (isFav ? '&#9829;' : '&#9825;') +
                         '</button>' +
                     '</div>' +
                     '<div class="card-body">' +
-                        '<span class="card-tag">' + fly.type + '</span>' +
-                        (fly.subcategory ? '<span style="font-size:0.7rem;color:var(--color-text-light);margin-left:0.25rem;">' + fly.subcategory + '</span>' : '') +
-                        '<h3>' + fly.name + '</h3>' +
+                        '<span class="card-tag">' + escapeHTML(fly.type) + '</span>' +
+                        (fly.subcategory ? '<span style="font-size:0.7rem;color:var(--color-text-light);margin-left:0.25rem;">' + escapeHTML(fly.subcategory) + '</span>' : '') +
+                        '<h3>' + escapeHTML(fly.name) + '</h3>' +
                         '<div class="card-price-row">' +
                             '<span class="card-price">' + priceHtml + '</span>' +
                             stockBadgeHtml +
                         '</div>' +
                         sizesHtml +
-                        '<p style="font-size:0.85rem;margin-bottom:0.35rem;"><strong>Best for:</strong> ' + fly.bestFor + '</p>' +
-                        '<p>' + fly.description + '</p>' +
+                        '<p style="font-size:0.85rem;margin-bottom:0.35rem;"><strong>Best for:</strong> ' + escapeHTML(fly.bestFor) + '</p>' +
+                        '<p>' + escapeHTML(fly.description) + '</p>' +
                         recipePreview +
                         '<button class="btn btn-sm btn-dark add-to-list-btn" onclick="openModal(' + realIndex + ')">' +
                             '+ Add to Cart' +

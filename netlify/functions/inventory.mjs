@@ -41,6 +41,18 @@ const DEFAULT_INVENTORY = [
   { id: 29, name: "Little Brooke Trout", category: "streamers", subcategory: "Misc. Streamers", size: "12", qty: 4, price: 1.00, sold: 4, startingQty: 8 },
 ];
 
+/**
+ * Get the best available store — prefer strong consistency, fall back to eventual.
+ * This prevents silent data loss from stale reads during write operations.
+ */
+function getStore() {
+  try {
+    return getInventoryStoreStrong();
+  } catch {
+    return getInventoryStore();
+  }
+}
+
 export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return respond({}, 204);
@@ -48,7 +60,7 @@ export const handler = async (event) => {
 
   try {
     initBlobsContext(event);
-    const store = getInventoryStore();
+    const store = getStore();
 
     // GET — public, no auth required
     if (event.httpMethod === 'GET') {
@@ -65,17 +77,11 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    // Use strong consistency for both reads AND writes during write operations
-    // to prevent stale data from overwriting recent changes (e.g. adding two
-    // items in quick succession). Falls back to eventual if strong isn't available.
-    let writeStore;
-    let inventory;
-    try {
-      writeStore = getInventoryStoreStrong();
-      inventory = (await writeStore.get(STORE_KEY, { type: 'json' })) || [];
-    } catch {
-      writeStore = store;
-      inventory = (await store.get(STORE_KEY, { type: 'json' })) || [];
+    // Read current inventory — seed with defaults if empty
+    let inventory = await store.get(STORE_KEY, { type: 'json' });
+    if (!inventory || !Array.isArray(inventory)) {
+      inventory = DEFAULT_INVENTORY;
+      await store.setJSON(STORE_KEY, inventory);
     }
 
     if (event.httpMethod === 'POST') {
@@ -96,7 +102,7 @@ export const handler = async (event) => {
         startingQty: parseInt(body.startingQty) || parseInt(body.qty) || 0,
         image: body.image || '',
       });
-      await writeStore.setJSON(STORE_KEY, inventory);
+      await store.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item added', inventory });
     }
 
@@ -121,7 +127,7 @@ export const handler = async (event) => {
         startingQty: body.startingQty !== undefined ? parseInt(body.startingQty) : inventory[index].startingQty,
         image: body.image !== undefined ? body.image : (inventory[index].image || ''),
       };
-      await writeStore.setJSON(STORE_KEY, inventory);
+      await store.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item updated', inventory });
     }
 
@@ -136,7 +142,7 @@ export const handler = async (event) => {
         return respond({ error: 'Inventory item not found' }, 404);
       }
       inventory.splice(index, 1);
-      await writeStore.setJSON(STORE_KEY, inventory);
+      await store.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item deleted', inventory });
     }
 

@@ -87,6 +87,18 @@ const DEFAULT_CATALOG = [
   }
 ];
 
+/**
+ * Get the best available store — prefer strong consistency, fall back to eventual.
+ * This prevents silent data loss from stale reads during write operations.
+ */
+function getStore() {
+  try {
+    return getCatalogStoreStrong();
+  } catch {
+    return getCatalogStore();
+  }
+}
+
 export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return respond({}, 204);
@@ -94,7 +106,7 @@ export const handler = async (event) => {
 
   try {
     initBlobsContext(event);
-    const store = getCatalogStore();
+    const store = getStore();
 
     // GET — public, no auth required
     if (event.httpMethod === 'GET') {
@@ -111,17 +123,11 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    // Use strong consistency for both reads AND writes during write operations
-    // to prevent stale data from overwriting recent changes (e.g. adding two
-    // products in quick succession). Falls back to eventual if strong isn't available.
-    let writeStore;
-    let catalog;
-    try {
-      writeStore = getCatalogStoreStrong();
-      catalog = (await writeStore.get(STORE_KEY, { type: 'json' })) || [];
-    } catch {
-      writeStore = store;
-      catalog = (await store.get(STORE_KEY, { type: 'json' })) || [];
+    // Read current catalog — seed with defaults if empty
+    let catalog = await store.get(STORE_KEY, { type: 'json' });
+    if (!catalog || !Array.isArray(catalog)) {
+      catalog = DEFAULT_CATALOG;
+      await store.setJSON(STORE_KEY, catalog);
     }
 
     if (event.httpMethod === 'POST') {
@@ -137,18 +143,18 @@ export const handler = async (event) => {
         image: body.image || '',
         recipe: body.recipe || '',
       });
-      await writeStore.setJSON(STORE_KEY, catalog);
+      await store.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern added', catalog });
     }
 
     if (event.httpMethod === 'PUT') {
       const body = JSON.parse(event.body);
-      if (body.index === undefined && !body.originalName) {
-        return respond({ error: 'Index or originalName is required to update' }, 400);
-      }
-      let index = body.index;
-      if (index === undefined) {
+      // Support both index-based and name-based lookups
+      let index = -1;
+      if (body.originalName) {
         index = catalog.findIndex(f => f.name === body.originalName);
+      } else if (body.index !== undefined) {
+        index = parseInt(body.index);
       }
       if (index < 0 || index >= catalog.length) {
         return respond({ error: 'Fly pattern not found' }, 404);
@@ -161,21 +167,24 @@ export const handler = async (event) => {
         image: body.image !== undefined ? body.image : catalog[index].image,
         recipe: body.recipe !== undefined ? body.recipe : catalog[index].recipe,
       };
-      await writeStore.setJSON(STORE_KEY, catalog);
+      await store.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern updated', catalog });
     }
 
     if (event.httpMethod === 'DELETE') {
       const params = event.queryStringParameters || {};
-      let index = params.index !== undefined ? parseInt(params.index) : -1;
-      if (index === -1 && params.name) {
+      let index = -1;
+      // Prefer name-based lookup for reliability
+      if (params.name) {
         index = catalog.findIndex(f => f.name === params.name);
+      } else if (params.index !== undefined) {
+        index = parseInt(params.index);
       }
       if (index < 0 || index >= catalog.length) {
         return respond({ error: 'Fly pattern not found' }, 404);
       }
       catalog.splice(index, 1);
-      await writeStore.setJSON(STORE_KEY, catalog);
+      await store.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern deleted', catalog });
     }
 
