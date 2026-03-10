@@ -111,14 +111,16 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    // Use strong consistency for reads during write operations to prevent
-    // stale data from overwriting recent changes (e.g. adding two products
-    // in quick succession). Falls back to eventual if strong isn't available.
+    // Use strong consistency for both reads AND writes during write operations
+    // to prevent stale data from overwriting recent changes (e.g. adding two
+    // products in quick succession). Falls back to eventual if strong isn't available.
+    let writeStore;
     let catalog;
     try {
-      const strongStore = getCatalogStoreStrong();
-      catalog = (await strongStore.get(STORE_KEY, { type: 'json' })) || [];
+      writeStore = getCatalogStoreStrong();
+      catalog = (await writeStore.get(STORE_KEY, { type: 'json' })) || [];
     } catch {
+      writeStore = store;
       catalog = (await store.get(STORE_KEY, { type: 'json' })) || [];
     }
 
@@ -135,7 +137,7 @@ export const handler = async (event) => {
         image: body.image || '',
         recipe: body.recipe || '',
       });
-      await store.setJSON(STORE_KEY, catalog);
+      await writeStore.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern added', catalog });
     }
 
@@ -159,7 +161,7 @@ export const handler = async (event) => {
         image: body.image !== undefined ? body.image : catalog[index].image,
         recipe: body.recipe !== undefined ? body.recipe : catalog[index].recipe,
       };
-      await store.setJSON(STORE_KEY, catalog);
+      await writeStore.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern updated', catalog });
     }
 
@@ -173,7 +175,7 @@ export const handler = async (event) => {
         return respond({ error: 'Fly pattern not found' }, 404);
       }
       catalog.splice(index, 1);
-      await store.setJSON(STORE_KEY, catalog);
+      await writeStore.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern deleted', catalog });
     }
 
