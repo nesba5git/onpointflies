@@ -65,14 +65,16 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    // Use strong consistency for reads during write operations to prevent
-    // stale data from overwriting recent changes (e.g. adding two items
-    // in quick succession). Falls back to eventual if strong isn't available.
+    // Use strong consistency for both reads AND writes during write operations
+    // to prevent stale data from overwriting recent changes (e.g. adding two
+    // items in quick succession). Falls back to eventual if strong isn't available.
+    let writeStore;
     let inventory;
     try {
-      const strongStore = getInventoryStoreStrong();
-      inventory = (await strongStore.get(STORE_KEY, { type: 'json' })) || [];
+      writeStore = getInventoryStoreStrong();
+      inventory = (await writeStore.get(STORE_KEY, { type: 'json' })) || [];
     } catch {
+      writeStore = store;
       inventory = (await store.get(STORE_KEY, { type: 'json' })) || [];
     }
 
@@ -94,7 +96,7 @@ export const handler = async (event) => {
         startingQty: parseInt(body.startingQty) || parseInt(body.qty) || 0,
         image: body.image || '',
       });
-      await store.setJSON(STORE_KEY, inventory);
+      await writeStore.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item added', inventory });
     }
 
@@ -119,7 +121,7 @@ export const handler = async (event) => {
         startingQty: body.startingQty !== undefined ? parseInt(body.startingQty) : inventory[index].startingQty,
         image: body.image !== undefined ? body.image : (inventory[index].image || ''),
       };
-      await store.setJSON(STORE_KEY, inventory);
+      await writeStore.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item updated', inventory });
     }
 
@@ -134,7 +136,7 @@ export const handler = async (event) => {
         return respond({ error: 'Inventory item not found' }, 404);
       }
       inventory.splice(index, 1);
-      await store.setJSON(STORE_KEY, inventory);
+      await writeStore.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item deleted', inventory });
     }
 
