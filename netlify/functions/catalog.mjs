@@ -1,4 +1,4 @@
-import { getCatalogStore, getCatalogStoreStrong, initBlobsContext } from './lib/db.mjs';
+import { getCatalogStoreStrong, initBlobsContext } from './lib/db.mjs';
 import { verifyAdmin, respond } from './lib/auth.mjs';
 
 const STORE_KEY = 'all';
@@ -95,20 +95,18 @@ export const handler = async (event) => {
   try {
     initBlobsContext(event);
 
+    // Always use strong consistency to prevent stale reads and data loss.
+    // A single store instance is used for both reads and writes within each
+    // request so we never operate on stale data.
+    const store = getCatalogStoreStrong();
+
     // GET — public, no auth required
     if (event.httpMethod === 'GET') {
-      // Eventual consistency is fine for reads
-      const store = getCatalogStore();
       let catalog = await store.get(STORE_KEY, { type: 'json' });
       if (!catalog) {
         // Seed with default data on first access only
         catalog = DEFAULT_CATALOG;
-        try {
-          const writeStore = getCatalogStoreStrong();
-          await writeStore.setJSON(STORE_KEY, catalog);
-        } catch {
-          await store.setJSON(STORE_KEY, catalog);
-        }
+        await store.setJSON(STORE_KEY, catalog);
       }
       return respond(catalog);
     }
@@ -117,16 +115,7 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    // Use strong consistency for write operations to prevent stale reads
-    let writeStore;
-    let catalog;
-    try {
-      writeStore = getCatalogStoreStrong();
-      catalog = await writeStore.get(STORE_KEY, { type: 'json' });
-    } catch {
-      writeStore = getCatalogStore();
-      catalog = await writeStore.get(STORE_KEY, { type: 'json' });
-    }
+    let catalog = await store.get(STORE_KEY, { type: 'json' });
 
     // NEVER seed defaults on write operations — that causes data loss.
     // If catalog is empty/null, work with an empty array.
@@ -147,7 +136,7 @@ export const handler = async (event) => {
         image: body.image || '',
         recipe: body.recipe || '',
       });
-      await writeStore.setJSON(STORE_KEY, catalog);
+      await store.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern added', catalog });
     }
 
@@ -171,7 +160,7 @@ export const handler = async (event) => {
         image: body.image !== undefined ? body.image : catalog[index].image,
         recipe: body.recipe !== undefined ? body.recipe : catalog[index].recipe,
       };
-      await writeStore.setJSON(STORE_KEY, catalog);
+      await store.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern updated', catalog });
     }
 
@@ -188,7 +177,7 @@ export const handler = async (event) => {
         return respond({ error: 'Fly pattern not found' }, 404);
       }
       catalog.splice(index, 1);
-      await writeStore.setJSON(STORE_KEY, catalog);
+      await store.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern deleted', catalog });
     }
 
