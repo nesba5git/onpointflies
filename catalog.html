@@ -673,8 +673,8 @@
             fetch('/api/catalog').then(function(r) { return r.json(); }),
             fetch('/api/inventory').then(function(r) { return r.json(); })
         ]).then(function(results) {
-            var catalog = results[0];
-            var inventory = results[1];
+            var catalog = Array.isArray(results[0]) ? results[0] : [];
+            var inventory = Array.isArray(results[1]) ? results[1] : [];
             allFlies = buildMergedCatalog(catalog, inventory);
             renderFlies(allFlies);
             initAuth0();
@@ -682,7 +682,8 @@
         }).catch(function(err) {
             console.error('Error loading catalog:', err);
             // Fallback: just load catalog
-            fetch('/api/catalog').then(function(r) { return r.json(); }).then(function(flies) {
+            fetch('/api/catalog').then(function(r) { return r.json(); }).then(function(data) {
+                var flies = Array.isArray(data) ? data : [];
                 allFlies = flies.map(function(f) {
                     f.sizes = [];
                     f.totalQty = 0;
@@ -693,6 +694,9 @@
                 renderFlies(allFlies);
                 initAuth0();
                 updateCartBadge();
+            }).catch(function(err2) {
+                console.error('Fallback catalog load also failed:', err2);
+                initAuth0();
             });
         });
 

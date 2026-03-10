@@ -1,4 +1,4 @@
-import { getCatalogStoreStrong, initBlobsContext } from './lib/db.mjs';
+import { getCatalogStore, getCatalogStoreStrong, initBlobsContext } from './lib/db.mjs';
 import { verifyAdmin, respond } from './lib/auth.mjs';
 
 const STORE_KEY = 'all';
@@ -95,14 +95,15 @@ export const handler = async (event) => {
   try {
     initBlobsContext(event);
 
-    // Always use strong consistency to prevent stale reads and data loss.
-    // A single store instance is used for both reads and writes within each
-    // request so we never operate on stale data.
-    const store = getCatalogStoreStrong();
-
-    // GET — public, no auth required
+    // GET — public, no auth required (use eventual consistency for compatibility)
     if (event.httpMethod === 'GET') {
-      let catalog = await store.get(STORE_KEY, { type: 'json' });
+      const store = getCatalogStore();
+      let catalog;
+      try {
+        catalog = await store.get(STORE_KEY, { type: 'json' });
+      } catch {
+        catalog = null;
+      }
       if (!catalog) {
         // Seed with default data on first access only
         catalog = DEFAULT_CATALOG;
@@ -115,6 +116,14 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
+    // Use strong consistency for writes; fall back to eventual if unavailable
+    let store;
+    try {
+      store = getCatalogStoreStrong();
+      await store.get(STORE_KEY, { type: 'json' }); // test strong access
+    } catch {
+      store = getCatalogStore();
+    }
     let catalog = await store.get(STORE_KEY, { type: 'json' });
 
     // NEVER seed defaults on write operations — that causes data loss.
