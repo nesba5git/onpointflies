@@ -143,11 +143,13 @@
     </footer>
 
     <script>
-        // Update cart badge from guest cart
+        // Update cart badge from localStorage or guest cart
         (function() {
             try {
+                var savedCount = parseInt(localStorage.getItem('opf_cart_count') || '0');
                 var items = JSON.parse(localStorage.getItem('opf_guest_cart') || '[]');
-                var count = items.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
+                var guestCount = items.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
+                var count = Math.max(savedCount, guestCount);
                 var badge = document.getElementById('cart-badge');
                 if (badge && count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
             } catch(e) {}

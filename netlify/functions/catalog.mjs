@@ -1,4 +1,4 @@
-import { getCatalogStore, initBlobsContext } from './lib/db.mjs';
+import { getCatalogStoreStrong, initBlobsContext } from './lib/db.mjs';
 import { verifyAdmin, respond } from './lib/auth.mjs';
 
 const STORE_KEY = 'all';
@@ -94,13 +94,17 @@ export const handler = async (event) => {
 
   try {
     initBlobsContext(event);
-    const store = getCatalogStore();
+
+    // Always use strong consistency to prevent stale reads and data loss.
+    // A single store instance is used for both reads and writes within each
+    // request so we never operate on stale data.
+    const store = getCatalogStoreStrong();
 
     // GET — public, no auth required
     if (event.httpMethod === 'GET') {
       let catalog = await store.get(STORE_KEY, { type: 'json' });
       if (!catalog) {
-        // Seed with default data on first access
+        // Seed with default data on first access only
         catalog = DEFAULT_CATALOG;
         await store.setJSON(STORE_KEY, catalog);
       }
@@ -111,7 +115,13 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    let catalog = (await store.get(STORE_KEY, { type: 'json' })) || [];
+    let catalog = await store.get(STORE_KEY, { type: 'json' });
+
+    // NEVER seed defaults on write operations — that causes data loss.
+    // If catalog is empty/null, work with an empty array.
+    if (!catalog || !Array.isArray(catalog)) {
+      catalog = [];
+    }
 
     if (event.httpMethod === 'POST') {
       const body = JSON.parse(event.body);
@@ -132,12 +142,12 @@ export const handler = async (event) => {
 
     if (event.httpMethod === 'PUT') {
       const body = JSON.parse(event.body);
-      if (body.index === undefined && !body.originalName) {
-        return respond({ error: 'Index or originalName is required to update' }, 400);
-      }
-      let index = body.index;
-      if (index === undefined) {
+      // Support both index-based and name-based lookups
+      let index = -1;
+      if (body.originalName) {
         index = catalog.findIndex(f => f.name === body.originalName);
+      } else if (body.index !== undefined) {
+        index = parseInt(body.index);
       }
       if (index < 0 || index >= catalog.length) {
         return respond({ error: 'Fly pattern not found' }, 404);
@@ -156,9 +166,12 @@ export const handler = async (event) => {
 
     if (event.httpMethod === 'DELETE') {
       const params = event.queryStringParameters || {};
-      let index = params.index !== undefined ? parseInt(params.index) : -1;
-      if (index === -1 && params.name) {
+      let index = -1;
+      // Prefer name-based lookup for reliability
+      if (params.name) {
         index = catalog.findIndex(f => f.name === params.name);
+      } else if (params.index !== undefined) {
+        index = parseInt(params.index);
       }
       if (index < 0 || index >= catalog.length) {
         return respond({ error: 'Fly pattern not found' }, 404);

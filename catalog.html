@@ -125,11 +125,53 @@
         </div>
     </footer>
 
+    <!-- Fly Detail Modal -->
+    <div id="fly-modal" class="fly-modal" style="display:none;">
+        <div class="fly-modal-overlay" onclick="closeModal()"></div>
+        <div class="fly-modal-content">
+            <button class="fly-modal-close" onclick="closeModal()">&times;</button>
+            <div class="fly-modal-body">
+                <div class="fly-modal-image-section">
+                    <img id="modal-image" src="" alt="">
+                </div>
+                <div class="fly-modal-details-section">
+                    <span class="card-tag" id="modal-type"></span>
+                    <h2 id="modal-name"></h2>
+                    <div id="modal-stock-status"></div>
+                    <p id="modal-best-for" style="font-size:0.9rem;"></p>
+                    <p id="modal-description" style="color:var(--color-text-light);font-size:0.9rem;"></p>
+                    <div id="modal-size-section" class="modal-size-section" style="display:none;">
+                        <label for="modal-size-select">Size / Hook:</label>
+                        <select id="modal-size-select" class="modal-size-select" onchange="updateModalPrice()"></select>
+                    </div>
+                    <div class="modal-price" id="modal-price"></div>
+                    <div class="modal-qty-section">
+                        <label>Quantity:</label>
+                        <div class="modal-qty-controls">
+                            <button onclick="changeModalQty(-1)">-</button>
+                            <span id="modal-qty">1</span>
+                            <button onclick="changeModalQty(1)">+</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-block" id="modal-add-btn" onclick="addModalToCart()">Add to Cart</button>
+                    <div id="modal-recipe" style="display:none;">
+                        <details>
+                            <summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary>
+                            <pre id="modal-recipe-text" style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;"></pre>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toast" class="toast"></div>
 
     <script>
+        // ============================
         // Auth0 Configuration
+        // ============================
         var AUTH0_CONFIG = {
             domain: '',
             clientId: '',
@@ -145,9 +187,199 @@
 
         var auth0Client = null;
         var isAuthenticated = false;
-        var cachedFavorites = []; // In-memory cache of user's favorites
+        var cachedFavorites = [];
 
-        // Initialize Auth0
+        // ============================
+        // Fly Image Mapping
+        // ============================
+        var DEFAULT_IMAGES = {
+            streamer: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg',
+            nymph: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Pheasant_Tail_Flash_Back_Nymph.jpg/600px-Pheasant_Tail_Flash_Back_Nymph.jpg',
+            dryfly: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Standard_Adams_Dry_Fly.jpg/600px-Standard_Adams_Dry_Fly.jpg'
+        };
+
+        // HTML escape utility to prevent XSS and broken rendering
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getFlyImage(name, category) {
+            var n = name.toLowerCase();
+
+            // Woolly Buggers
+            if (n.includes('olive') && (n.includes('bugger') || n.includes('marabou'))) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/OliveDumbBellWoollyBugger.jpg/600px-OliveDumbBellWoollyBugger.jpg';
+            }
+            if (n.includes('chartreuse') && n.includes('bugger')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/OliveDumbBellWoollyBugger.jpg/600px-OliveDumbBellWoollyBugger.jpg';
+            }
+            if (n.includes('bugger') || n.includes('woolly')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg';
+            }
+            // Hellgrammite
+            if (n.includes('hellgrammite')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg';
+            }
+            // Muddler / Marabou
+            if (n.includes('muddler') || n.includes('marabou')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Muddler_minnow_fly.JPG/600px-Muddler_minnow_fly.JPG';
+            }
+            // Zonker
+            if (n.includes('zonker')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/OliveAndWhiteDumbBellWoollyBugger.jpg/600px-OliveAndWhiteDumbBellWoollyBugger.jpg';
+            }
+            // Classic streamers
+            if (n.includes('mickey finn')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Muddler_minnow_fly.JPG/600px-Muddler_minnow_fly.JPG';
+            }
+            if (n.includes('matuka')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/OliveDumbBellWoollyBugger.jpg/600px-OliveDumbBellWoollyBugger.jpg';
+            }
+            if (n.includes('ghost')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg';
+            }
+            if (n.includes('trout') || n.includes('brooke')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Muddler_minnow_fly.JPG/600px-Muddler_minnow_fly.JPG';
+            }
+            // Nymphs
+            if (n.includes('pheasant tail')) return DEFAULT_IMAGES.nymph;
+            if (n.includes('hare') && n.includes('ear')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Gold_ribbed_hairs_ear_trout_fly.JPG/600px-Gold_ribbed_hairs_ear_trout_fly.JPG';
+            }
+            if (n.includes('prince')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Bead_Head_Prince_Nymph.jpg/600px-Bead_Head_Prince_Nymph.jpg';
+            }
+            // Dry Flies
+            if (n.includes('adams')) return DEFAULT_IMAGES.dryfly;
+            if (n.includes('elk hair') || n.includes('caddis')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Elk_Hair_Caddis2.jpg/600px-Elk_Hair_Caddis2.jpg';
+            }
+            if (n.includes('wulff')) {
+                return 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/RoyalWulffDryFly.jpg/600px-RoyalWulffDryFly.jpg';
+            }
+
+            // Category defaults
+            if (category === 'streamers') return DEFAULT_IMAGES.streamer;
+            if (category === 'nymphs') return DEFAULT_IMAGES.nymph;
+            if (category === 'dryflies') return DEFAULT_IMAGES.dryfly;
+            return DEFAULT_IMAGES.streamer;
+        }
+
+        // ============================
+        // Auto-generate description for inventory items
+        // ============================
+        function getAutoDescription(name, subcategory) {
+            var n = name.toLowerCase();
+            if (n.includes('bugger') && n.includes('rubber')) return 'Rubber leg woolly bugger variation with extra movement. Irresistible to trout and bass.';
+            if (n.includes('bugger') && n.includes('purple')) return 'Purple woolly bugger variation. Excellent in dark or stained water conditions.';
+            if (n.includes('bugger') && n.includes('chartreuse')) return 'Chartreuse woolly bugger. High-visibility pattern for murky water.';
+            if (n.includes('bugger') && n.includes('hackle')) return 'Woolly bugger with hackled head. Creates extra water disturbance for aggressive strikes.';
+            if (n.includes('bugger') && n.includes('cone')) return 'Cone head woolly bugger for quick sinking action. Gets deep fast.';
+            if (n.includes('bugger')) return 'Versatile woolly bugger pattern. Effective in virtually any water condition.';
+            if (n.includes('hellgrammite')) return 'Weighted hellgrammite imitation. Deadly on bottom-feeding trout and smallmouth bass.';
+            if (n.includes('marabou') && n.includes('olive')) return 'Olive marabou muddler minnow. Excellent sculpin imitation with lifelike action.';
+            if (n.includes('muddler')) return 'Classic sculpin imitation. Deadly when stripped along the bottom.';
+            if (n.includes('zonker')) return 'Rabbit strip streamer with incredible swimming action. Top baitfish imitation.';
+            if (n.includes('mickey finn')) return 'Classic bright attractor streamer. Triggers aggressive strikes in fast water.';
+            if (n.includes('matuka')) return 'Matuka-style streamer with excellent swimming action in current.';
+            if (n.includes('ghost')) return 'Classic feather wing streamer. A proven pattern for trout and landlocked salmon.';
+            if (n.includes('brown trout')) return 'Realistic little brown trout imitation. Excellent for larger predatory fish.';
+            if (n.includes('brooke trout') || n.includes('brook trout')) return 'Little brook trout imitation streamer. Irresistible to predatory trout.';
+            if (subcategory) return subcategory + ' pattern. Hand-tied with premium materials.';
+            return 'Hand-tied fly pattern crafted with quality materials for maximum effectiveness.';
+        }
+
+        function getAutoBestFor(type) {
+            if (type === 'Streamer') return 'Trout, Bass, Panfish';
+            if (type === 'Nymph') return 'Trout';
+            if (type === 'Dry Fly') return 'Trout';
+            return 'Various species';
+        }
+
+        // ============================
+        // Build Merged Catalog from Catalog + Inventory
+        // ============================
+        var CATEGORY_TYPE_MAP = { 'streamers': 'Streamer', 'nymphs': 'Nymph', 'dryflies': 'Dry Fly' };
+
+        function buildMergedCatalog(catalog, inventory) {
+            var merged = [];
+            var addedNames = {};
+
+            // Group inventory items by name
+            var invGroups = {};
+            inventory.forEach(function(item) {
+                if (!invGroups[item.name]) invGroups[item.name] = [];
+                invGroups[item.name].push(item);
+            });
+
+            // Create catalog entries from inventory groups
+            Object.keys(invGroups).forEach(function(name) {
+                var items = invGroups[name];
+                var first = items[0];
+                var type = CATEGORY_TYPE_MAP[first.category] || 'Streamer';
+
+                // Look for matching catalog entry for richer data
+                var catalogMatch = catalog.find(function(c) { return c.name === name; });
+
+                var entry = {
+                    name: name,
+                    type: type,
+                    bestFor: catalogMatch ? catalogMatch.bestFor : getAutoBestFor(type),
+                    description: catalogMatch ? catalogMatch.description : getAutoDescription(name, first.subcategory),
+                    image: (catalogMatch && catalogMatch.image) ? catalogMatch.image : (first.image || getFlyImage(name, first.category)),
+                    recipe: catalogMatch ? catalogMatch.recipe : '',
+                    subcategory: first.subcategory || '',
+                    sizes: items.map(function(inv) {
+                        return { size: inv.size, qty: inv.qty, price: inv.price, inventoryId: inv.id };
+                    }).sort(function(a, b) { return parseInt(a.size) - parseInt(b.size); }),
+                    totalQty: items.reduce(function(s, i) { return s + i.qty; }, 0),
+                    price: Math.min.apply(null, items.map(function(i) { return i.price; })),
+                    inInventory: true
+                };
+
+                merged.push(entry);
+                addedNames[name] = true;
+            });
+
+            // Add catalog items NOT found in inventory
+            catalog.forEach(function(catItem) {
+                if (addedNames[catItem.name]) return;
+                merged.push({
+                    name: catItem.name,
+                    type: catItem.type,
+                    bestFor: catItem.bestFor,
+                    description: catItem.description,
+                    image: catItem.image,
+                    recipe: catItem.recipe || '',
+                    subcategory: '',
+                    sizes: [],
+                    totalQty: 0,
+                    price: parseFloat(catItem.price) || 2.50,
+                    inInventory: false
+                });
+            });
+
+            // Sort: in-stock first, then by type, then by name
+            merged.sort(function(a, b) {
+                if (a.totalQty > 0 && b.totalQty === 0) return -1;
+                if (a.totalQty === 0 && b.totalQty > 0) return 1;
+                if (a.type < b.type) return -1;
+                if (a.type > b.type) return 1;
+                return a.name.localeCompare(b.name);
+            });
+
+            return merged;
+        }
+
+        // ============================
+        // Init Auth0
+        // ============================
         async function initAuth0() {
             try {
                 await loadAuth0Config();
@@ -168,15 +400,11 @@
 
                 if (isAuthenticated) {
                     await OPF_API.setToken(auth0Client);
-                    // Sync user with database
                     try { await OPF_API.syncUser(); } catch(e) { console.error('User sync:', e); }
-                    // Migrate any old localStorage data
                     await OPF_API.migrateLocalData();
-                    // Load favorites from database for heart icon state
                     try {
                         cachedFavorites = await OPF_API.getFavorites();
                     } catch(e) { console.error('Load favorites:', e); }
-                    // Re-render with favorites state
                     renderFlies(allFlies);
                     updateCartBadge();
                 }
@@ -192,7 +420,9 @@
             }
         }
 
+        // ============================
         // Toast notifications
+        // ============================
         function showToast(message, type) {
             type = type || 'success';
             var toast = document.getElementById('toast');
@@ -201,7 +431,9 @@
             setTimeout(function() { toast.className = 'toast'; }, 3000);
         }
 
-        // Favorites Management (Database-backed)
+        // ============================
+        // Favorites
+        // ============================
         function isFavorite(flyName) {
             return cachedFavorites.some(function(f) { return f.name === flyName; });
         }
@@ -232,24 +464,36 @@
             }
         }
 
-        // Shopping List / Cart Management (Database-backed)
-        async function addToList(fly) {
-            // Also add to shopping list for backward compat
+        // ============================
+        // Cart Management
+        // ============================
+        async function addToCartWithDetails(fly, size, quantity) {
+            var cartItem = {
+                name: fly.name,
+                type: fly.type,
+                bestFor: fly.bestFor,
+                description: fly.description,
+                image: fly.image,
+                price: fly.price,
+                quantity: quantity || 1,
+                size: size ? size.size : null,
+                inventoryId: size ? size.inventoryId : null
+            };
+            if (size) {
+                cartItem.price = size.price;
+            }
+
             if (isAuthenticated) {
                 try {
-                    // Add to new cart system
-                    var result = await OPF_API.addToCart(fly);
+                    await OPF_API.addToCart(cartItem);
                     showToast('Added to cart!');
                     updateCartBadge();
-                    // Also add to legacy shopping list
-                    try { await OPF_API.addToShoppingList(fly); } catch(e) { /* ok */ }
                 } catch (err) {
                     showToast('Failed to add to cart', 'error');
                     console.error('Cart error:', err);
                 }
             } else {
-                // Guest cart via localStorage
-                OPF_GUEST_CART.addItem(fly);
+                OPF_GUEST_CART.addItem(cartItem);
                 showToast('Added to cart!');
                 updateCartBadge();
             }
@@ -263,38 +507,200 @@
                     var count = cart.itemCount || 0;
                     badge.textContent = count;
                     badge.style.display = count > 0 ? 'flex' : 'none';
+                    // Persist for cross-page badge
+                    localStorage.setItem('opf_cart_count', count);
                 }).catch(function() {});
             } else {
                 var count = OPF_GUEST_CART.getCount();
                 badge.textContent = count;
                 badge.style.display = count > 0 ? 'flex' : 'none';
+                localStorage.setItem('opf_cart_count', count);
             }
         }
 
-        // Catalog
+        // ============================
+        // Modal Management
+        // ============================
+        var currentModalFly = null;
+        var currentModalQty = 1;
+
+        function openModal(flyIndex) {
+            var fly = allFlies[flyIndex];
+            if (!fly) return;
+            currentModalFly = fly;
+            currentModalQty = 1;
+
+            document.getElementById('modal-image').src = fly.image;
+            document.getElementById('modal-image').alt = fly.name;
+            document.getElementById('modal-type').textContent = fly.type;
+            document.getElementById('modal-name').textContent = fly.name;
+            document.getElementById('modal-best-for').innerHTML = '<strong>Best for:</strong> ' + fly.bestFor;
+            document.getElementById('modal-description').textContent = fly.description;
+            document.getElementById('modal-qty').textContent = '1';
+
+            // Stock status
+            var stockEl = document.getElementById('modal-stock-status');
+            if (fly.inInventory) {
+                if (fly.totalQty > 0 && fly.totalQty <= 5) {
+                    stockEl.innerHTML = '<span class="modal-stock-badge low-stock">Low Stock - ' + fly.totalQty + ' left</span>';
+                } else if (fly.totalQty > 0) {
+                    stockEl.innerHTML = '<span class="modal-stock-badge in-stock">In Stock (' + fly.totalQty + ' available)</span>';
+                } else {
+                    stockEl.innerHTML = '<span class="modal-stock-badge out-of-stock">Out of Stock</span>';
+                }
+            } else {
+                stockEl.innerHTML = '<span class="modal-stock-badge catalog-only">Contact for Availability</span>';
+            }
+
+            // Size selector
+            var sizeSection = document.getElementById('modal-size-section');
+            var sizeSelect = document.getElementById('modal-size-select');
+            if (fly.sizes && fly.sizes.length > 0) {
+                sizeSection.style.display = 'block';
+                var html = '';
+                fly.sizes.forEach(function(s) {
+                    var stockLabel = s.qty > 0 ? ' (' + s.qty + ' in stock)' : ' (Out of stock)';
+                    html += '<option value="' + s.inventoryId + '"' + (s.qty === 0 ? ' disabled' : '') + '>Size ' + s.size + ' - $' + s.price.toFixed(2) + stockLabel + '</option>';
+                });
+                sizeSelect.innerHTML = html;
+                // Select first in-stock size
+                var firstInStock = fly.sizes.find(function(s) { return s.qty > 0; });
+                if (firstInStock) sizeSelect.value = firstInStock.inventoryId;
+            } else {
+                sizeSection.style.display = 'none';
+            }
+
+            // Price
+            updateModalPrice();
+
+            // Recipe
+            var recipeSection = document.getElementById('modal-recipe');
+            if (fly.recipe && fly.recipe.trim()) {
+                recipeSection.style.display = 'block';
+                document.getElementById('modal-recipe-text').textContent = fly.recipe;
+            } else {
+                recipeSection.style.display = 'none';
+            }
+
+            // Add to cart button state
+            var addBtn = document.getElementById('modal-add-btn');
+            if (fly.inInventory && fly.totalQty === 0) {
+                addBtn.textContent = 'Out of Stock';
+                addBtn.disabled = true;
+                addBtn.style.opacity = '0.5';
+            } else {
+                addBtn.textContent = 'Add to Cart';
+                addBtn.disabled = false;
+                addBtn.style.opacity = '1';
+            }
+
+            document.getElementById('fly-modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('fly-modal').style.display = 'none';
+            document.body.style.overflow = '';
+            currentModalFly = null;
+        }
+
+        function updateModalPrice() {
+            var fly = currentModalFly;
+            if (!fly) return;
+
+            var priceEl = document.getElementById('modal-price');
+            if (fly.sizes && fly.sizes.length > 0) {
+                var sizeSelect = document.getElementById('modal-size-select');
+                var selectedId = parseInt(sizeSelect.value);
+                var selectedSize = fly.sizes.find(function(s) { return s.inventoryId === selectedId; });
+                if (selectedSize) {
+                    priceEl.textContent = '$' + selectedSize.price.toFixed(2) + ' each';
+
+                    var addBtn = document.getElementById('modal-add-btn');
+                    if (selectedSize.qty === 0) {
+                        addBtn.textContent = 'Out of Stock';
+                        addBtn.disabled = true;
+                        addBtn.style.opacity = '0.5';
+                    } else {
+                        addBtn.textContent = 'Add to Cart';
+                        addBtn.disabled = false;
+                        addBtn.style.opacity = '1';
+                    }
+                } else {
+                    priceEl.textContent = '$' + fly.price.toFixed(2) + ' each';
+                }
+            } else {
+                priceEl.textContent = '$' + fly.price.toFixed(2) + ' each';
+            }
+        }
+
+        function changeModalQty(delta) {
+            currentModalQty = Math.max(1, currentModalQty + delta);
+            document.getElementById('modal-qty').textContent = currentModalQty;
+        }
+
+        function addModalToCart() {
+            var fly = currentModalFly;
+            if (!fly) return;
+
+            var selectedSize = null;
+            if (fly.sizes && fly.sizes.length > 0) {
+                var sizeSelect = document.getElementById('modal-size-select');
+                var selectedId = parseInt(sizeSelect.value);
+                selectedSize = fly.sizes.find(function(s) { return s.inventoryId === selectedId; });
+            }
+
+            addToCartWithDetails(fly, selectedSize, currentModalQty);
+            closeModal();
+        }
+
+        // Close modal on Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ============================
+        // Render Catalog
+        // ============================
         var navbar = document.getElementById('navbar');
         window.addEventListener('scroll', function() { navbar.classList.toggle('scrolled', window.scrollY > 50); });
 
         var allFlies = [];
         var activeFilter = 'all';
 
-        fetch('/api/catalog')
-            .then(function(r) { return r.json(); })
-            .then(function(flies) {
-                allFlies = flies;
-                renderFlies(flies);
+        // Fetch both catalog and inventory, then merge
+        Promise.all([
+            fetch('/api/catalog').then(function(r) { return r.json(); }),
+            fetch('/api/inventory').then(function(r) { return r.json(); })
+        ]).then(function(results) {
+            var catalog = results[0];
+            var inventory = results[1];
+            allFlies = buildMergedCatalog(catalog, inventory);
+            renderFlies(allFlies);
+            initAuth0();
+            updateCartBadge();
+        }).catch(function(err) {
+            console.error('Error loading catalog:', err);
+            // Fallback: just load catalog
+            fetch('/api/catalog').then(function(r) { return r.json(); }).then(function(flies) {
+                allFlies = flies.map(function(f) {
+                    f.sizes = [];
+                    f.totalQty = 0;
+                    f.price = parseFloat(f.price) || 2.50;
+                    f.inInventory = false;
+                    return f;
+                });
+                renderFlies(allFlies);
                 initAuth0();
-                // Initialize guest cart badge
                 updateCartBadge();
-            })
-            .catch(function(err) { console.error('Error loading catalog:', err); });
+            });
+        });
 
         function renderFlies(flies) {
             var grid = document.getElementById('catalog-grid');
             var empty = document.getElementById('empty-state');
             grid.innerHTML = '';
 
-            // Apply current filter
             var filtered = flies;
             var query = document.getElementById('searchInput').value.toLowerCase();
             if (activeFilter !== 'all') {
@@ -305,7 +711,8 @@
                     return f.name.toLowerCase().includes(query) ||
                         f.type.toLowerCase().includes(query) ||
                         (f.bestFor || '').toLowerCase().includes(query) ||
-                        (f.description || '').toLowerCase().includes(query);
+                        (f.description || '').toLowerCase().includes(query) ||
+                        (f.subcategory || '').toLowerCase().includes(query);
                 });
             }
 
@@ -321,28 +728,74 @@
                 card.style.transitionDelay = Math.min(i * 0.05, 0.4) + 's';
                 card.setAttribute('data-type', fly.type);
 
+                var isFav = isFavorite(fly.name);
+                var favFlyData = encodeURIComponent(JSON.stringify({ name: fly.name, type: fly.type, bestFor: fly.bestFor, description: fly.description, image: fly.image }));
+
+                // Find real index in allFlies for modal
+                var realIndex = allFlies.indexOf(fly);
+
+                // Price display
+                var priceHtml = '';
+                if (fly.sizes && fly.sizes.length > 0) {
+                    var prices = fly.sizes.map(function(s) { return s.price; });
+                    var minP = Math.min.apply(null, prices);
+                    var maxP = Math.max.apply(null, prices);
+                    if (minP === maxP) {
+                        priceHtml = '$' + minP.toFixed(2);
+                    } else {
+                        priceHtml = '$' + minP.toFixed(2) + ' - $' + maxP.toFixed(2);
+                    }
+                } else {
+                    priceHtml = '$' + (fly.price || 2.50).toFixed(2);
+                }
+
+                // Stock badge
+                var stockBadgeHtml = '';
+                if (fly.inInventory) {
+                    if (fly.totalQty > 0 && fly.totalQty <= 5) {
+                        stockBadgeHtml = '<span class="card-stock-badge low-stock">Low Stock</span>';
+                    } else if (fly.totalQty > 0) {
+                        stockBadgeHtml = '<span class="card-stock-badge in-stock">In Stock</span>';
+                    } else {
+                        stockBadgeHtml = '<span class="card-stock-badge out-of-stock">Out of Stock</span>';
+                    }
+                } else {
+                    stockBadgeHtml = '<span class="card-stock-badge catalog-only">Ask for Availability</span>';
+                }
+
+                // Sizes line
+                var sizesHtml = '';
+                if (fly.sizes && fly.sizes.length > 0) {
+                    var sizeLabels = fly.sizes.map(function(s) { return escapeHTML(s.size); });
+                    sizesHtml = '<div class="card-sizes">Sizes: ' + sizeLabels.join(', ') + '</div>';
+                }
+
+                // Recipe
                 var hasRecipe = fly.recipe && fly.recipe.trim().length > 0;
                 var recipePreview = hasRecipe
-                    ? '<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;">' + fly.recipe + '</pre></details>'
+                    ? '<details style="margin-top:0.75rem;"><summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:var(--color-primary-light);">View Recipe</summary><pre style="margin-top:0.5rem;white-space:pre-wrap;font-size:0.8rem;color:var(--color-text-light);line-height:1.5;max-height:200px;overflow-y:auto;">' + escapeHTML(fly.recipe) + '</pre></details>'
                     : '';
 
-                var isFav = isFavorite(fly.name);
-                var flyData = encodeURIComponent(JSON.stringify(fly));
-
                 card.innerHTML =
-                    '<div class="card-image">' +
-                        '<img src="' + fly.image + '" alt="' + fly.name + '" loading="lazy" onerror="this.src=\'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Black_Woolly_Bugger_by_James_Stripes.jpg/600px-Black_Woolly_Bugger_by_James_Stripes.jpg\'">' +
-                        '<button class="favorite-btn ' + (isFav ? 'active' : '') + '" onclick="toggleFavorite(JSON.parse(decodeURIComponent(\'' + flyData + '\')))" title="' + (isFav ? 'Remove from favorites' : 'Add to favorites') + '">' +
+                    '<div class="card-image" onclick="openModal(' + realIndex + ')" title="Click for details">' +
+                        '<img src="' + escapeHTML(fly.image) + '" alt="' + escapeHTML(fly.name) + '" loading="lazy" onerror="this.src=\'' + DEFAULT_IMAGES.streamer + '\'">' +
+                        '<button class="favorite-btn ' + (isFav ? 'active' : '') + '" onclick="event.stopPropagation();toggleFavorite(JSON.parse(decodeURIComponent(\'' + favFlyData + '\')))" title="' + (isFav ? 'Remove from favorites' : 'Add to favorites') + '">' +
                             (isFav ? '&#9829;' : '&#9825;') +
                         '</button>' +
                     '</div>' +
                     '<div class="card-body">' +
-                        '<span class="card-tag">' + fly.type + '</span>' +
-                        '<h3>' + fly.name + '</h3>' +
-                        '<p style="font-size:0.85rem;margin-bottom:0.35rem;"><strong>Best for:</strong> ' + fly.bestFor + '</p>' +
-                        '<p>' + fly.description + '</p>' +
+                        '<span class="card-tag">' + escapeHTML(fly.type) + '</span>' +
+                        (fly.subcategory ? '<span style="font-size:0.7rem;color:var(--color-text-light);margin-left:0.25rem;">' + escapeHTML(fly.subcategory) + '</span>' : '') +
+                        '<h3>' + escapeHTML(fly.name) + '</h3>' +
+                        '<div class="card-price-row">' +
+                            '<span class="card-price">' + priceHtml + '</span>' +
+                            stockBadgeHtml +
+                        '</div>' +
+                        sizesHtml +
+                        '<p style="font-size:0.85rem;margin-bottom:0.35rem;"><strong>Best for:</strong> ' + escapeHTML(fly.bestFor) + '</p>' +
+                        '<p>' + escapeHTML(fly.description) + '</p>' +
                         recipePreview +
-                        '<button class="btn btn-sm btn-dark add-to-list-btn" onclick="addToList(JSON.parse(decodeURIComponent(\'' + flyData + '\')))">' +
+                        '<button class="btn btn-sm btn-dark add-to-list-btn" onclick="openModal(' + realIndex + ')">' +
                             '+ Add to Cart' +
                         '</button>' +
                     '</div>';
@@ -374,6 +827,17 @@
                 filterAndSearch();
             });
         });
+
+        // Initialize cart badge from localStorage immediately
+        (function() {
+            try {
+                var count = parseInt(localStorage.getItem('opf_cart_count') || '0');
+                var guestCount = OPF_GUEST_CART.getCount();
+                var total = Math.max(count, guestCount);
+                var badge = document.getElementById('cart-badge');
+                if (badge && total > 0) { badge.textContent = total; badge.style.display = 'flex'; }
+            } catch(e) {}
+        })();
     </script>
 </body>
 </html>

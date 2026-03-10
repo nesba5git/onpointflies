@@ -804,6 +804,8 @@ function updateCartBadge(count) {
     } else {
         badge.style.display = 'none';
     }
+    // Persist for cross-page badge
+    localStorage.setItem('opf_cart_count', count || 0);
 }
 
 // ============================
@@ -825,6 +827,26 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.key === 'Enter') { applyCoupon(); }
         });
     }
+
+    // Reload cart when user returns to this tab/page
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            loadCart();
+        }
+    });
+
+    // Also reload on pageshow (back/forward navigation)
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            loadCart();
+        }
+    });
+
+    // Initialize badge from localStorage immediately
+    try {
+        var savedCount = parseInt(localStorage.getItem('opf_cart_count') || '0');
+        if (savedCount > 0) updateCartBadge(savedCount);
+    } catch(e) {}
 });
 </script>
 </body>

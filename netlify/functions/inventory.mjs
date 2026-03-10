@@ -1,4 +1,4 @@
-import { getInventoryStore, initBlobsContext } from './lib/db.mjs';
+import { getInventoryStoreStrong, initBlobsContext } from './lib/db.mjs';
 import { verifyAdmin, respond } from './lib/auth.mjs';
 
 const STORE_KEY = 'all';
@@ -48,13 +48,17 @@ export const handler = async (event) => {
 
   try {
     initBlobsContext(event);
-    const store = getInventoryStore();
+
+    // Always use strong consistency to prevent stale reads and data loss.
+    // A single store instance is used for both reads and writes within each
+    // request so we never operate on stale data.
+    const store = getInventoryStoreStrong();
 
     // GET — public, no auth required
     if (event.httpMethod === 'GET') {
       let inventory = await store.get(STORE_KEY, { type: 'json' });
       if (!inventory) {
-        // Seed with default data on first access
+        // Seed with default data on first access only
         inventory = DEFAULT_INVENTORY;
         await store.setJSON(STORE_KEY, inventory);
       }
@@ -65,7 +69,13 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    let inventory = (await store.get(STORE_KEY, { type: 'json' })) || [];
+    let inventory = await store.get(STORE_KEY, { type: 'json' });
+
+    // NEVER seed defaults on write operations — that causes data loss.
+    // If inventory is empty/null, work with an empty array.
+    if (!inventory || !Array.isArray(inventory)) {
+      inventory = [];
+    }
 
     if (event.httpMethod === 'POST') {
       const body = JSON.parse(event.body);

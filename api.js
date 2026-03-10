@@ -274,8 +274,8 @@ var OPF_API = {
       body: JSON.stringify(data),
     });
   },
-  deleteCatalogItem: function (index) {
-    return this.request('catalog?index=' + index, { method: 'DELETE' });
+  deleteCatalogItem: function (name) {
+    return this.request('catalog?name=' + encodeURIComponent(name), { method: 'DELETE' });
   },
 
   // Inventory (public read, authenticated write)
