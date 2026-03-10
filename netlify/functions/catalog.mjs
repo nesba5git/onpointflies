@@ -87,18 +87,6 @@ const DEFAULT_CATALOG = [
   }
 ];
 
-/**
- * Get the best available store — prefer strong consistency, fall back to eventual.
- * This prevents silent data loss from stale reads during write operations.
- */
-function getStore() {
-  try {
-    return getCatalogStoreStrong();
-  } catch {
-    return getCatalogStore();
-  }
-}
-
 export const handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') {
     return respond({}, 204);
@@ -106,15 +94,21 @@ export const handler = async (event) => {
 
   try {
     initBlobsContext(event);
-    const store = getStore();
 
     // GET — public, no auth required
     if (event.httpMethod === 'GET') {
+      // Eventual consistency is fine for reads
+      const store = getCatalogStore();
       let catalog = await store.get(STORE_KEY, { type: 'json' });
       if (!catalog) {
-        // Seed with default data on first access
+        // Seed with default data on first access only
         catalog = DEFAULT_CATALOG;
-        await store.setJSON(STORE_KEY, catalog);
+        try {
+          const writeStore = getCatalogStoreStrong();
+          await writeStore.setJSON(STORE_KEY, catalog);
+        } catch {
+          await store.setJSON(STORE_KEY, catalog);
+        }
       }
       return respond(catalog);
     }
@@ -123,11 +117,21 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    // Read current catalog — seed with defaults if empty
-    let catalog = await store.get(STORE_KEY, { type: 'json' });
+    // Use strong consistency for write operations to prevent stale reads
+    let writeStore;
+    let catalog;
+    try {
+      writeStore = getCatalogStoreStrong();
+      catalog = await writeStore.get(STORE_KEY, { type: 'json' });
+    } catch {
+      writeStore = getCatalogStore();
+      catalog = await writeStore.get(STORE_KEY, { type: 'json' });
+    }
+
+    // NEVER seed defaults on write operations — that causes data loss.
+    // If catalog is empty/null, work with an empty array.
     if (!catalog || !Array.isArray(catalog)) {
-      catalog = DEFAULT_CATALOG;
-      await store.setJSON(STORE_KEY, catalog);
+      catalog = [];
     }
 
     if (event.httpMethod === 'POST') {
@@ -143,7 +147,7 @@ export const handler = async (event) => {
         image: body.image || '',
         recipe: body.recipe || '',
       });
-      await store.setJSON(STORE_KEY, catalog);
+      await writeStore.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern added', catalog });
     }
 
@@ -167,7 +171,7 @@ export const handler = async (event) => {
         image: body.image !== undefined ? body.image : catalog[index].image,
         recipe: body.recipe !== undefined ? body.recipe : catalog[index].recipe,
       };
-      await store.setJSON(STORE_KEY, catalog);
+      await writeStore.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern updated', catalog });
     }
 
@@ -184,7 +188,7 @@ export const handler = async (event) => {
         return respond({ error: 'Fly pattern not found' }, 404);
       }
       catalog.splice(index, 1);
-      await store.setJSON(STORE_KEY, catalog);
+      await writeStore.setJSON(STORE_KEY, catalog);
       return respond({ message: 'Fly pattern deleted', catalog });
     }
 

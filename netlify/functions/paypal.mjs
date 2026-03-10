@@ -89,8 +89,9 @@ async function createPayPalOrder(amount, items, currency = 'USD') {
 
 async function capturePayPalOrder(orderId) {
   const accessToken = await getPayPalAccessToken();
+  const safeOrderId = encodeURIComponent(orderId);
 
-  const resp = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders/${orderId}/capture`, {
+  const resp = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders/${safeOrderId}/capture`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
