@@ -1,4 +1,4 @@
-import { getInventoryStore, getInventoryStoreStrong, initBlobsContext } from './lib/db.mjs';
+import { getInventoryStoreStrong, initBlobsContext } from './lib/db.mjs';
 import { verifyAdmin, respond } from './lib/auth.mjs';
 
 const STORE_KEY = 'all';
@@ -49,20 +49,18 @@ export const handler = async (event) => {
   try {
     initBlobsContext(event);
 
+    // Always use strong consistency to prevent stale reads and data loss.
+    // A single store instance is used for both reads and writes within each
+    // request so we never operate on stale data.
+    const store = getInventoryStoreStrong();
+
     // GET — public, no auth required
     if (event.httpMethod === 'GET') {
-      // Eventual consistency is fine for reads
-      const store = getInventoryStore();
       let inventory = await store.get(STORE_KEY, { type: 'json' });
       if (!inventory) {
         // Seed with default data on first access only
         inventory = DEFAULT_INVENTORY;
-        try {
-          const writeStore = getInventoryStoreStrong();
-          await writeStore.setJSON(STORE_KEY, inventory);
-        } catch {
-          await store.setJSON(STORE_KEY, inventory);
-        }
+        await store.setJSON(STORE_KEY, inventory);
       }
       return respond(inventory);
     }
@@ -71,16 +69,7 @@ export const handler = async (event) => {
     const user = await verifyAdmin(event);
     if (!user) return respond({ error: 'Unauthorized — admin access required' }, 403);
 
-    // Use strong consistency for write operations to prevent stale reads
-    let writeStore;
-    let inventory;
-    try {
-      writeStore = getInventoryStoreStrong();
-      inventory = await writeStore.get(STORE_KEY, { type: 'json' });
-    } catch {
-      writeStore = getInventoryStore();
-      inventory = await writeStore.get(STORE_KEY, { type: 'json' });
-    }
+    let inventory = await store.get(STORE_KEY, { type: 'json' });
 
     // NEVER seed defaults on write operations — that causes data loss.
     // If inventory is empty/null, work with an empty array.
@@ -106,7 +95,7 @@ export const handler = async (event) => {
         startingQty: parseInt(body.startingQty) || parseInt(body.qty) || 0,
         image: body.image || '',
       });
-      await writeStore.setJSON(STORE_KEY, inventory);
+      await store.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item added', inventory });
     }
 
@@ -131,7 +120,7 @@ export const handler = async (event) => {
         startingQty: body.startingQty !== undefined ? parseInt(body.startingQty) : inventory[index].startingQty,
         image: body.image !== undefined ? body.image : (inventory[index].image || ''),
       };
-      await writeStore.setJSON(STORE_KEY, inventory);
+      await store.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item updated', inventory });
     }
 
@@ -146,7 +135,7 @@ export const handler = async (event) => {
         return respond({ error: 'Inventory item not found' }, 404);
       }
       inventory.splice(index, 1);
-      await writeStore.setJSON(STORE_KEY, inventory);
+      await store.setJSON(STORE_KEY, inventory);
       return respond({ message: 'Inventory item deleted', inventory });
     }
 
